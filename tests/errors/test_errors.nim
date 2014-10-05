@@ -61,7 +61,17 @@ proc docstrings() =
   do_assert errors.len > 0
 
 
+proc build_template() =
+  ## Generates the HTML for embedding as error template.
+  let
+    src = "default_error_html_template.rst"
+    dest = "default_error_html_template.html"
+  dest.write_file(src.safe_rst_file_to_html)
+  do_assert dest.exists_file
+
+
 when isMainModule:
+  build_template()
   test("normal_subex_errors_", nil)
   docstrings()
   var config = newStringTable(modeStyleInsensitive)
