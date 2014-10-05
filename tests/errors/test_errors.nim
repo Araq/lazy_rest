@@ -2,7 +2,11 @@ import lazy_rest, strutils, os, strtabs
 
 type Pair = tuple[src, dest: string]
 
-const tests = ["unknown.rst", "rst_error.rst", "evil_asterisks.rst"]
+const
+  tests = ["unknown.rst", "rst_error.rst", "evil_asterisks.rst"]
+  templates = [
+    "default_error_html_template.rst", "safe_error_html_template.rst"]
+
 
 proc test(file_prefix: string, config: PStringTable) =
   # First test without error control.
@@ -63,11 +67,10 @@ proc docstrings() =
 
 proc build_template() =
   ## Generates the HTML for embedding as error template.
-  let
-    src = "default_error_html_template.rst"
-    dest = "default_error_html_template.html"
-  dest.write_file(src.safe_rst_file_to_html)
-  do_assert dest.exists_file
+  for src in templates:
+    let dest = src.change_file_ext("html")
+    dest.write_file(src.safe_rst_file_to_html)
+    do_assert dest.exists_file
 
 
 when isMainModule:
