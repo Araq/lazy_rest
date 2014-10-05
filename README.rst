@@ -36,6 +36,9 @@ Usage
 If you are a Nimrod programmer read the `Nimrod usage guide
 <docs/nimrod_usage.rst>`_ which includes installation steps.
 
+Information on how errors are handled is available in the separate `Lazy reST
+error handling <docs/error_handling.rst>`_ document.
+
 All documentation should be available online at
 http://gradha.github.io/lazy_rest/.
 
