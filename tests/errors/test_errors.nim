@@ -4,10 +4,10 @@ type Pair = tuple[src, dest: string]
 
 const tests = ["unknown.rst", "rst_error.rst", "evil_asterisks.rst"]
 
-proc test() =
+proc test(file_prefix: string) =
   # First test without error control.
   for src in tests:
-    let dest = src.change_file_ext("html")
+    let dest = file_prefix & src.change_file_ext("html")
     dest.write_file(src.safe_rst_file_to_html)
     do_assert dest.exists_file
 
@@ -22,7 +22,7 @@ proc test() =
   var errors: seq[string]
   # Repeat counting errors.
   for src in tests:
-    let dest = src.change_file_ext("html")
+    let dest = file_prefix & src.change_file_ext("html")
     errors = @[]
     dest.write_file(src.safe_rst_file_to_html(errors.addr))
     do_assert dest.exists_file
@@ -58,10 +58,10 @@ proc docstrings() =
   discard safe_rst_file_to_html(rst_filename)
   errors = @[]
   let html2 = safe_rst_file_to_html(rst_filename, errors.addr)
-  if errors.len > 0: discard
-  else: discard
+  do_assert errors.len > 0
+
 
 when isMainModule:
-  test()
+  test("normal_subex_errors_")
   docstrings()
   echo "Test finished successfully"
