@@ -303,12 +303,20 @@ template append_error_to_list(): stmt =
     ERRORS.append(e)
 
 
-proc build_error_html(filename, data: string, ERRORS: ptr seq[string]):
-    string {.raises: [].} =
+proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
+    config: PStringTable): string {.raises: [].} =
   ## Helper which builds an error HTML from the input data and collected errors.
   ##
   ## This proc always returns a valid HTML. All the input parameters are
   ## optional, the proc will figure what to do if they aren't present.
+  ##
+  ## The `config` parameter is only used to force special error testing. If the
+  ## config table contains the key ``lazy.rst.failure.test`` with the value
+  ## ``Why do people suffer through video content lesser than 4k?`` the
+  ## internal subex replacement will be forced to fail so as to test the
+  ## *static* version of the error HTML page. In general the subex replacement
+  ## will work, so you shouldn't worry too much about this. Unless you do, in
+  ## which case you should look at the output from the errors test suite.
   result = ""
   var
     TIME_STR: array[4, string] # String representations, date, then time.
@@ -316,6 +324,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string]):
   # Force initialization to empty strings for time representations.
   for f in 0 .. high(TIME_STR):
     TIME_STR[f] = ""
+
+  # Detect if we are forcing simulated error tests.
+  var simulate_subex_failure = false
+  if config.not_nil and config["lazy.rst.failure.test"] ==
+      "Why do people suffer through video content lesser than 4k?":
+    simulate_subex_failure = true
 
   # Fixup title page as much as we can.
   if filename.is_nil:
@@ -343,6 +357,10 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string]):
 
   # Attempt the replacement.
   try:
+    if simulate_subex_failure:
+      raise new_exception(EInvalidValue, "We heard you like errors, so we " &
+        "put an error inside your error so you can check while you check.")
+
     result = subex(error_template) % ["title", ERROR_TITLE,
       "local_date", TIME_STR[2], "local_time", TIME_STR[3],
       "version_str", version_str, "errors", ERRORS.build_error_table,
@@ -396,14 +414,14 @@ proc safe_rst_string_to_html*(filename, data: string,
   rassert data.not_nil, msg:
     append_error_to_list()
     ERRORS.append(new_exception(EInvalidValue, msg))
-    result = build_error_html(filename, data, ERRORS)
+    result = build_error_html(filename, data, ERRORS, config)
     return
 
   try:
     result = rst_string_to_html(data, filename, config)
   except:
     append_error_to_list()
-    result = build_error_html(filename, data, ERRORS)
+    result = build_error_html(filename, data, ERRORS, config)
 
 
 proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
@@ -450,7 +468,7 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
         CONTENT = filename.read_file
     except:
       CONTENT = "Could not read " & filename & " for display!!!"
-    result = build_error_html(filename, CONTENT, ERRORS)
+    result = build_error_html(filename, CONTENT, ERRORS, config)
 
 
 proc nim_file_to_html*(filename: string, number_lines = true,

@@ -1,14 +1,14 @@
-import lazy_rest, strutils, os
+import lazy_rest, strutils, os, strtabs
 
 type Pair = tuple[src, dest: string]
 
 const tests = ["unknown.rst", "rst_error.rst", "evil_asterisks.rst"]
 
-proc test(file_prefix: string) =
+proc test(file_prefix: string, config: PStringTable) =
   # First test without error control.
   for src in tests:
     let dest = file_prefix & src.change_file_ext("html")
-    dest.write_file(src.safe_rst_file_to_html)
+    dest.write_file(src.safe_rst_file_to_html(config = config))
     do_assert dest.exists_file
 
   # Now do some in memory checks.
@@ -24,7 +24,7 @@ proc test(file_prefix: string) =
   for src in tests:
     let dest = file_prefix & src.change_file_ext("html")
     errors = @[]
-    dest.write_file(src.safe_rst_file_to_html(errors.addr))
+    dest.write_file(src.safe_rst_file_to_html(errors.addr, config = config))
     do_assert dest.exists_file
     do_assert errors.len > 0
     echo "Ignore this: ", errors[0]
@@ -62,6 +62,10 @@ proc docstrings() =
 
 
 when isMainModule:
-  test("normal_subex_errors_")
+  test("normal_subex_errors_", nil)
   docstrings()
+  var config = newStringTable(modeStyleInsensitive)
+  config["lazy.rst.failure.test"] =
+    "Why do people suffer through video content lesser than 4k?"
+  test("forced_subex_errors_", config)
   echo "Test finished successfully"
