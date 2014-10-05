@@ -5,7 +5,8 @@ type Pair = tuple[src, dest: string]
 const
   tests = ["unknown.rst", "rst_error.rst", "evil_asterisks.rst"]
   templates = [
-    "default_error_html_template.rst", "safe_error_html_template.rst"]
+    "default_error_html_template.rst", "safe_error_html_template.rst",
+    "custom_default_error.rst", "custom_safe_error.rst"]
 
 
 proc test(file_prefix: string, config: PStringTable) =
