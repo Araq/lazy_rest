@@ -278,7 +278,7 @@ function timeDifference(current, previous) {
 
 // Timer base code taken from http://stackoverflow.com/a/11876480/172690
 window.onload = function() {
-    var fileTime = new Date(1412507120000);
+    var fileTime = new Date($fileTime);
 	var ctr = document.getElementById("counter");
 
     function incrementCounter() {
