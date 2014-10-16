@@ -81,10 +81,11 @@ normal error page allows `substitution expression (subexe) interpolations
   instead of seconds.
 * ``content``: the actual |rst| input rendered as HTML.
 
-If any of these values can't be provided (e.g. input file is missing, thus no
-date/time values can be extracted) the empty string will be used instead.
-Rendered pages without errors also use the following additional subexes to
-embed the Prism JavaScript code:
+If any of these values can't be provided by the library (e.g. input file is
+missing, thus no date/time values can be extracted) the empty string will be
+used instead. You don't need to include these in your error template, they are
+optional.  Rendered pages without errors also use the following additional
+subexes to embed the Prism JavaScript code:
 
 * ``prism_js``: replaced by the Prism JavaScript snippet when external
   highlighting is used.
@@ -95,12 +96,18 @@ In any case, the file ``tests/errors/default_error_html_template.rst`` is not
 used directly by Lazy reST, some modifications are done, you can see the real
 error file at `resources/error_html.template
 <https://github.com/gradha/lazy_rest/blob/master/resources/error_html.template>`_.
+
 Also, the static error page doesn't use subexe interpolation and is split into
 two parts with the actual error messages and content sandwiched between
 `resources/safe_error_start.template
 <https://github.com/gradha/lazy_rest/blob/master/resources/safe_error_start.template>`_
 and `resources/safe_error_end.template
 <https://github.com/gradha/lazy_rest/blob/master/resources/safe_error_end.template>`_.
+When you use `set_safe_error_rst() <../lazy_rest.html#set_safe_error_rst>`_ to
+specify the safe error page, on top of being valid reStructuredText input, the
+final HTML **has** to contain the string ``$content`` somewhere. This string is
+used as a marker to split the begin/end of the HTML error page for later
+concatenation.
 
 If you want to test your customized error page, feel free to modify **XXXX**
 and rerun ``tests/errors/test_errors.nim`` to see what your users will look at
