@@ -64,10 +64,12 @@ Customization of the error page
 ===============================
 
 Lazy reST allows you to set up different error pages which will be displayed to
-the user. Through the **XXXX** procs you can set both the normal and static
-error pages to either point at your own online GitHub issue/support tracker, or
-maybe because you want to internationalize the help text. The normal error page
-allows `substitution expression (subexe) interpolations
+the user. Through the `set_normal_error_rst()
+<../lazy_rest.html#set_normal_error_rst>`_ and `set_safe_error_rst()
+<../lazy_rest.html#set_safe_error_rst>`_  procs you can set both the normal and
+static error pages to either point at your own online GitHub issue/support
+tracker, or maybe because you want to internationalize the help text. The
+normal error page allows `substitution expression (subexe) interpolations
 <http://nimrod-lang.org/subexes.html>`_ with the following *dollar* variables:
 
 * ``title``: replaced by the title of the input file if anything was extracted.
