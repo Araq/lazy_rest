@@ -4,6 +4,9 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
 
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
+##
+## If you are looking for the C API documentation, go to the
+## `lazy_rest_pkg/lc_api.nim <lazy_rest_pkg/lc_api.html>`_ file.
 
 # THIS BLOCK IS PENDING https://github.com/gradha/lazy_rest/issues/5
 # If you want to use the multi processor aware queues, which are able to
@@ -506,41 +509,6 @@ proc nim_file_to_html*(filename: string, number_lines = true,
     result = "<html><body><h1>I/O error for " & filename & "</h1></body></html>"
   except EOutOfMemory:
     result = """<html><body><h1>Out of memory!</h1></body></html>"""
-
-
-proc txt_to_rst*(input_filename: cstring): int {.exportc, raises: [].}=
-  ## Converts the input filename.
-  ##
-  ## The conversion is stored in internal global variables. The proc returns
-  ## the number of bytes required to store the generated HTML, which you can
-  ## obtain using the global accessor getHtml passing a pointer to the buffer.
-  ##
-  ## The returned value doesn't include the typical C null terminator. If there
-  ## are problems, an internal error text may be returned so it can be
-  ## displayed to the end user. As such, it is impossible to know the
-  ## success/failure based on the returned value.
-  ##
-  ## This proc is mainly for the C api.
-  assert input_filename.not_nil
-  let filename = $input_filename
-  case filename.splitFile.ext
-  of ".nim":
-    G.last_c_conversion = nim_file_to_html(filename)
-  else:
-    G.last_c_conversion = safe_rst_file_to_html(filename)
-  result = G.last_c_conversion.len
-
-
-proc get_global_html*(output_buffer: pointer) {.exportc, raises: [].} =
-  ## Copies the result of txt_to_rst into output_buffer.
-  ##
-  ## If output_buffer doesn't contain the bytes returned by txt_to_rst, you
-  ## will pay that dearly!
-  ##
-  ## This proc is mainly for the C api.
-  if G.last_c_conversion.is_nil:
-    quit("Uh oh, wrong API usage")
-  copyMem(output_buffer, addr(G.last_c_conversion[0]), G.last_c_conversion.len)
 
 
 proc set_normal_error_rst*(input_rst: string):
