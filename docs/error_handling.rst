@@ -109,6 +109,8 @@ final HTML **has** to contain the string ``$content`` somewhere. This string is
 used as a marker to split the begin/end of the HTML error page for later
 concatenation.
 
-If you want to test your customized error page, feel free to modify **XXXX**
-and rerun ``tests/errors/test_errors.nim`` to see what your users will look at
-(hopefully not very often).
+If you want to test your customized error pages, feel free to modify the files
+``tests/errors/custom_*_error.rst`` and rerun ``tests/errors/test_errors.nim``
+to see what your users will look at (hopefully not very often). After running
+``test_errors.nim`` you can find the simulated output of these errors rendered
+in the ``tests/errors/output`` directory.

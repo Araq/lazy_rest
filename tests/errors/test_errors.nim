@@ -7,9 +7,10 @@ const
   templates = [
     "default_error_html_template.rst", "safe_error_html_template.rst",
     "custom_default_error.rst", "custom_safe_error.rst"]
+  out_dir = "output"
 
 
-proc test(file_prefix: string, config: PStringTable) =
+proc test_safe_procs(file_prefix: string, config: PStringTable) =
   # First test without error control.
   for src in tests:
     let dest = file_prefix & src.change_file_ext("html")
@@ -74,12 +75,32 @@ proc build_template() =
     do_assert dest.exists_file
 
 
-when isMainModule:
-  build_template()
-  test("normal_subex_errors_", nil)
-  docstrings()
+proc render_errors(prefix: string) =
+  test_safe_procs(prefix & "normal_subex_errors_", nil)
   var config = newStringTable(modeStyleInsensitive)
   config["lazy.rst.failure.test"] =
     "Why do people suffer through video content lesser than 4k?"
-  test("forced_subex_errors_", config)
+  test_safe_procs(prefix & "forced_subex_errors_", config)
+
+proc run_tests() =
+  out_dir.create_dir
+  build_template()
+  docstrings()
+
+  # Set the error templates.
+  var errors = set_normal_error_rst(read_file("custom_default_error.rst"))
+  doAssert errors.len < 1
+  errors = set_safe_error_rst(read_file("custom_safe_error.rst"))
+  doAssert errors.len < 1
+  render_errors(out_dir/"custom_")
+
+  errors = set_normal_error_rst("")
+  doAssert errors.len < 1
+  errors = set_safe_error_rst(nil)
+  doAssert errors.len < 1
+  render_errors(out_dir/"default_")
+
+
+when isMainModule:
+  run_tests()
   echo "Test finished successfully"

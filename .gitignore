@@ -25,6 +25,7 @@ nimcache/
 /tests/code_blocks/prism_examples.html
 /tests/code_blocks/user_tests.html
 /tests/errors/*.html
+/tests/errors/output/
 /tests/include/simple_include_01.html
 /tests/nimsrc/*.html
 /tests/threads/?manual*.html
