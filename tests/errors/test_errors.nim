@@ -1,14 +1,20 @@
-import lazy_rest, strutils, os
+import lazy_rest, strutils, os, strtabs
 
 type Pair = tuple[src, dest: string]
 
-const tests = ["unknown.rst", "rst_error.rst", "evil_asterisks.rst"]
+const
+  tests = ["unknown.rst", "rst_error.rst", "evil_asterisks.rst"]
+  templates = [
+    "default_error_html_template.rst", "safe_error_html_template.rst",
+    "custom_default_error.rst", "custom_safe_error.rst"]
+  out_dir = "output"
 
-proc test() =
+
+proc test_safe_procs(file_prefix: string, config: PStringTable) =
   # First test without error control.
   for src in tests:
-    let dest = src.change_file_ext("html")
-    dest.write_file(src.safe_rst_file_to_html)
+    let dest = file_prefix & src.change_file_ext("html")
+    dest.write_file(src.safe_rst_file_to_html(config = config))
     do_assert dest.exists_file
 
   # Now do some in memory checks.
@@ -22,9 +28,9 @@ proc test() =
   var errors: seq[string]
   # Repeat counting errors.
   for src in tests:
-    let dest = src.change_file_ext("html")
+    let dest = file_prefix & src.change_file_ext("html")
     errors = @[]
-    dest.write_file(src.safe_rst_file_to_html(errors.addr))
+    dest.write_file(src.safe_rst_file_to_html(errors.addr, config = config))
     do_assert dest.exists_file
     do_assert errors.len > 0
     echo "Ignore this: ", errors[0]
@@ -58,10 +64,43 @@ proc docstrings() =
   discard safe_rst_file_to_html(rst_filename)
   errors = @[]
   let html2 = safe_rst_file_to_html(rst_filename, errors.addr)
-  if errors.len > 0: discard
-  else: discard
+  do_assert errors.len > 0
+
+
+proc build_template() =
+  ## Generates the HTML for embedding as error template.
+  for src in templates:
+    let dest = src.change_file_ext("html")
+    dest.write_file(src.safe_rst_file_to_html)
+    do_assert dest.exists_file
+
+
+proc render_errors(prefix: string) =
+  test_safe_procs(prefix & "normal_subex_errors_", nil)
+  var config = newStringTable(modeStyleInsensitive)
+  config["lazy.rst.failure.test"] =
+    "Why do people suffer through video content lesser than 4k?"
+  test_safe_procs(prefix & "forced_subex_errors_", config)
+
+proc run_tests() =
+  out_dir.create_dir
+  build_template()
+  docstrings()
+
+  # Set the error templates.
+  var errors = set_normal_error_rst(read_file("custom_default_error.rst"))
+  doAssert errors.len < 1
+  errors = set_safe_error_rst(read_file("custom_safe_error.rst"))
+  doAssert errors.len < 1
+  render_errors(out_dir/"custom_")
+
+  errors = set_normal_error_rst("")
+  doAssert errors.len < 1
+  errors = set_safe_error_rst(nil)
+  doAssert errors.len < 1
+  render_errors(out_dir/"default_")
+
 
 when isMainModule:
-  test()
-  docstrings()
+  run_tests()
   echo "Test finished successfully"

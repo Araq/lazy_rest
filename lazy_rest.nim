@@ -2,7 +2,8 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
   parsecfg, subexes, strtabs, streams, times, cgi, logging,
   external/badger_bits/bb_system
 
-## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_.
+## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
+## reStructuredText processing module for Nimrod.
 
 # THIS BLOCK IS PENDING https://github.com/gradha/lazy_rest/issues/5
 # If you want to use the multi processor aware queues, which are able to
@@ -51,6 +52,15 @@ type
     default_config: PStringTable ## HTML rendering configuration, never nil.
     last_c_conversion: string ## Modified by the exported C API procs.
     did_start_logger: bool ## Internal debugging witness.
+    user_normal_error: string ## \
+    ## Not nil if the user called `set_normal_error_rst()
+    ## <#set_normal_error_rst>`_ previously.
+    user_safe_error_start: string ## \
+    ## Not nil if the user called `set_safe_error_rst() <#set_safe_error_rst>`_
+    ## previously.
+    user_safe_error_end: string ## \
+    ## Not nil if the user called `set_safe_error_rst() <#set_safe_error_rst>`_
+    ## previously.
 
 
 var G: Global_state
@@ -303,12 +313,20 @@ template append_error_to_list(): stmt =
     ERRORS.append(e)
 
 
-proc build_error_html(filename, data: string, ERRORS: ptr seq[string]):
-    string {.raises: [].} =
+proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
+    config: PStringTable): string {.raises: [].} =
   ## Helper which builds an error HTML from the input data and collected errors.
   ##
   ## This proc always returns a valid HTML. All the input parameters are
   ## optional, the proc will figure what to do if they aren't present.
+  ##
+  ## The `config` parameter is only used to force special error testing. If the
+  ## config table contains the key ``lazy.rst.failure.test`` with the value
+  ## ``Why do people suffer through video content lesser than 4k?`` the
+  ## internal subex replacement will be forced to fail so as to test the
+  ## *static* version of the error HTML page. In general the subex replacement
+  ## will work, so you shouldn't worry too much about this. Unless you do, in
+  ## which case you should look at the output from the errors test suite.
   result = ""
   var
     TIME_STR: array[4, string] # String representations, date, then time.
@@ -316,6 +334,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string]):
   # Force initialization to empty strings for time representations.
   for f in 0 .. high(TIME_STR):
     TIME_STR[f] = ""
+
+  # Detect if we are forcing simulated error tests.
+  var simulate_subex_failure = false
+  if config.not_nil and config["lazy.rst.failure.test"] ==
+      "Why do people suffer through video content lesser than 4k?":
+    simulate_subex_failure = true
 
   # Fixup title page as much as we can.
   if filename.is_nil:
@@ -343,7 +367,13 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string]):
 
   # Attempt the replacement.
   try:
-    result = subex(error_template) % ["title", ERROR_TITLE,
+    if simulate_subex_failure:
+      raise new_exception(EInvalidValue, "We heard you like errors, so we " &
+        "put an error inside your error so you can check while you check.")
+
+    let html_template =
+      if G.user_normal_error.is_nil: error_template else: G.user_normal_error
+    result = subex(html_template) % ["title", ERROR_TITLE,
       "local_date", TIME_STR[2], "local_time", TIME_STR[3],
       "version_str", version_str, "errors", ERRORS.build_error_table,
       "content", CONTENT]
@@ -353,8 +383,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string]):
   if result.len < 1:
     # Oops, something went really wrong and we don't have yet the HTML. Build
     # it from simple string concatenation.
-    result = safe_error_start & ERRORS.build_error_table & "<br>" &
-      CONTENT & safe_error_end
+    if G.user_safe_error_start.not_nil and G.user_safe_error_end.not_nil:
+      result = G.user_safe_error_start & ERRORS.build_error_table & "<br>" &
+        CONTENT & G.user_safe_error_end
+    else:
+      result = safe_error_start & ERRORS.build_error_table & "<br>" &
+        CONTENT & safe_error_end
 
 
 proc safe_rst_string_to_html*(filename, data: string,
@@ -396,14 +430,14 @@ proc safe_rst_string_to_html*(filename, data: string,
   rassert data.not_nil, msg:
     append_error_to_list()
     ERRORS.append(new_exception(EInvalidValue, msg))
-    result = build_error_html(filename, data, ERRORS)
+    result = build_error_html(filename, data, ERRORS, config)
     return
 
   try:
     result = rst_string_to_html(data, filename, config)
   except:
     append_error_to_list()
-    result = build_error_html(filename, data, ERRORS)
+    result = build_error_html(filename, data, ERRORS, config)
 
 
 proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
@@ -450,7 +484,7 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
         CONTENT = filename.read_file
     except:
       CONTENT = "Could not read " & filename & " for display!!!"
-    result = build_error_html(filename, CONTENT, ERRORS)
+    result = build_error_html(filename, CONTENT, ERRORS, config)
 
 
 proc nim_file_to_html*(filename: string, number_lines = true,
@@ -520,6 +554,88 @@ proc get_global_html*(output_buffer: pointer) {.exportc, raises: [].} =
   if G.last_c_conversion.is_nil:
     quit("Uh oh, wrong API usage")
   copyMem(output_buffer, addr(G.last_c_conversion[0]), G.last_c_conversion.len)
+
+
+proc set_normal_error_rst*(input_rst: string):
+    seq[string] {.discardable, raises: [].} =
+  ## Changes the default error page for ``safe_*`` function errors.
+  ##
+  ## Use this proc to customize the look of error HTML generated by procs like
+  ## `safe_rst_file_to_html() <#safe_rst_file_to_html>`_ when they encounter
+  ## minor errors like parsing problems which can be handled. You need to pass
+  ## a valid reStructuredText input. Pass ``nil`` or the empty string if you
+  ## want to recover the default embedded template. You might also want to call
+  ## `set_safe_error_rst() <#set_safe_error_rst>`_.
+  ##
+  ## See the document `Lazy reST error handling <docs/error_handling.rst>`_ for
+  ## more information on what your ``input_rst`` variable can contain. The only
+  ## requirement is that it is valid reStructuredText.
+  ##
+  ## Returns an empty string on success or a list of error messages indicating
+  ## problems with ``input_rst``.
+  result = @[]
+  if input_rst.is_nil or input_rst.len < 1:
+    G.user_normal_error = nil
+    return
+
+  var
+    ERRORS = result.addr
+  try:
+    G.user_normal_error = rst_string_to_html(input_rst,
+      "set_normal_error_rst.input_rst")
+  except:
+    append_error_to_list()
+
+
+proc set_safe_error_rst*(input_rst: string):
+    seq[string] {.discardable, raises: [].} =
+  ## Changes the safe error page for ``safe_*`` function errors.
+  ##
+  ## Use this proc to customize the look of error HTML generated by procs like
+  ## `safe_rst_file_to_html() <#safe_rst_file_to_html>`_ when they encounter a
+  ## fatal error which can't be handled in any way (these should be very rare)
+  ## and the error HTML has to be concatenated without interpolation. You need
+  ## to pass a valid reStructuredText input. Pass ``nil`` or the empty string
+  ## if you want to recover the default embedded template. You might also want
+  ## to call `set_safe_error_rst() <#set_safe_error_rst>`_.
+  ##
+  ## See the document `Lazy reST error handling <docs/error_handling.rst>`_ for
+  ## more information on what your ``input_rst`` variable needs to contain.
+  ## Unlike `set_normal_error_rst() <#set_normal_error_rst>`_ your
+  ## ``input_rst`` is required to produce a ``$content`` string somewhere to be
+  ## a valid replacement for the embedded default.
+  ##
+  ## Returns an empty string on success or a list of error messages indicating
+  ## problems with ``input_rst``.
+  result = @[]
+  if input_rst.is_nil or input_rst.len < 1:
+    G.user_safe_error_start = nil
+    G.user_safe_error_end = nil
+    return
+
+  var
+    html: string
+    ERRORS = result.addr
+  try:
+    html = rst_string_to_html(input_rst, "set_normal_error_rst.input_rst")
+  except:
+    append_error_to_list()
+    return
+
+  # Success rendering, check to see if we have other required attributes.
+  const required_string = "$content"
+  let content_pos = html.find(required_string)
+
+  if content_pos < 0:
+    ERRORS.append(new_exception(EInvalidValue,
+      "Did not find $content in final HTML, it is needed to split the page"))
+    return
+
+  let
+    p1 = max(0, content_pos - 1)
+    p2 = content_pos + required_string.len
+  G.user_safe_error_start = html[0 .. p1]
+  G.user_safe_error_end = html[p2 .. html.high]
 
 
 #when isMainModule:
