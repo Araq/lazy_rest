@@ -196,19 +196,6 @@ proc rst_string_to_html*(content, filename: string,
     "content", MOD_DESC]
 
 
-template rassert*(cond: bool, msg: string, body: stmt) {.immediate.} =
-  ## Mix between assertion in debug mode and normal if at runtime.
-  ##
-  ## This *runtime* assert will stop execution in debug builds. In release
-  ## builds `body` will be run, which can usually contain a return to avoid
-  ## crashing further down the road.
-  when defined(release):
-    if not(cond):
-      body
-  else:
-    assert(cond, msg)
-
-
 proc rst_file_to_html*(filename: string, config: PStringTable = nil): string =
   ## Converts a filename with rest content into a string with HTML tags.
   ##
