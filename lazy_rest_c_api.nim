@@ -1,10 +1,10 @@
-import lazy_rest
+import lazy_rest, external/badger_bits/bb_system
 
 ## Exported C API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
 ##
 ## These are simple Nimrod wrappers around the main `lazy_rest.nim
-## <../lazy_rest.html>`_ module. They just document and export to C the most
+## <lazy_rest.html>`_ module. They just document and export to C the most
 ## interesting procs to be consumed by other C programs.
 
 proc txt_to_rst*(input_filename: cstring): int {.exportc, raises: [].}=

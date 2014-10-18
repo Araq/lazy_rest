@@ -6,7 +6,7 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
 ## reStructuredText processing module for Nimrod.
 ##
 ## If you are looking for the C API documentation, go to the
-## `lazy_rest_pkg/lc_api.nim <lazy_rest_pkg/lc_api.html>`_ file.
+## `lazy_rest_c_api.nim <lazy_rest_c_api.html>`_ file.
 
 # THIS BLOCK IS PENDING https://github.com/gradha/lazy_rest/issues/5
 # If you want to use the multi processor aware queues, which are able to
