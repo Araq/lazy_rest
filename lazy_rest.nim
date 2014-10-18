@@ -20,7 +20,7 @@ proc tuple_to_version(x: expr): string {.compileTime.} =
   for name, value in x.fieldPairs: result.add("." & $value)
   if result.len > 0: result.delete(0, 0)
 
-proc load_config*(mem_string: string): PStringTable
+proc load_config(mem_string: string): PStringTable
 
 
 const
@@ -71,7 +71,7 @@ var G: Global_state
 G.default_config = load_config(rest_default_config)
 
 
-proc load_config*(mem_string: string): PStringTable =
+proc load_config(mem_string: string): PStringTable =
   ## Parses the configuration and returns it as a PStringTable.
   ##
   ## If something goes wrong, will likely raise an exception or return nil.
@@ -103,8 +103,9 @@ proc load_config*(mem_string: string): PStringTable =
 proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
   ## Parses the options, returns nil if something goes wrong.
   ##
-  ## You can safely pass the result of this proc to `rst_string_to_html
-  ## <#rst_string_to_html>`_ since it will handle nil gracefully.
+  ## You can safely pass the result of this proc to `rst_string_to_html()
+  ## <#rst_string_to_html>`_ or any other proc asking for configuration options
+  ## since they will handle nil gracefully.
   if options.is_nil or options.len < 1:
     return nil
 
