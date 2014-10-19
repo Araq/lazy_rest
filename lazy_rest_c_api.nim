@@ -80,6 +80,7 @@ proc lr_rst_string_to_html*(content, filename: cstring,
     filename = filename.nil_string
     content = content.nil_string
   C.ret_rst_string_to_html = nil
+  C.error_rst_string_to_html = nil
 
   try:
     C.ret_rst_string_to_html = rst_string_to_html(content, filename, config)
@@ -117,6 +118,7 @@ proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
   ## this function, you may need to copy it somewhere.
   let filename = filename.nil_string
   C.ret_rst_file_to_html = nil
+  C.error_rst_file_to_html = nil
 
   try:
     C.ret_rst_file_to_html = rst_file_to_html(filename, config)
