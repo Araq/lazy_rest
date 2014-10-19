@@ -5,9 +5,26 @@ import lazy_rest, external/badger_bits/bb_system, strtabs
 ##
 ## These are simple Nimrod wrappers around the main `lazy_rest.nim
 ## <lazy_rest.html>`_ module. They just document and export for C the most
-## interesting procs to be consumed by other C programs.
+## interesting procs to be consumed by other C programs. Usually you will
+## compile this module using the `--header command line switch
+## <http://nimrod-lang.org/backends.html#backend-code-calling-nimrod>`_ which
+## generates the appropriate ``.c`` and ``.h`` files inside the `nimcache
+## directory <http://nimrod-lang.org/backends.html#nimcache-naming-logic>`_,
+## then compile those into your C program.
 ##
-## TODO: mention threading issues, and maybe NimMain initialisation.
+## Due to the differences between Nimrod and C, most of the wrapper procs will
+## assign the return values to Nimrod global variables so that their memory is
+## not freed while *other* Nimrod code executes (potentially triggering garbage
+## collections). This means the C API is not thread safe nor reentrant.  You
+## should also always call these procs from the main thread UI due to the
+## garbage collector not being thread aware either.
+##
+## When passing ``cstring`` types back and forth, consider all of them to be
+## ``char*`` strings encoded in UTF8. This means that you are not able to pass
+## embedded ``NULLs`` in text since they will be treated as string terminators.
+## In practice this should not be a problem given the nature of text
+## processing.
+
 
 type
   C_state = object
