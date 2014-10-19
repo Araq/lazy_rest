@@ -34,9 +34,48 @@ type
     ## lazy_rest_rst_string_to_html.
     error_rst_string_to_html: ref E_Base ## Last error of the proc \
     ## wrapped by lazy_rest_rst_string_to_html.
+    ret_parse_rst_options: PStringTable ## Last result of the proc wrapped \
+    ## by lazy_rest_parse_rst_options.
 
 
 var C: C_state
+
+
+proc lazy_rest_version_int*(major, minor, maintenance: ptr int)
+    {.exportc, raises: [].} =
+  ## Wraps `version_int <lazy_rest.html#version_int>`_ for C.
+  ##
+  ## Pass pointers to whatever version values you are interested it and they
+  ## will be filled.
+  if major.not_nil: major[] = version_int.major
+  if minor.not_nil: minor[] = version_int.minor
+  if maintenance.not_nil: maintenance[] = version_int.maintenance
+
+
+proc lazy_rest_version_str*(): cstring {.exportc, raises: [].} =
+  ## Wraps `version_str <lazy_rest.html#version_str>`_ for C.
+  ##
+  ## Always returns the same pointer to a valid ``cstring``.
+  result = version_str.cstring
+
+
+proc lazy_rest_parse_rst_options*(options: cstring): PStringTable
+    {.exportc, raises: [].} =
+  ## Wraps `parse_rst_options() <lazy_rest.html#parse_rst_options>`_ for C.
+  ##
+  ## The return value is stored in a global variable so future calls to this
+  ## function will mangle the returned value. It is unlikely you will need to
+  ## call this more than once though.
+  ##
+  ## Also, due to a limitation in Nimrod's exportc pragma, right now the
+  ## ``PStringTable`` type will be exported to the C header like ``typedef
+  ## struct tstringtable128812 tstringtable128812``, so it may be difficult or
+  ## impossible to write crossplatform source code which calls this function,
+  ## given that each platform's Nimrod compiler (or version) may generate a
+  ## different symbol. Still, the function is here for completeness (and maybe
+  ## you don't mind the weird ``typedef``).
+  C.ret_parse_rst_options = parse_rst_options(options.nil_string)
+  result = C.ret_parse_rst_options
 
 
 proc lazy_rest_rst_string_to_html*(content, filename: cstring,
