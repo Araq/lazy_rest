@@ -23,11 +23,6 @@ type
 var C: C_state
 
 
-template safe_string(s: cstring): string =
-  ## Returns nil if `s` is nil, or the converted cstring otherwise.
-  if s.is_nil: nil else: $s
-
-
 proc lazy_rest_set_normal_error_rst*(input_rst: cstring): int
     {.exportc, raises: [].} =
   ## Exports `set_normal_error_rst() <lazy_rest.html#set_normal_error_rst>`_ to
@@ -38,7 +33,7 @@ proc lazy_rest_set_normal_error_rst*(input_rst: cstring): int
   ## `lazy_rest_set_normal_error_rst_error()
   ## <#lazy_rest_set_normal_error_rst_error>`_ in a loop to retrieve the
   ## individual error messages.
-  let input_rst = input_rst.safe_string
+  let input_rst = input_rst.nil_string
   C.ret_set_normal_error_rst = set_normal_error_rst(input_rst)
   result = C.ret_set_normal_error_rst.len
 
@@ -60,7 +55,7 @@ proc lazy_rest_set_normal_error_rst_error*(pos: int): cstring
       pos >= C.ret_set_normal_error_rst.len:
     return
 
-  result = cstring(C.ret_set_normal_error_rst[pos])
+  result = C.ret_set_normal_error_rst[pos].nil_cstring
 
 
 proc lazy_rest_set_safe_error_rst*(input_rst: cstring): int
@@ -73,7 +68,7 @@ proc lazy_rest_set_safe_error_rst*(input_rst: cstring): int
   ## `lazy_rest_set_safe_error_rst_error()
   ## <#lazy_rest_set_safe_error_rst_error>`_ in a loop to retrieve the
   ## individual error messages.
-  let input_rst = input_rst.safe_string
+  let input_rst = input_rst.nil_string
   C.ret_set_safe_error_rst = set_safe_error_rst(input_rst)
   result = C.ret_set_safe_error_rst.len
 
@@ -95,7 +90,7 @@ proc lazy_rest_set_safe_error_rst_error*(pos: int): cstring
       pos >= C.ret_set_safe_error_rst.len:
     return
 
-  result = cstring(C.ret_set_safe_error_rst[pos])
+  result = C.ret_set_safe_error_rst[pos].nil_cstring
 
 
 proc lazy_rest_nim_file_to_html*(filename: cstring, number_lines: int,
@@ -106,14 +101,10 @@ proc lazy_rest_nim_file_to_html*(filename: cstring, number_lines: int,
   ## ``true``). The memory of the returned ``cstring`` will be kept until the
   ## next call to this function, you may need to copy it somewhere.
   let
-    filename = filename.safe_string
+    filename = filename.nil_string
     number_lines = if number_lines != 0: true else: false
   C.ret_nim_file_to_html = nim_file_to_html(filename, number_lines, config)
-  # If required due to https://github.com/Araq/Nimrod/issues/1577.
-  if C.ret_nim_file_to_html.is_nil:
-    result = nil
-  else:
-    result = cstring(C.ret_nim_file_to_html)
+  result = C.ret_nim_file_to_html.nil_cstring
 
 
 #proc txt_to_rst*(input_filename: cstring): int {.exportc, raises: [].}=
