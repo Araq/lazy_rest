@@ -18,9 +18,125 @@ type
     ## wrapped by lazy_rest_set_safe_error_rst.
     ret_nim_file_to_html: string ## Last result of the proc wrapped by \
     ## lazy_rest_nim_file_to_html.
+    ret_safe_rst_file_to_html: string ## Last result of the proc wrapped by \
+    ## lazy_rest_safe_rst_file_to_html.
+    errors_safe_rst_file_to_html: seq[string] ## Last errors of the proc \
+    ## wrapped by lazy_rest_safe_rst_file_to_html.
+    ret_safe_rst_string_to_html: string ## Last result of the proc wrapped by \
+    ## lazy_rest_safe_rst_string_to_html.
+    errors_safe_rst_string_to_html: seq[string] ## Last errors of the proc \
+    ## wrapped by lazy_rest_safe_rst_string_to_html.
 
 
 var C: C_state
+
+
+proc lazy_rest_safe_rst_string_to_html*(filename, data: cstring,
+    ERRORS: ptr int, config: PStringTable):
+    cstring {.exportc, raises: [].} =
+  ## Wraps `safe_rst_string_to_html()
+  ## <lazy_rest.html#safe_rst_string_to_html>`_ to C.
+  ##
+  ## Returns always a valid ``cstring`` with HTML. The memory of the returned
+  ## ``cstring`` will be kept until the next call to this function, you may
+  ## need to copy it somewhere.
+  ##
+  ## If `ERRORS` is not ``null``, it will store the number of errors found
+  ## during the processing of the file. If this number is greater than zero,
+  ## you can use `lazy_rest_safe_rst_string_to_html_error()
+  ## <#lazy_rest_safe_rst_string_to_html_error>`_ to retrieve their text.
+  let
+    filename = filename.nil_string
+    data = data.nil_string
+  C.errors_safe_rst_string_to_html = @[]
+
+  C.ret_safe_rst_string_to_html = safe_rst_string_to_html(filename, data,
+    C.errors_safe_rst_string_to_html.addr, config)
+
+  result = C.ret_safe_rst_string_to_html.nil_cstring
+  if ERRORS.not_nil:
+    ERRORS[] = C.errors_safe_rst_string_to_html.len
+
+
+proc lazy_rest_safe_rst_string_to_html_error*(pos: int): cstring
+    {.exportc, raises: [].} =
+  ## Returns error strings for `lazy_rest_safe_rst_string_to_html()
+  ## <#lazy_rest_safe_rst_string_to_html>`_.
+  ##
+  ## If a previous call to `lazy_rest_safe_rst_string_to_html()
+  ## <#lazy_rest_safe_string_to_html>`_ produced errors and you captured them
+  ## through the `ERRORS` parameter, you can call this function in a loop up to
+  ## the returned value -1 to figure out the reasons.
+  ##
+  ## Returns the string for the specified error position or null if there was
+  ## any error (eg. `pos` is an invalid index). You may need to copy the
+  ## returned error string, since its memory could be freed by the next call to
+  ## `lazy_rest_safe_rst_string_to_html()
+  ## <#lazy_rest_safe_rst_string_to_html>`_.
+  if C.errors_safe_rst_string_to_html.is_nil or pos < 0 or
+      pos >= C.errors_safe_rst_string_to_html.len:
+    return
+
+  result = C.errors_safe_rst_string_to_html[pos].nil_cstring
+
+
+proc lazy_rest_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr int,
+    config: PStringTable): cstring {.exportc, raises: [].} =
+  ## Wraps `safe_rst_file_to_html() <lazy_rest.html#safe_rst_file_to_html>`_ to
+  ## C.
+  ##
+  ## Returns always a valid ``cstring`` with HTML. The memory of the returned
+  ## ``cstring`` will be kept until the next call to this function, you may
+  ## need to copy it somewhere.
+  ##
+  ## If `ERRORS` is not ``null``, it will store the number of errors found
+  ## during the processing of the file. If this number is greater than zero,
+  ## you can use `lazy_rest_safe_rst_file_to_html_error()
+  ## <#lazy_rest_safe_rst_file_to_html_error>`_ to retrieve their text.
+  let filename = filename.nil_string
+  C.errors_safe_rst_file_to_html = @[]
+
+  C.ret_safe_rst_file_to_html = safe_rst_file_to_html(filename,
+    C.errors_safe_rst_file_to_html.addr, config)
+
+  result = C.ret_safe_rst_file_to_html.nil_cstring
+  if ERRORS.not_nil:
+    ERRORS[] = C.errors_safe_rst_file_to_html.len
+
+
+proc lazy_rest_safe_rst_file_to_html_error*(pos: int): cstring
+    {.exportc, raises: [].} =
+  ## Returns error strings for `lazy_rest_safe_rst_file_to_html()
+  ## <#lazy_rest_safe_rst_file_to_html>`_.
+  ##
+  ## If a previous call to `lazy_rest_safe_rst_file_to_html()
+  ## <#lazy_rest_safe_rst_file_to_html>`_ produced errors and you captured them
+  ## through the `ERRORS` parameter, you can call this function in a loop up to
+  ## the returned value -1 to figure out the reasons.
+  ##
+  ## Returns the string for the specified error position or null if there was
+  ## any error (eg. `pos` is an invalid index). You may need to copy the
+  ## returned error string, since its memory could be freed by the next call to
+  ## `lazy_rest_safe_rst_file_to_html() <#lazy_rest_safe_rst_file_to_html>`_.
+  if C.errors_safe_rst_file_to_html.is_nil or pos < 0 or
+      pos >= C.errors_safe_rst_file_to_html.len:
+    return
+
+  result = C.errors_safe_rst_file_to_html[pos].nil_cstring
+
+
+proc lazy_rest_nim_file_to_html*(filename: cstring, number_lines: int,
+    config: PStringTable): cstring {.exportc, raises: [].} =
+  ## Wraps `nim_file_to_html() <lazy_rest.html#nim_file_to_html>`_ to C.
+  ##
+  ## The Nimrod boolean parameter is replaced by an ``int`` (non zero ==
+  ## ``true``). The memory of the returned ``cstring`` will be kept until the
+  ## next call to this function, you may need to copy it somewhere.
+  let
+    filename = filename.nil_string
+    number_lines = if number_lines != 0: true else: false
+  C.ret_nim_file_to_html = nim_file_to_html(filename, number_lines, config)
+  result = C.ret_nim_file_to_html.nil_cstring
 
 
 proc lazy_rest_set_normal_error_rst*(input_rst: cstring): int
@@ -45,7 +161,7 @@ proc lazy_rest_set_normal_error_rst_error*(pos: int): cstring
   ##
   ## If a previous call to `lazy_rest_set_normal_error_rst()
   ## <#lazy_rest_set_normal_error_rst>`_ did return non zero, you can call this
-  ## function in a loop up to the returned value - 1 to figure out the reasons.
+  ## function in a loop up to the returned value -1 to figure out the reasons.
   ##
   ## Returns the string for the specified error position or null if there was
   ## any error (eg. `pos` is an invalid index). You may need to copy the
@@ -80,7 +196,7 @@ proc lazy_rest_set_safe_error_rst_error*(pos: int): cstring
   ##
   ## If a previous call to `lazy_rest_set_safe_error_rst()
   ## <#lazy_rest_set_safe_error_rst>`_ did return non zero, you can call this
-  ## function in a loop up to the returned value - 1 to figure out the reasons.
+  ## function in a loop up to the returned value -1 to figure out the reasons.
   ##
   ## Returns the string for the specified error position or null if there was
   ## any error (eg. `pos` is an invalid index). You may need to copy the
@@ -91,20 +207,6 @@ proc lazy_rest_set_safe_error_rst_error*(pos: int): cstring
     return
 
   result = C.ret_set_safe_error_rst[pos].nil_cstring
-
-
-proc lazy_rest_nim_file_to_html*(filename: cstring, number_lines: int,
-    config: PStringTable): cstring {.exportc, raises: [].} =
-  ## Wraps `nim_file_to_html() <lazy_rest.html#nim_file_to_html>`_ to C.
-  ##
-  ## The Nimrod boolean parameter is replaced by an ``int`` (non zero ==
-  ## ``true``). The memory of the returned ``cstring`` will be kept until the
-  ## next call to this function, you may need to copy it somewhere.
-  let
-    filename = filename.nil_string
-    number_lines = if number_lines != 0: true else: false
-  C.ret_nim_file_to_html = nim_file_to_html(filename, number_lines, config)
-  result = C.ret_nim_file_to_html.nil_cstring
 
 
 #proc txt_to_rst*(input_filename: cstring): int {.exportc, raises: [].}=
