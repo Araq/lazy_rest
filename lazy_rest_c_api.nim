@@ -11,31 +11,18 @@ import lazy_rest, external/badger_bits/bb_system, strtabs
 
 type
   C_state = object
-    last_c_conversion: string ## Modified by the exported C API procs.
-    ret_set_normal_error_rst: seq[string] ## Last result of the proc \
-    ## wrapped by lazy_rest_set_normal_error_rst.
-    ret_set_safe_error_rst: seq[string] ## Last result of the proc \
-    ## wrapped by lazy_rest_set_safe_error_rst.
-    ret_nim_file_to_html: string ## Last result of the proc wrapped by \
-    ## lazy_rest_nim_file_to_html.
-    ret_safe_rst_file_to_html: string ## Last result of the proc wrapped by \
-    ## lazy_rest_safe_rst_file_to_html.
-    errors_safe_rst_file_to_html: seq[string] ## Last errors of the proc \
-    ## wrapped by lazy_rest_safe_rst_file_to_html.
-    ret_safe_rst_string_to_html: string ## Last result of the proc wrapped by \
-    ## lazy_rest_safe_rst_string_to_html.
-    errors_safe_rst_string_to_html: seq[string] ## Last errors of the proc \
-    ## wrapped by lazy_rest_safe_rst_string_to_html.
-    ret_rst_file_to_html: string ## Last result of the proc wrapped by \
-    ## lazy_rest_rst_file_to_html.
-    error_rst_file_to_html: ref E_Base ## Last error of the proc \
-    ## wrapped by lazy_rest_rst_file_to_html.
-    ret_rst_string_to_html: string ## Last result of the proc wrapped by \
-    ## lazy_rest_rst_string_to_html.
-    error_rst_string_to_html: ref E_Base ## Last error of the proc \
-    ## wrapped by lazy_rest_rst_string_to_html.
-    ret_parse_rst_options: PStringTable ## Last result of the proc wrapped \
-    ## by lazy_rest_parse_rst_options.
+    error_rst_file_to_html: ref E_Base
+    error_rst_string_to_html: ref E_Base
+    errors_safe_rst_file_to_html: seq[string]
+    errors_safe_rst_string_to_html: seq[string]
+    ret_nim_file_to_html: string
+    ret_parse_rst_options: PStringTable
+    ret_rst_file_to_html: string
+    ret_rst_string_to_html: string
+    ret_safe_rst_file_to_html: string
+    ret_safe_rst_string_to_html: string
+    ret_set_normal_error_rst: seq[string]
+    ret_set_safe_error_rst: seq[string]
 
 
 var C: C_state
@@ -331,39 +318,3 @@ proc lazy_rest_set_safe_error_rst_error*(pos: int): cstring
     return
 
   result = C.ret_set_safe_error_rst[pos].nil_cstring
-
-
-#proc txt_to_rst*(input_filename: cstring): int {.exportc, raises: [].}=
-#  ## Converts the input filename.
-#  ##
-#  ## The conversion is stored in internal global variables. The proc returns
-#  ## the number of bytes required to store the generated HTML, which you can
-#  ## obtain using the global accessor `get_global_html() <#get_global_html>`_
-#  ## passing a pointer to the buffer.
-#  ##
-#  ## The returned value doesn't include the typical C null terminator. If there
-#  ## are problems, an internal error text may be returned so it can be
-#  ## displayed to the end user. As such, it is impossible to know the
-#  ## success/failure based on the returned value.
-#  ##
-#  ## This proc is mainly for the C api.
-#  assert input_filename.not_nil
-#  let filename = $input_filename
-#  case filename.splitFile.ext
-#  of ".nim":
-#    G.last_c_conversion = nim_file_to_html(filename)
-#  else:
-#    G.last_c_conversion = safe_rst_file_to_html(filename)
-#  result = G.last_c_conversion.len
-#
-#
-#proc get_global_html*(output_buffer: pointer) {.exportc, raises: [].} =
-#  ## Copies the result of txt_to_rst into output_buffer.
-#  ##
-#  ## If output_buffer doesn't contain the bytes returned by txt_to_rst, you
-#  ## will pay that dearly!
-#  ##
-#  ## This proc is mainly for the C api.
-#  if G.last_c_conversion.is_nil:
-#    quit("Uh oh, wrong API usage")
-#  copyMem(output_buffer, addr(G.last_c_conversion[0]), G.last_c_conversion.len)
