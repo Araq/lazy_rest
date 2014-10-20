@@ -45,15 +45,15 @@ type
 var C: C_state
 
 
-proc lr_version_int*(major, minor, maintenance: ptr int)
-    {.exportc, raises: [].} =
+proc lr_version_int*(major, minor, maintenance: ptr cint)
+    {.exportc, cdecl, raises: [].} =
   ## Wraps `version_int <lazy_rest.html#version_int>`_ for C.
   ##
   ## Pass pointers to whatever version values you are interested it and they
   ## will be filled.
-  if major.not_nil: major[] = version_int.major
-  if minor.not_nil: minor[] = version_int.minor
-  if maintenance.not_nil: maintenance[] = version_int.maintenance
+  if major.not_nil: major[] = version_int.major.cint
+  if minor.not_nil: minor[] = version_int.minor.cint
+  if maintenance.not_nil: maintenance[] = version_int.maintenance.cint
 
 
 proc lr_version_str*(): cstring {.exportc, raises: [].} =
@@ -160,7 +160,7 @@ proc lr_rst_file_to_html_error*(): cstring {.exportc, raises: [].} =
 
 
 proc lr_safe_rst_string_to_html*(filename, data: cstring,
-    ERRORS: ptr int, config: PStringTable):
+    ERRORS: ptr cint, config: PStringTable):
     cstring {.exportc, raises: [].} =
   ## Wraps `safe_rst_string_to_html()
   ## <lazy_rest.html#safe_rst_string_to_html>`_ for C.
@@ -183,10 +183,10 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
 
   result = C.ret_safe_rst_string_to_html.nil_cstring
   if ERRORS.not_nil:
-    ERRORS[] = C.errors_safe_rst_string_to_html.len
+    ERRORS[] = C.errors_safe_rst_string_to_html.len.cint
 
 
-proc lr_safe_rst_string_to_html_error*(pos: int): cstring
+proc lr_safe_rst_string_to_html_error*(pos: cint): cstring
     {.exportc, raises: [].} =
   ## Returns error strings for `lr_safe_rst_string_to_html()
   ## <#lr_safe_rst_string_to_html>`_.
@@ -207,7 +207,7 @@ proc lr_safe_rst_string_to_html_error*(pos: int): cstring
   result = C.errors_safe_rst_string_to_html[pos].nil_cstring
 
 
-proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr int,
+proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
     config: PStringTable): cstring {.exportc, raises: [].} =
   ## Wraps `safe_rst_file_to_html() <lazy_rest.html#safe_rst_file_to_html>`_
   ## for C.
@@ -228,10 +228,10 @@ proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr int,
 
   result = C.ret_safe_rst_file_to_html.nil_cstring
   if ERRORS.not_nil:
-    ERRORS[] = C.errors_safe_rst_file_to_html.len
+    ERRORS[] = C.errors_safe_rst_file_to_html.len.cint
 
 
-proc lr_safe_rst_file_to_html_error*(pos: int): cstring
+proc lr_safe_rst_file_to_html_error*(pos: cint): cstring
     {.exportc, raises: [].} =
   ## Returns error strings for `lr_safe_rst_file_to_html()
   ## <#lr_safe_rst_file_to_html>`_.
@@ -252,7 +252,7 @@ proc lr_safe_rst_file_to_html_error*(pos: int): cstring
   result = C.errors_safe_rst_file_to_html[pos].nil_cstring
 
 
-proc lr_nim_file_to_html*(filename: cstring, number_lines: int,
+proc lr_nim_file_to_html*(filename: cstring, number_lines: cint,
     config: PStringTable): cstring {.exportc, raises: [].} =
   ## Wraps `nim_file_to_html() <lazy_rest.html#nim_file_to_html>`_ for C.
   ##
@@ -266,7 +266,7 @@ proc lr_nim_file_to_html*(filename: cstring, number_lines: int,
   result = C.ret_nim_file_to_html.nil_cstring
 
 
-proc lr_set_normal_error_rst*(input_rst: cstring): int
+proc lr_set_normal_error_rst*(input_rst: cstring): cint
     {.exportc, raises: [].} =
   ## Exports `set_normal_error_rst() <lazy_rest.html#set_normal_error_rst>`_
   ## for C.
@@ -277,10 +277,10 @@ proc lr_set_normal_error_rst*(input_rst: cstring): int
   ## loop to retrieve the individual error messages.
   let input_rst = input_rst.nil_string
   C.ret_set_normal_error_rst = set_normal_error_rst(input_rst)
-  result = C.ret_set_normal_error_rst.len
+  result = C.ret_set_normal_error_rst.len.cint
 
 
-proc lr_set_normal_error_rst_error*(pos: int): cstring
+proc lr_set_normal_error_rst_error*(pos: cint): cstring
     {.exportc, raises: [].} =
   ## Returns error strings for `lr_set_normal_error_rst()
   ## <#lr_set_normal_error_rst>`_.
@@ -300,7 +300,7 @@ proc lr_set_normal_error_rst_error*(pos: int): cstring
   result = C.ret_set_normal_error_rst[pos].nil_cstring
 
 
-proc lr_set_safe_error_rst*(input_rst: cstring): int
+proc lr_set_safe_error_rst*(input_rst: cstring): cint
     {.exportc, raises: [].} =
   ## Exports `set_safe_error_rst() <lazy_rest.html#set_safe_error_rst>`_ for C.
   ##
@@ -310,10 +310,10 @@ proc lr_set_safe_error_rst*(input_rst: cstring): int
   ## to retrieve the individual error messages.
   let input_rst = input_rst.nil_string
   C.ret_set_safe_error_rst = set_safe_error_rst(input_rst)
-  result = C.ret_set_safe_error_rst.len
+  result = C.ret_set_safe_error_rst.len.cint
 
 
-proc lr_set_safe_error_rst_error*(pos: int): cstring
+proc lr_set_safe_error_rst_error*(pos: cint): cstring
     {.exportc, raises: [].} =
   ## Returns error strings for `lr_set_safe_error_rst()
   ## <#lr_set_safe_error_rst>`_.
