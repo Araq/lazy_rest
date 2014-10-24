@@ -50,7 +50,14 @@ proc lr_version_int*(major, minor, maintenance: ptr cint)
   ## Wraps `version_int <lazy_rest.html#version_int>`_ for C.
   ##
   ## Pass pointers to whatever version values you are interested it and they
-  ## will be filled.
+  ## will be filled. Example:
+  ##
+  ## .. code-block:: c
+  ##    int major = 6, minor = 6, maintenance = 6;
+  ##    lr_version_int(&major, &minor, &maintenance);
+  ##    printf("Using lazy_rest: %d-%d-%d.\n",
+  ##       major, minor, maintenance);
+  ##    // --> Using lazy_rest: 0-1-0.
   if major.not_nil: major[] = version_int.major.cint
   if minor.not_nil: minor[] = version_int.minor.cint
   if maintenance.not_nil: maintenance[] = version_int.maintenance.cint
@@ -59,7 +66,11 @@ proc lr_version_int*(major, minor, maintenance: ptr cint)
 proc lr_version_str*(): cstring {.exportc, raises: [].} =
   ## Wraps `version_str <lazy_rest.html#version_str>`_ for C.
   ##
-  ## Always returns the same pointer to a valid ``cstring``.
+  ## Always returns the same pointer to a valid ``cstring``. Example:
+  ##
+  ## .. code-block:: c
+  ##    printf("Using lazy_rest %s.\n", lr_version_str());
+  ##    // --> Using lazy_rest 0.1.0.
   result = version_str.cstring
 
 
@@ -92,7 +103,16 @@ proc lr_rst_string_to_html*(content, filename: cstring,
   ## be the text of the Nimrod exception.
   ##
   ## The memory of the returned ``cstring`` will be kept until the next call to
-  ## this function, you may need to copy it somewhere.
+  ## this function, you may need to copy it somewhere. Example:
+  ##
+  ## .. code-block:: c
+  ##    char *s = lr_rst_string_to_html(valid_rst_string,
+  ##       "<string>", 0);
+  ##    if (s) {
+  ##       // Success!
+  ##    } else {
+  ##       // Handle error.
+  ##    }
   let
     filename = filename.nil_string
     content = content.nil_string
@@ -117,7 +137,16 @@ proc lr_rst_string_to_html_error*(): cstring {.exportc, raises: [].} =
   ## Returns the error string or ``null`` if there was no previous error. You
   ## may need to copy the returned error string, since its memory could be
   ## freed by the next call to `lr_rst_string_to_html()
-  ## <#lr_rst_string_to_html>`_.
+  ## <#lr_rst_string_to_html>`_. Example:
+  ##
+  ## .. code-block:: c
+  ##    char *s = lr_rst_string_to_html(valid_rst_string,
+  ##       "<string>", 0);
+  ##    if (!s) {
+  ##       // Handle error.
+  ##       printf("Error processing string: %s\n",
+  ##          lr_rst_string_to_html_error());
+  ##    }
   if C.error_rst_string_to_html.not_nil:
     result = C.error_rst_string_to_html.msg.nil_cstring
 
