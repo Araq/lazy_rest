@@ -140,7 +140,7 @@ proc lr_rst_string_to_html_error*(): cstring {.exportc, raises: [].} =
   ## <#lr_rst_string_to_html>`_. Example:
   ##
   ## .. code-block:: c
-  ##    char *s = lr_rst_string_to_html(valid_rst_string,
+  ##    char *s = lr_rst_string_to_html(bad_rst_string,
   ##       "<string>", 0);
   ##    if (!s) {
   ##       // Handle error.
@@ -161,7 +161,15 @@ proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
   ## the text of the Nimrod exception.
   ##
   ## The memory of the returned ``cstring`` will be kept until the next call to
-  ## this function, you may need to copy it somewhere.
+  ## this function, you may need to copy it somewhere. Example:
+  ##
+  ## .. code-block:: c
+  ##    char *s = lr_rst_file_to_html(valid_rst_filename, 0);
+  ##    if (s) {
+  ##       // Success!
+  ##    } else {
+  ##       // Handle error.
+  ##    }
   let filename = filename.nil_string
   C.ret_rst_file_to_html = nil
   C.error_rst_file_to_html = nil
@@ -184,6 +192,15 @@ proc lr_rst_file_to_html_error*(): cstring {.exportc, raises: [].} =
   ## Returns the error string or ``null`` if there was no previous error. You
   ## may need to copy the returned error string, since its memory could be
   ## freed by the next call to `lr_rst_file_to_html() <#lr_rst_file_to_html>`_.
+  ## Example:
+  ##
+  ## .. code-block:: c
+  ##    char *s = lr_rst_file_to_html(bad_rst_filename, 0);
+  ##    if (!s) {
+  ##       // Handle error.
+  ##       printf("Error processing file: %s\n",
+  ##          lr_rst_file_to_html_error());
+  ##    }
   if C.error_rst_file_to_html.not_nil:
     result = C.error_rst_file_to_html.msg.nil_cstring
 
@@ -221,9 +238,9 @@ proc lr_safe_rst_string_to_html_error*(pos: cint): cstring
   ## <#lr_safe_rst_string_to_html>`_.
   ##
   ## If a previous call to `lr_safe_rst_string_to_html()
-  ## <#lr_safe_string_to_html>`_ produced errors and you captured them through
-  ## the `ERRORS` parameter, you can call this function in a loop up to the
-  ## returned value -1 to figure out the reasons.
+  ## <#lr_safe_rst_string_to_html>`_ produced errors and you captured them
+  ## through the `ERRORS` parameter, you can call this function in a loop up to
+  ## the returned value -1 to figure out the reasons.
   ##
   ## Returns the string for the specified error position or null if there was
   ## any error (eg. `pos` is an invalid index). You may need to copy the

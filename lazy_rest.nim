@@ -394,10 +394,10 @@ proc safe_rst_string_to_html*(filename, data: string,
   ## used for error reporting, you can pass nil or the empty string.
   ##
   ## This proc always returns without raising any exceptions, but if you want
-  ## to know about errors you can pass an initialized sequence of string as the
-  ## `ERRORS` parameter to figure out why something fails and report it to the
-  ## user. Any problems found during rendering will be added to the existing
-  ## list.
+  ## to know about errors you can pass the address of an initialized sequence
+  ## of string as the `ERRORS` parameter to figure out why something fails and
+  ## report it to the user. Any problems found during rendering will be added
+  ## to the existing list.
   ##
   ## The value for the `config` parameter is explained in
   ## `lazy_rest/lrstgen.initRstGenerator()
@@ -440,10 +440,10 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ## quite different from what you expect.
   ##
   ## This proc always returns without raising any exceptions, but if you want
-  ## to know about errors you can pass an initialized sequence of string as the
-  ## `ERRORS` parameter to figure out why something fails and report it to the
-  ## user. Any problems found during rendering will be added to the existing
-  ## list.
+  ## to know about errors you can pass the address of an initialized sequence
+  ## of string as the `ERRORS` parameter to figure out why something fails and
+  ## report it to the user. Any problems found during rendering will be added
+  ## to the existing list.
   ##
   ## The value for the `config` parameter is explained in
   ## `lazy_rest/lrstgen.initRstGenerator()

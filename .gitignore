@@ -21,6 +21,7 @@ nimcache/
 /nakefile
 /nakefile.html
 /p
+/tests/c_api/temp_*.rst
 /tests/code_blocks/anon.html
 /tests/code_blocks/code_blocks.html
 /tests/code_blocks/html_blocks.html
