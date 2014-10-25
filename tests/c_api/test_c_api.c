@@ -141,4 +141,46 @@ void run_c_test(void)
 			}
 		}
 	}
+
+	// Test the safe file conversions.
+	{
+		char *s = lr_safe_rst_file_to_html(
+			valid_rst_filename, 0, 0);
+		overwrite("temp_safe_file_1.html", s);
+		assert(s);
+		assert(strstr(s, "<title>"));
+		int errors = 1;
+		s = lr_safe_rst_file_to_html(
+			valid_rst_filename, &errors, 0);
+		assert(0 == errors);
+		overwrite("temp_safe_file_2.html", s);
+		if (s) {
+			// Success!
+		} else {
+			// Handle error.
+		}
+	}
+
+	{
+		char *s = lr_safe_rst_file_to_html(
+			bad_rst_filename, 0, 0);
+		assert(s);
+		assert(strstr(s, "<title>"));
+		overwrite("temp_safe_file_3.html", s);
+		int errors = 0;
+		s = lr_safe_rst_file_to_html(
+			bad_rst_filename, &errors, 0);
+		assert(errors > 0);
+		overwrite("temp_safe_file_4.html", s);
+		if (errors) {
+			// Handle error.
+			printf("4 Ignore the next error message, it's expected\n");
+			printf("RST error stack trace:\n");
+			while (errors) {
+				printf("\t%s\n",
+					lr_safe_rst_file_to_html_error(--errors));
+			}
+		}
+	}
+
 }

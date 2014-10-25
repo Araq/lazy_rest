@@ -258,7 +258,6 @@ proc lr_safe_rst_string_to_html_error*(pos: cint): cstring
   ##   char *s = lr_safe_rst_string_to_html(
   ##      "<filename>", bad_rst_string, &errors, 0);
   ##   assert(s);
-  ##   assert(errors > 0);
   ##   if (errors) {
   ##      printf("RST error stack trace:\n");
   ##      while (errors) {
@@ -286,7 +285,13 @@ proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
   ## If `ERRORS` is not ``null``, it will store the number of errors found
   ## during the processing of the file. If this number is greater than zero,
   ## you can use `lr_safe_rst_file_to_html_error()
-  ## <#lr_safe_rst_file_to_html_error>`_ to retrieve their text.
+  ## <#lr_safe_rst_file_to_html_error>`_ to retrieve their text. Example:
+  ##
+  ## .. code-block:: c
+  ##   char *s = lr_safe_rst_file_to_html(
+  ##      valid_rst_filename, 0, 0);
+  ##   assert(s);
+  ##   // Do here something with `s`.
   let filename = filename.nil_string
   C.errors_safe_rst_file_to_html = @[]
 
@@ -311,7 +316,22 @@ proc lr_safe_rst_file_to_html_error*(pos: cint): cstring
   ## Returns the string for the specified error position or null if there was
   ## any error (eg. `pos` is an invalid index). You may need to copy the
   ## returned error string, since its memory could be freed by the next call to
-  ## `lr_safe_rst_file_to_html() <#lr_safe_rst_file_to_html>`_.
+  ## `lr_safe_rst_file_to_html() <#lr_safe_rst_file_to_html>`_. Example:
+  ##
+  ## .. code-block:: c
+  ##   int errors = 666;
+  ##   char *s = lr_safe_rst_file_to_html(
+  ##      bad_rst_filename, &errors, 0);
+  ##   assert(s);
+  ##   if (errors) {
+  ##      printf("RST error stack trace:\n");
+  ##      while (errors) {
+  ##         printf("\t%s\n",
+  ##            lr_safe_rst_string_to_html_error(--errors));
+  ##      }
+  ##   }
+  ##   // Still, do here something with `s`.
+  ##
   if C.errors_safe_rst_file_to_html.is_nil or pos < 0 or
       pos >= C.errors_safe_rst_file_to_html.len:
     return
