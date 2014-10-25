@@ -18,6 +18,17 @@ char bad_rst_string[] = "Asterisks and Obelix\n"
 	// The underscore will be replaced at runtime!
 	"Or was <B it _single quotes?";
 
+// Helper to write a null terminated string to a specific path.
+void overwrite(const char *filename, const char *s)
+{
+	assert(filename && *filename);
+	assert(s);
+	FILE *file = fopen(filename, "w+");
+	assert(file);
+	fwrite(s, 1, 1 + strlen(s), file);
+	fclose(file);
+}
+
 // Entry point of the C test.
 void run_c_test(void)
 {
@@ -30,15 +41,8 @@ void run_c_test(void)
 
 	// Generates files with rst content.
 	{
-		FILE *file = fopen(valid_rst_filename, "w+");
-		assert(file);
-		fwrite(valid_rst_string, 1, sizeof(valid_rst_string), file);
-		fclose(file);
-
-		file = fopen(bad_rst_filename, "w+");
-		assert(file);
-		fwrite(bad_rst_string, 1, sizeof(bad_rst_string), file);
-		fclose(file);
+		overwrite(valid_rst_filename, valid_rst_string);
+		overwrite(bad_rst_filename, bad_rst_string);
 	}
 
 	printf("Using lazy_rest %s.\n", lr_version_str());
@@ -56,6 +60,7 @@ void run_c_test(void)
 		if (s) {
 			// Success!
 			assert(strstr(s, "<title>"));
+			overwrite("temp_string_to_html.html", s);
 		} else {
 			// Handle error.
 		}
@@ -79,6 +84,7 @@ void run_c_test(void)
 		assert(0 != s);
 		if (s) {
 			// Success!
+			overwrite("temp_file_to_html.html", s);
 		} else {
 			// Handle error.
 		}
@@ -99,12 +105,14 @@ void run_c_test(void)
 	{
 		char *s = lr_safe_rst_string_to_html(
 			"<filename>", valid_rst_string, 0, 0);
+		overwrite("temp_safe_string_1.html", s);
 		assert(s);
 		assert(strstr(s, "<title>"));
 		int errors = 1;
 		s = lr_safe_rst_string_to_html(
 			"<filename>", valid_rst_string, &errors, 0);
 		assert(0 == errors);
+		overwrite("temp_safe_string_2.html", s);
 		if (s) {
 			// Success!
 		} else {
@@ -117,10 +125,12 @@ void run_c_test(void)
 			"<filename>", bad_rst_string, 0, 0);
 		assert(s);
 		assert(strstr(s, "<title>"));
+		overwrite("temp_safe_string_3.html", s);
 		int errors = 0;
 		s = lr_safe_rst_string_to_html(
 			"<filename>", bad_rst_string, &errors, 0);
 		assert(errors > 0);
+		overwrite("temp_safe_string_4.html", s);
 		if (errors) {
 			// Handle error.
 			printf("Ignore the next error message, it's expected\n");
@@ -131,6 +141,4 @@ void run_c_test(void)
 			}
 		}
 	}
-
-
 }
