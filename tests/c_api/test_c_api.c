@@ -48,6 +48,7 @@ void run_c_test(void)
 	printf("Using lazy_rest: %d-%d-%d.\n",
 		major, minor, maintenance);
 
+	// Tests unsafe string conversions.
 	{
 		char *s = lr_rst_string_to_html(valid_rst_string,
 			"<string>", 0);
@@ -72,7 +73,7 @@ void run_c_test(void)
 		}
 	}
 
-	// Does the same with file conversions.
+	// Tests unsafe file conversions.
 	{
 		char *s = lr_rst_file_to_html(valid_rst_filename, 0);
 		assert(0 != s);
@@ -93,4 +94,43 @@ void run_c_test(void)
 				lr_rst_file_to_html_error());
 		}
 	}
+
+	// Test the safe string conversions.
+	{
+		char *s = lr_safe_rst_string_to_html(
+			"<filename>", valid_rst_string, 0, 0);
+		assert(s);
+		assert(strstr(s, "<title>"));
+		int errors = 1;
+		s = lr_safe_rst_string_to_html(
+			"<filename>", valid_rst_string, &errors, 0);
+		assert(0 == errors);
+		if (s) {
+			// Success!
+		} else {
+			// Handle error.
+		}
+	}
+
+	{
+		char *s = lr_safe_rst_string_to_html(
+			"<filename>", bad_rst_string, 0, 0);
+		assert(s);
+		assert(strstr(s, "<title>"));
+		int errors = 0;
+		s = lr_safe_rst_string_to_html(
+			"<filename>", bad_rst_string, &errors, 0);
+		assert(errors > 0);
+		if (errors) {
+			// Handle error.
+			printf("Ignore the next error message, it's expected\n");
+			printf("RST error stack trace:\n");
+			while (errors) {
+				printf("\t%s\n",
+					lr_safe_rst_string_to_html_error(--errors));
+			}
+		}
+	}
+
+
 }
