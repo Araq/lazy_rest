@@ -183,4 +183,11 @@ void run_c_test(void)
 		}
 	}
 
+	// Tests the nim file conversion.
+	{
+		char *s = lr_nim_file_to_html("test_c_api.nim", 1, 0);
+		overwrite("temp_nim_file_1.html", s);
+		s = lr_nim_file_to_html("test_c_api.nim", 0, 0);
+		overwrite("temp_nim_file_2.html", s);
+	}
 }

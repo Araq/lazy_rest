@@ -82,13 +82,14 @@ proc lr_parse_rst_options*(options: cstring): PStringTable
   ## function will mangle the returned value. It is unlikely you will need to
   ## call this more than once though.
   ##
-  ## Also, due to a limitation in Nimrod's exportc pragma, right now the
-  ## ``PStringTable`` type will be exported to the C header like ``typedef
-  ## struct tstringtable128812 tstringtable128812``, so it may be difficult or
-  ## impossible to write crossplatform source code which calls this function,
-  ## given that each platform's Nimrod compiler (or version) may generate a
-  ## different symbol. Still, the function is here for completeness (and maybe
-  ## you don't mind the weird ``typedef``).
+  ## Also, due to a `limitation <https://github.com/Araq/Nimrod/issues/1579>`_
+  ## in Nimrod's exportc pragma, right now the ``PStringTable`` type will be
+  ## exported to the C header like ``typedef struct tstringtable128812
+  ## tstringtable128812``, so it may be difficult or impossible to write
+  ## crossplatform source code which calls this function, given that each
+  ## platform's Nimrod compiler (or version) may generate a different symbol.
+  ## Still, the function is here for completeness (and maybe you don't mind the
+  ## weird ``typedef``).
   C.ret_parse_rst_options = parse_rst_options(options.nil_string)
   result = C.ret_parse_rst_options
 
@@ -345,7 +346,11 @@ proc lr_nim_file_to_html*(filename: cstring, number_lines: cint,
   ##
   ## The Nimrod boolean parameter is replaced by an ``int`` (non zero ==
   ## ``true``). The memory of the returned ``cstring`` will be kept until the
-  ## next call to this function, you may need to copy it somewhere.
+  ## next call to this function, you may need to copy it somewhere. Example:
+  ##
+  ## .. code-block:: c
+  ##   char *s = lr_nim_file_to_html("file.nim", 1, 0);
+  ##   // Do here something useful with `s`.
   let
     filename = filename.nil_string
     number_lines = if number_lines != 0: true else: false
