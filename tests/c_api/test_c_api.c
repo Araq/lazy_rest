@@ -25,7 +25,7 @@ void overwrite(const char *filename, const char *s)
 	assert(s);
 	FILE *file = fopen(filename, "w+");
 	assert(file);
-	fwrite(s, 1, 1 + strlen(s), file);
+	fwrite(s, 1, strlen(s), file);
 	fclose(file);
 }
 
@@ -72,7 +72,7 @@ void run_c_test(char *error_rst)
 		assert(0 == s);
 		if (!s) {
 			// Handle error.
-			printf("Ignore the next error message, it's expected\n");
+			printf("1 Ignore the next error message, it's expected\n");
 			printf("Error processing string: %s\n",
 				lr_rst_string_to_html_error());
 		}
@@ -95,7 +95,7 @@ void run_c_test(char *error_rst)
 		assert(0 == s);
 		if (!s) {
 			// Handle error.
-			printf("Ignore the next error message, it's expected\n");
+			printf("2 Ignore the next error message, it's expected\n");
 			printf("Error processing file: %s\n",
 				lr_rst_file_to_html_error());
 		}
@@ -133,7 +133,7 @@ void run_c_test(char *error_rst)
 		overwrite("temp_safe_string_4.html", s);
 		if (errors) {
 			// Handle error.
-			printf("Ignore the next error message, it's expected\n");
+			printf("3 Ignore the next error message, it's expected\n");
 			printf("RST error stack trace:\n");
 			while (errors) {
 				printf("\t%s\n",

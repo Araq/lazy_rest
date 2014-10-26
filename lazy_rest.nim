@@ -333,6 +333,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
     simulate_subex_failure = true
 
   # Fixup title page as much as we can.
+  var last_mod: TTime
   if filename.is_nil:
     if data.is_nil:
       ERROR_TITLE.add("rst input")
@@ -340,6 +341,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       ERROR_TITLE.add($data.len & " bytes of rst input")
   else:
     ERROR_TITLE.add(filename.xml_encode)
+    # See if we can get the filename time?
+    try: last_mod = filename.getLastModificationTime
+    except: discard
+  let
+    last_mod_local = last_mod.getLocalTime
+    last_mod_gmt = last_mod.getGMTime
 
   # Recover current time and store in text for string replacement.
   try:
@@ -366,6 +373,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       if G.user_normal_error.is_nil: error_template else: G.user_normal_error
     result = subex(html_template) % ["title", ERROR_TITLE,
       "local_date", TIME_STR[2], "local_time", TIME_STR[3],
+      "fileTime", $(int(last_mod_local.timeInfoToTime) * 1000),
       "version_str", version_str, "errors", ERRORS.build_error_table,
       "content", CONTENT]
   except:
