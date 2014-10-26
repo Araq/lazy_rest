@@ -12,11 +12,15 @@ import lazy_rest_c_api
 ## use slurp the get real C code from an external file which allows our puny
 ## editors to syntax highlight it properly.
 
-const c_source = slurp("test_c_api.c")
+const
+  c_source = slurp("test_c_api.c")
+  error_template = slurp("../errors/custom_default_error.rst")
 
 {.emit:c_source.}
 
-proc run_tests() = {.emit:"""run_c_test();""".}
+proc run_tests() =
+  let e = cstring(error_template)
+  {.emit:"""run_c_test(`e`);""".}
 
 when isMainModule:
   run_tests()

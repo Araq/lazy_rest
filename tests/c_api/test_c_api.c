@@ -30,7 +30,7 @@ void overwrite(const char *filename, const char *s)
 }
 
 // Entry point of the C test.
-void run_c_test(void)
+void run_c_test(char *error_rst)
 {
 	// Due to backticks being escaped in Nimrod's emit pragma (see
 	// https://github.com/Araq/Nimrod/issues/1588) we have to modify
@@ -189,5 +189,31 @@ void run_c_test(void)
 		overwrite("temp_nim_file_1.html", s);
 		s = lr_nim_file_to_html("test_c_api.nim", 0, 0);
 		overwrite("temp_nim_file_2.html", s);
+	}
+
+	// Test normal error rst.
+	{
+		if (lr_set_normal_error_rst(error_rst)) {
+			// Handle error.
+			assert(0);
+		} else {
+			assert(1);
+			char *s = lr_safe_rst_file_to_html(
+				bad_rst_filename, 0, 0);
+			assert(s);
+			assert(strstr(s, "<title>"));
+			overwrite("temp_set_error_template_1.html", s);
+		}
+
+		int errors = lr_set_normal_error_rst(bad_rst_string);
+		assert(errors);
+		if (errors) {
+			printf("5 Ignore the next error messages\n");
+			printf("Could not set normal error rst!\n");
+			while (errors) {
+				printf("\t%s\n",
+					lr_set_normal_error_rst_error(--errors));
+			}
+		}
 	}
 }

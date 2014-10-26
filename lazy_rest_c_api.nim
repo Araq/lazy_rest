@@ -366,7 +366,10 @@ proc lr_set_normal_error_rst*(input_rst: cstring): cint
   ## The C API returns the number of errors instead of the list of error
   ## messages. If you got a zero, this means success. Otherwise you can use
   ## `lr_set_normal_error_rst_error() <#lr_set_normal_error_rst_error>`_ in a
-  ## loop to retrieve the individual error messages.
+  ## loop to retrieve the individual error messages. Example:
+  ##
+  ## .. code-block:: c
+  ##   lr_set_normal_error_rst(normal_error_rst);
   let input_rst = input_rst.nil_string
   C.ret_set_normal_error_rst = set_normal_error_rst(input_rst)
   result = C.ret_set_normal_error_rst.len.cint
@@ -384,7 +387,17 @@ proc lr_set_normal_error_rst_error*(pos: cint): cstring
   ## Returns the string for the specified error position or null if there was
   ## any error (eg. `pos` is an invalid index). You may need to copy the
   ## returned error string, since its memory could be freed by the next call to
-  ## `lr_set_normal_error_rst() <#lr_set_normal_error_rst>`_.
+  ## `lr_set_normal_error_rst() <#lr_set_normal_error_rst>`_. Example:
+  ##
+  ## .. code-block:: c
+  ##   int errors = lr_set_normal_error_rst(bad_rst_string);
+  ##   if (errors) {
+  ##      printf("Could not set normal error rst!\n");
+  ##      while (errors) {
+  ##         printf("\t%s\n",
+  ##            lr_set_normal_error_rst_error(--errors));
+  ##      }
+  ##   }
   if C.ret_set_normal_error_rst.is_nil or pos < 0 or
       pos >= C.ret_set_normal_error_rst.len:
     return
@@ -399,7 +412,10 @@ proc lr_set_safe_error_rst*(input_rst: cstring): cint
   ## The C API returns the number of errors instead of the list of error
   ## messages. If you got a zero, this means success. Otherwise you can use
   ## `lr_set_safe_error_rst_error() <#lr_set_safe_error_rst_error>`_ in a loop
-  ## to retrieve the individual error messages.
+  ## to retrieve the individual error messages. Example:
+  ##
+  ## .. code-block:: c
+  ##   lr_set_safe_error_rst(safe_error_rst);
   let input_rst = input_rst.nil_string
   C.ret_set_safe_error_rst = set_safe_error_rst(input_rst)
   result = C.ret_set_safe_error_rst.len.cint
@@ -417,7 +433,17 @@ proc lr_set_safe_error_rst_error*(pos: cint): cstring
   ## Returns the string for the specified error position or null if there was
   ## any error (eg. `pos` is an invalid index). You may need to copy the
   ## returned error string, since its memory could be freed by the next call to
-  ## `lr_set_safe_error_rst() <#lr_set_safe_error_rst>`_.
+  ## `lr_set_safe_error_rst() <#lr_set_safe_error_rst>`_. Example:
+  ##
+  ## .. code-block:: c
+  ##   int errors = lr_set_safe_error_rst(bad_rst_string);
+  ##   if (errors) {
+  ##      printf("Could not set safe error rst!\n");
+  ##      while (errors) {
+  ##         printf("\t%s\n",
+  ##            lr_set_safe_error_rst_error(--errors));
+  ##      }
+  ##   }
   if C.ret_set_safe_error_rst.is_nil or pos < 0 or
       pos >= C.ret_set_safe_error_rst.len:
     return
