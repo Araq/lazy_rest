@@ -24,6 +24,12 @@ import lazy_rest, external/badger_bits/bb_system, strtabs
 ## embedded ``NULLs`` in text since they will be treated as string terminators.
 ## In practice this should not be a problem given the nature of text
 ## processing.
+##
+## There is a limitation with regards to passing configuration options from C
+## (see `lr_parse_rst_options() <#lr_parse_rst_options>`_) so the convenience
+## `lr_set_global_rst_options() <#lr_set_global_rst_options>`_ is provided
+## instead. The public API will remain having configuration options as
+## parameters for the future though.
 
 
 type
@@ -40,6 +46,7 @@ type
     ret_safe_rst_string_to_html: string
     ret_set_normal_error_rst: seq[string]
     ret_set_safe_error_rst: seq[string]
+    global_options: PStringTable
 
 
 var C: C_state
@@ -89,9 +96,30 @@ proc lr_parse_rst_options*(options: cstring): PStringTable
   ## crossplatform source code which calls this function, given that each
   ## platform's Nimrod compiler (or version) may generate a different symbol.
   ## Still, the function is here for completeness (and maybe you don't mind the
-  ## weird ``typedef``).
+  ## weird ``typedef``). You can use `lr_set_global_rst_options()
+  ## <#lr_set_global_rst_options>`_ to work around this issue.
   C.ret_parse_rst_options = parse_rst_options(options.nil_string)
   result = C.ret_parse_rst_options
+
+
+proc lr_set_global_rst_options*(options: cstring): cint
+    {.discardable, exportc, raises: [].} =
+  ## Works around `lr_parse_rst_options() <#lr_parse_rst_options>`_ limitations.
+  ##
+  ## Since in C you can't get a hold of the type of a ``PStringTable``
+  ## conveniently, this will call `lr_parse_rst_options()
+  ## <#lr_parse_rst_options>`_ and store the result in a special global
+  ## variable. From this moment on, every call to the public API which accepts
+  ## a ``PStringTable``, if you pass ``null`` the global variable stored by
+  ## this function will be used instead.
+  ##
+  ## At some point in the future this function will disappear (obviously when
+  ## ``PStringTable`` can be exported properly).
+  ##
+  ## Returns zero if `lr_parse_rst_options() <#lr_parse_rst_options>`_ returned
+  ## ``nil``, non zero otherwise.
+  C.global_options = options.lr_parse_rst_options
+  result = if C.global_options.is_nil: 0 else: 1
 
 
 proc lr_rst_string_to_html*(content, filename: cstring,
