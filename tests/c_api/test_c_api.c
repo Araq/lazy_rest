@@ -30,7 +30,7 @@ void overwrite(const char *filename, const char *s)
 }
 
 // Entry point of the C test.
-void run_c_test(char *error_rst)
+void run_c_test(char *error_rst, char *special_options)
 {
 	// Due to backticks being escaped in Nimrod's emit pragma (see
 	// https://github.com/Araq/Nimrod/issues/1588) we have to modify
@@ -215,5 +215,25 @@ void run_c_test(char *error_rst)
 					lr_set_normal_error_rst_error(--errors));
 			}
 		}
+	}
+
+	// Test option override.
+	{
+		int did_change = lr_set_global_rst_options(special_options);
+		assert(did_change && "Did fail changing global options?");
+
+		char *s = lr_safe_rst_file_to_html(
+			bad_rst_filename, 0, 0);
+		overwrite("temp_global_options_1.html", s);
+		s = lr_safe_rst_file_to_html(
+			valid_rst_filename, 0, 0);
+		overwrite("temp_global_options_2.html", s);
+
+		// Reset back to nil.
+		did_change = lr_set_global_rst_options(0);
+		assert(!did_change);
+		s = lr_safe_rst_file_to_html(
+			valid_rst_filename, 0, 0);
+		overwrite("temp_global_options_3.html", s);
 	}
 }

@@ -15,12 +15,15 @@ import lazy_rest_c_api
 const
   c_source = slurp("test_c_api.c")
   error_template = slurp("../errors/custom_default_error.rst")
+  special_options = slurp("../runtime_change/special.cfg")
 
 {.emit:c_source.}
 
 proc run_tests() =
-  let e = cstring(error_template)
-  {.emit:"""run_c_test(`e`);""".}
+  let
+    e = error_template.cstring
+    o = special_options.cstring
+  {.emit:"""run_c_test(`e`, `o`);""".}
 
 when isMainModule:
   run_tests()

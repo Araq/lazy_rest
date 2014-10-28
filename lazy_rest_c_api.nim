@@ -52,6 +52,10 @@ type
 var C: C_state
 
 
+template override_config() =
+  let config {.inject.} = if config == nil: C.global_options else: config
+
+
 proc lr_version_int*(major, minor, maintenance: ptr cint)
     {.exportc, cdecl, raises: [].} =
   ## Wraps `version_int <lazy_rest.html#version_int>`_ for C.
@@ -142,6 +146,7 @@ proc lr_rst_string_to_html*(content, filename: cstring,
   ##    } else {
   ##       // Handle error.
   ##    }
+  override_config()
   let
     filename = filename.nil_string
     content = content.nil_string
@@ -199,6 +204,7 @@ proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
   ##    } else {
   ##       // Handle error.
   ##    }
+  override_config()
   let filename = filename.nil_string
   C.ret_rst_file_to_html = nil
   C.error_rst_file_to_html = nil
@@ -254,6 +260,7 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
   ##      "<filename>", valid_rst_string, 0, 0);
   ##   assert(s);
   ##   // Do here something with `s`.
+  override_config()
   let
     filename = filename.nil_string
     data = data.nil_string
@@ -321,6 +328,7 @@ proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
   ##      valid_rst_filename, 0, 0);
   ##   assert(s);
   ##   // Do here something with `s`.
+  override_config()
   let filename = filename.nil_string
   C.errors_safe_rst_file_to_html = @[]
 
@@ -379,6 +387,7 @@ proc lr_nim_file_to_html*(filename: cstring, number_lines: cint,
   ## .. code-block:: c
   ##   char *s = lr_nim_file_to_html("file.nim", 1, 0);
   ##   // Do here something useful with `s`.
+  override_config()
   let
     filename = filename.nil_string
     number_lines = if number_lines != 0: true else: false
