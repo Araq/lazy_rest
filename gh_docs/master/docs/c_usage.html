@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Lazy reST license</title>
+<title>Lazy reST C usage guide</title>
 <style type="text/css">
 
 span.DecNumber {color: blue}
@@ -238,11 +238,25 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 </head>
 <body>
 <div class="document" id="documentId">
-<h1 class="title">Lazy reST license</h1>
-<p>This is the license for <a class="reference external" href="https://github.com/gradha/lazy_rest">Lazy reSt</a>. See the <a class="reference external" href="../README.rst">README</a>.</p>
-<p>The MIT License (MIT)<br />Copyright (c) 2014 Grzegorz Adam Hankiewicz<br /></p><p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
-<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. </p>
+<h1 class="title">Lazy reST C usage guide</h1>
+<p>This is the C usage guide for <a class="reference external" href="https://github.com/gradha/lazy_rest">Lazy reSt</a>.  See the <a class="reference external" href="../README.html">README</a>.</p>
+
+<h1 id="installation">Installation</h1><p>The C API for Lazy reST is distributed actually as a Nimrod source file (see <a class="reference external" href="../lazy_rest_c_api.nim">the lazy_rest_c_api.nim file</a> which you are meant to compile with Nimrod using the <a class="reference external" href="http://nimrod-lang.org/backends.html#backend-code-calling-nimrod">--header command line switch</a> to produce <tt class="docutils literal"><span class="pre">.c</span></tt> files along with a usable <tt class="docutils literal"><span class="pre">.h</span></tt> header.</p>
+<p>What this means is that you need a working Nimrod compiler and follow the <a class="reference external" href="nimrod_usage.rst">Nimrod installation steps</a> before doing anything else.</p>
+<p>Once you have the Nimrod compiler and source (or Babel package) installed, you can either compile the <tt class="docutils literal"><span class="pre">lazy_rest_c_api.nim</span></tt> file with the <tt class="docutils literal"><span class="pre">--header</span></tt> option (plus any other useful switches, e.g. <tt class="docutils literal"><span class="pre">--noMain</span></tt> and <tt class="docutils literal"><span class="pre">--compileOnly</span></tt>) or create a dummy nimrod source file and use that to compile. Usage example:<pre>
+$ echo &quot;import lazy_rest_c_api &quot; &gt; dummy.nim
+$ nimrod --header --noMain --compileOnly \
+    -d:release --nimcache:out_dir c dummy.nim
+$ cat out_dir/dummy.h
+# Add generated sources to your project.</pre>
+</p>
+
+<h1 id="documentation">Documentation</h1><p>Documentation comes as <a class="reference external" href="../lazy_rest_c_api.html">embedded docstrings</a> in the <a class="reference external" href="../lazy_rest_c_api.nim">lazy_rest_c_api.nim file</a>. If you have <a class="reference external" href="https://github.com/fowlmouth/nake">nake</a> installed, you can run the following command to build all the  reStructuredText files into HTML and the <tt class="docutils literal"><span class="pre">lazy_rest_c_api.nim</span></tt> module into HTML:<pre>
+$ nake doc</pre>
+</p>
+<p>This is essentially a wrapper around <tt class="docutils literal"><span class="pre">nimrod doc lazy_rest_c_api.nim</span></tt>. You can also read the pre generated HTML documentation at <a class="reference external" href="http://gradha.github.io/lazy_rest">http://gradha.github.io/lazy_rest</a>/ for all released versions and the current <tt class="docutils literal"><span class="pre">master</span></tt> git development branch.</p>
+
+<h1 id="practical-example">Practical example</h1><p>In the <tt class="docutils literal"><span class="pre">tests/c_api</span></tt> subdirectory you can find a <a class="reference external" href="../tests/c_api/test_c_api.nim">test_c_api.nim wrapper</a> around a <a class="reference external" href="../tests/c_api/test_c_api.c">test_c_api.c</a> file which makes use of the C API. That plus the public API documentation should be enough. </p>
 
 
 

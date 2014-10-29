@@ -239,7 +239,14 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <body>
 <div class="document" id="documentId">
 <h1 class="title">Index</h1>
-Documents: <a href="docs/changes.html">Lazy reST changes log</a>, <a href="LICENSE.html">Lazy reST license</a>, <a href="README.html">Lazy reST readme</a>.<br><p />Modules: <a href="lazy_rest.html">lazy_rest</a>.<br><p /><h2>Documentation files</h2>
+Documents: <a href="docs/c_usage.html">Lazy reST C usage guide</a>, <a href="docs/changes.html">Lazy reST changes log</a>, <a href="LICENSE.html">Lazy reST license</a>, <a href="README.html">Lazy reST readme</a>.<br><p />Modules: <a href="lazy_rest.html">lazy_rest</a>, <a href="lazy_rest_c_api.html">lazy_rest_c_api</a>.<br><p /><h2>Documentation files</h2>
+<ul><li><a href="docs/c_usage.html">Lazy reST C usage guide</a>
+<ul>
+<li><a href="docs/c_usage.html#installation">Installation</a>
+<li><a href="docs/c_usage.html#documentation">Documentation</a>
+<li><a href="docs/c_usage.html#practical-example">Practical example</a>
+</ul>
+</ul>
 <ul><li><a href="docs/changes.html">Lazy reST changes log</a>
 <ul>
 <li><a href="docs/changes.html#v0-1-0">v0.1.0, ????-??-??</a>
@@ -259,33 +266,110 @@ Documents: <a href="docs/changes.html">Lazy reST changes log</a>, <a href="LICEN
 </ul>
 </ul>
 <h2>API symbols</h2>
-<dt><span>change_rst_options:</span></dt><ul class="simple"><dd>
+<dt><span>lr_nim_file_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Changes the current global options.…" href="lazy_rest.html#change_rst_options,string">lazy_rest : change_rst_options*(options: string): bool</a></li>
+          title="Wraps `nim_file_to_html() &lt;lazy_rest.html#nim_file_to_html&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_nim_file_to_html,cstring,cint,PStringTable">lazy_rest_c_api : lr_nim_file_to_html*(filename: cstring; number_lines: cint; config: PStringTable): cstring</a></li>
           </ul></dd>
-<dt><span>get_global_html:</span></dt><ul class="simple"><dd>
+<dt><span>lr_parse_rst_options:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Copies the result of txt_to_rst into output_buffer.…" href="lazy_rest.html#get_global_html,pointer">lazy_rest : get_global_html*(output_buffer: pointer)</a></li>
+          title="Wraps `parse_rst_options() &lt;lazy_rest.html#parse_rst_options&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_parse_rst_options,cstring">lazy_rest_c_api : lr_parse_rst_options*(options: cstring): PStringTable</a></li>
+          </ul></dd>
+<dt><span>lr_rst_file_to_html:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wraps `rst_file_to_html() &lt;lazy_rest.html#rst_file_to_html&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_rst_file_to_html,cstring,PStringTable">lazy_rest_c_api : lr_rst_file_to_html*(filename: cstring; config: PStringTable): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_rst_file_to_html_error:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns the error string for `lr_rst_file_to_html()…" href="lazy_rest_c_api.html#lr_rst_file_to_html_error,">lazy_rest_c_api : lr_rst_file_to_html_error*(): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_rst_string_to_html:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wraps `rst_string_to_html() &lt;lazy_rest.html#rst_string_to_html&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_rst_string_to_html,cstring,cstring,PStringTable">lazy_rest_c_api : lr_rst_string_to_html*(content, filename: cstring; config: PStringTable): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_rst_string_to_html_error:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns the error string for `lr_rst_string_to_html()…" href="lazy_rest_c_api.html#lr_rst_string_to_html_error,">lazy_rest_c_api : lr_rst_string_to_html_error*(): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_safe_rst_file_to_html:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wraps `safe_rst_file_to_html() &lt;lazy_rest.html#safe_rst_file_to_html&gt;`_…" href="lazy_rest_c_api.html#lr_safe_rst_file_to_html,cstring,ptr.cint,PStringTable">lazy_rest_c_api : lr_safe_rst_file_to_html*(filename: cstring; ERRORS: ptr cint; 
+                          config: PStringTable): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_safe_rst_file_to_html_error:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns error strings for `lr_safe_rst_file_to_html()…" href="lazy_rest_c_api.html#lr_safe_rst_file_to_html_error,cint">lazy_rest_c_api : lr_safe_rst_file_to_html_error*(pos: cint): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_safe_rst_string_to_html:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wraps `safe_rst_string_to_html()…" href="lazy_rest_c_api.html#lr_safe_rst_string_to_html,cstring,cstring,ptr.cint,PStringTable">lazy_rest_c_api : lr_safe_rst_string_to_html*(filename, data: cstring; ERRORS: ptr cint; 
+                            config: PStringTable): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_safe_rst_string_to_html_error:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns error strings for `lr_safe_rst_string_to_html()…" href="lazy_rest_c_api.html#lr_safe_rst_string_to_html_error,cint">lazy_rest_c_api : lr_safe_rst_string_to_html_error*(pos: cint): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_set_global_rst_options:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Works around `lr_parse_rst_options() &lt;#lr_parse_rst_options&gt;`_ limitations.…" href="lazy_rest_c_api.html#lr_set_global_rst_options,cstring">lazy_rest_c_api : lr_set_global_rst_options*(options: cstring): cint</a></li>
+          </ul></dd>
+<dt><span>lr_set_normal_error_rst:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Exports `set_normal_error_rst() &lt;lazy_rest.html#set_normal_error_rst&gt;`_…" href="lazy_rest_c_api.html#lr_set_normal_error_rst,cstring">lazy_rest_c_api : lr_set_normal_error_rst*(input_rst: cstring): cint</a></li>
+          </ul></dd>
+<dt><span>lr_set_normal_error_rst_error:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns error strings for `lr_set_normal_error_rst()…" href="lazy_rest_c_api.html#lr_set_normal_error_rst_error,cint">lazy_rest_c_api : lr_set_normal_error_rst_error*(pos: cint): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_set_safe_error_rst:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Exports `set_safe_error_rst() &lt;lazy_rest.html#set_safe_error_rst&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_set_safe_error_rst,cstring">lazy_rest_c_api : lr_set_safe_error_rst*(input_rst: cstring): cint</a></li>
+          </ul></dd>
+<dt><span>lr_set_safe_error_rst_error:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns error strings for `lr_set_safe_error_rst()…" href="lazy_rest_c_api.html#lr_set_safe_error_rst_error,cint">lazy_rest_c_api : lr_set_safe_error_rst_error*(pos: cint): cstring</a></li>
+          </ul></dd>
+<dt><span>lr_version_int:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wraps `version_int &lt;lazy_rest.html#version_int&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_version_int,ptr.cint,ptr.cint,ptr.cint">lazy_rest_c_api : lr_version_int*(major, minor, maintenance: ptr cint)</a></li>
+          </ul></dd>
+<dt><span>lr_version_str:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wraps `version_str &lt;lazy_rest.html#version_str&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_version_str,">lazy_rest_c_api : lr_version_str*(): cstring</a></li>
           </ul></dd>
 <dt><span>nim_file_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Puts filename into a code block and renders like rst file.…" href="lazy_rest.html#nim_file_to_html,string">lazy_rest : nim_file_to_html*(filename: string): string</a></li>
+          title="Puts the contents of `filename` in a code block to render as rest.…" href="lazy_rest.html#nim_file_to_html,string,PStringTable">lazy_rest : nim_file_to_html*(filename: string; number_lines = true; 
+                  config: PStringTable = nil): string</a></li>
+          </ul></dd>
+<dt><span>parse_rst_options:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Parses the options, returns nil if something goes wrong.…" href="lazy_rest.html#parse_rst_options,string">lazy_rest : parse_rst_options*(options: string): PStringTable</a></li>
           </ul></dd>
 <dt><span>rst_file_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts a filename with rest content into a string with HTML tags.…" href="lazy_rest.html#rst_file_to_html,string">lazy_rest : rst_file_to_html*(filename: string): string</a></li>
+          title="Converts a filename with rest content into a string with HTML tags.…" href="lazy_rest.html#rst_file_to_html,string,PStringTable">lazy_rest : rst_file_to_html*(filename: string; config: PStringTable = nil): string</a></li>
           </ul></dd>
 <dt><span>rst_string_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts a content named filename into a string with HTML tags.…" href="lazy_rest.html#rst_string_to_html,string,string">lazy_rest : rst_string_to_html*(content, filename: string): string</a></li>
+          title="Converts a content named filename into a string with HTML tags.…" href="lazy_rest.html#rst_string_to_html,string,string,PStringTable">lazy_rest : rst_string_to_html*(content, filename: string; config: PStringTable = nil): string</a></li>
           </ul></dd>
 <dt><span>safe_rst_file_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Wrapper over rst_file_to_html to catch exceptions.…" href="lazy_rest.html#safe_rst_file_to_html,string">lazy_rest : safe_rst_file_to_html*(filename: string): string</a></li>
+          title="Wrapper over `rst_file_to_html &lt;#rst_file_to_html&gt;`_ to catch exceptions.…" href="lazy_rest.html#safe_rst_file_to_html,string,ptr.seq[string],PStringTable">lazy_rest : safe_rst_file_to_html*(filename: string; ERRORS: ptr seq[string] = nil; 
+                       config: PStringTable = nil): string</a></li>
           </ul></dd>
-<dt><span>txt_to_rst:</span></dt><ul class="simple"><dd>
+<dt><span>safe_rst_string_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts the input filename.…" href="lazy_rest.html#txt_to_rst,cstring">lazy_rest : txt_to_rst*(input_filename: cstring): int</a></li>
+          title="Wrapper over `rst_string_to_html &lt;#rst_string_to_html&gt;`_ to catch…" href="lazy_rest.html#safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable">lazy_rest : safe_rst_string_to_html*(filename, data: string; ERRORS: ptr seq[string] = nil; 
+                         config: PStringTable = nil): string</a></li>
+          </ul></dd>
+<dt><span>set_normal_error_rst:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Changes the default error page for ``safe_*`` function errors.…" href="lazy_rest.html#set_normal_error_rst,string">lazy_rest : set_normal_error_rst*(input_rst: string): seq[string]</a></li>
+          </ul></dd>
+<dt><span>set_safe_error_rst:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Changes the safe error page for ``safe_*`` function errors.…" href="lazy_rest.html#set_safe_error_rst,string">lazy_rest : set_safe_error_rst*(input_rst: string): seq[string]</a></li>
           </ul></dd>
 <dt><span>version_int:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
@@ -296,7 +380,7 @@ Documents: <a href="docs/changes.html">Lazy reST changes log</a>, <a href="LICEN
           title="\…" href="lazy_rest.html#version_str">lazy_rest : version_str</a></li>
           </ul></dd>
 
-<small>Generated: 2014-08-09 01:56:41 UTC</small>
+<small>Generated: 2014-10-29 01:37:10 UTC</small>
 </div>
 </body>
 </html>
