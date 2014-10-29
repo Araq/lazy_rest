@@ -4,6 +4,12 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
 
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
+##
+## For more information regarding Nimrod usage see the `Nimrod usage guide
+## <docs/nimrod_usage.rst>`_.
+##
+## If you are looking for the C API documentation, go to the
+## `lazy_rest_c_api.nim <lazy_rest_c_api.html>`_ file.
 
 # THIS BLOCK IS PENDING https://github.com/gradha/lazy_rest/issues/5
 # If you want to use the multi processor aware queues, which are able to
@@ -17,7 +23,7 @@ proc tuple_to_version(x: expr): string {.compileTime.} =
   for name, value in x.fieldPairs: result.add("." & $value)
   if result.len > 0: result.delete(0, 0)
 
-proc load_config*(mem_string: string): PStringTable
+proc load_config(mem_string: string): PStringTable
 
 
 const
@@ -68,7 +74,7 @@ var G: Global_state
 G.default_config = load_config(rest_default_config)
 
 
-proc load_config*(mem_string: string): PStringTable =
+proc load_config(mem_string: string): PStringTable =
   ## Parses the configuration and returns it as a PStringTable.
   ##
   ## If something goes wrong, will likely raise an exception or return nil.
@@ -100,8 +106,9 @@ proc load_config*(mem_string: string): PStringTable =
 proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
   ## Parses the options, returns nil if something goes wrong.
   ##
-  ## You can safely pass the result of this proc to `rst_string_to_html
-  ## <#rst_string_to_html>`_ since it will handle nil gracefully.
+  ## You can safely pass the result of this proc to `rst_string_to_html()
+  ## <#rst_string_to_html>`_ or any other proc asking for configuration options
+  ## since they will handle nil gracefully.
   if options.is_nil or options.len < 1:
     return nil
 
@@ -329,6 +336,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
     simulate_subex_failure = true
 
   # Fixup title page as much as we can.
+  var last_mod: TTime
   if filename.is_nil:
     if data.is_nil:
       ERROR_TITLE.add("rst input")
@@ -336,6 +344,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       ERROR_TITLE.add($data.len & " bytes of rst input")
   else:
     ERROR_TITLE.add(filename.xml_encode)
+    # See if we can get the filename time?
+    try: last_mod = filename.getLastModificationTime
+    except: discard
+  let
+    last_mod_local = last_mod.getLocalTime
+    last_mod_gmt = last_mod.getGMTime
 
   # Recover current time and store in text for string replacement.
   try:
@@ -362,6 +376,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       if G.user_normal_error.is_nil: error_template else: G.user_normal_error
     result = subex(html_template) % ["title", ERROR_TITLE,
       "local_date", TIME_STR[2], "local_time", TIME_STR[3],
+      "fileTime", $(int(last_mod_local.timeInfoToTime) * 1000),
       "version_str", version_str, "errors", ERRORS.build_error_table,
       "content", CONTENT]
   except:
@@ -390,10 +405,10 @@ proc safe_rst_string_to_html*(filename, data: string,
   ## used for error reporting, you can pass nil or the empty string.
   ##
   ## This proc always returns without raising any exceptions, but if you want
-  ## to know about errors you can pass an initialized sequence of string as the
-  ## `ERRORS` parameter to figure out why something fails and report it to the
-  ## user. Any problems found during rendering will be added to the existing
-  ## list.
+  ## to know about errors you can pass the address of an initialized sequence
+  ## of string as the `ERRORS` parameter to figure out why something fails and
+  ## report it to the user. Any problems found during rendering will be added
+  ## to the existing list.
   ##
   ## The value for the `config` parameter is explained in
   ## `lazy_rest/lrstgen.initRstGenerator()
@@ -436,10 +451,10 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ## quite different from what you expect.
   ##
   ## This proc always returns without raising any exceptions, but if you want
-  ## to know about errors you can pass an initialized sequence of string as the
-  ## `ERRORS` parameter to figure out why something fails and report it to the
-  ## user. Any problems found during rendering will be added to the existing
-  ## list.
+  ## to know about errors you can pass the address of an initialized sequence
+  ## of string as the `ERRORS` parameter to figure out why something fails and
+  ## report it to the user. Any problems found during rendering will be added
+  ## to the existing list.
   ##
   ## The value for the `config` parameter is explained in
   ## `lazy_rest/lrstgen.initRstGenerator()
@@ -506,41 +521,6 @@ proc nim_file_to_html*(filename: string, number_lines = true,
     result = "<html><body><h1>I/O error for " & filename & "</h1></body></html>"
   except EOutOfMemory:
     result = """<html><body><h1>Out of memory!</h1></body></html>"""
-
-
-proc txt_to_rst*(input_filename: cstring): int {.exportc, raises: [].}=
-  ## Converts the input filename.
-  ##
-  ## The conversion is stored in internal global variables. The proc returns
-  ## the number of bytes required to store the generated HTML, which you can
-  ## obtain using the global accessor getHtml passing a pointer to the buffer.
-  ##
-  ## The returned value doesn't include the typical C null terminator. If there
-  ## are problems, an internal error text may be returned so it can be
-  ## displayed to the end user. As such, it is impossible to know the
-  ## success/failure based on the returned value.
-  ##
-  ## This proc is mainly for the C api.
-  assert input_filename.not_nil
-  let filename = $input_filename
-  case filename.splitFile.ext
-  of ".nim":
-    G.last_c_conversion = nim_file_to_html(filename)
-  else:
-    G.last_c_conversion = safe_rst_file_to_html(filename)
-  result = G.last_c_conversion.len
-
-
-proc get_global_html*(output_buffer: pointer) {.exportc, raises: [].} =
-  ## Copies the result of txt_to_rst into output_buffer.
-  ##
-  ## If output_buffer doesn't contain the bytes returned by txt_to_rst, you
-  ## will pay that dearly!
-  ##
-  ## This proc is mainly for the C api.
-  if G.last_c_conversion.is_nil:
-    quit("Uh oh, wrong API usage")
-  copyMem(output_buffer, addr(G.last_c_conversion[0]), G.last_c_conversion.len)
 
 
 proc set_normal_error_rst*(input_rst: string):

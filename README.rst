@@ -34,7 +34,9 @@ Usage
 =====
 
 If you are a Nimrod programmer read the `Nimrod usage guide
-<docs/nimrod_usage.rst>`_ which includes installation steps.
+<docs/nimrod_usage.rst>`_ which includes installation steps. C programmers can
+read the `C usage guide <docs/c_usage.rst>`_ which unfortunately requires you
+to read the Nimrod version too anyway.
 
 Information on how errors are handled is available in the separate `Lazy reST
 error handling <docs/error_handling.rst>`_ document.

@@ -7,6 +7,7 @@ nimcache/
 
 # Full paths.
 /README.html
+/docs/c_usage.html
 /docs/changes.html
 /docs/error_handling.html
 /docs/nimrod_usage.html
@@ -14,11 +15,15 @@ nimcache/
 /gh_docs/
 /lazy_rest
 /lazy_rest.html
+/lazy_rest_c_api
+/lazy_rest_c_api.html
 /lazy_rest_pkg/*.html
 /license.html
 /nakefile
 /nakefile.html
 /p
+/tests/c_api/temp_*.html
+/tests/c_api/temp_*.rst
 /tests/code_blocks/anon.html
 /tests/code_blocks/code_blocks.html
 /tests/code_blocks/html_blocks.html

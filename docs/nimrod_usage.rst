@@ -40,7 +40,8 @@ Babel to install the latest development version directly from git::
 Documentation
 =============
 
-Documentation comes as embedded docstrings. If you have `nake
+Documentation comes as `embedded docstrings <../lazy_rest.html>`_ in the
+`lazy_rest.nim file <../lazy_rest.nim>`_. If you have `nake
 <https://github.com/fowlmouth/nake>`_ installed, you can run the following
 command to build all the |rst| files into HTML and the ``lazy_rest.nim`` module
 into HTML::

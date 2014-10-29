@@ -14,7 +14,8 @@ template glob(pattern: string): expr =
 
 let
   rst_files = concat(glob("*.rst"), glob("docs/*rst"))
-  nim_files = concat(@[name & ".nim"], glob("lazy_rest_pkg/*nim"))
+  nim_files = concat(@[name & ".nim", "lazy_rest_c_api.nim"],
+    glob("lazy_rest_pkg/*nim"))
 
 iterator all_html_files(files: seq[string]): tuple[src, dest: string] =
   for filename in files:
