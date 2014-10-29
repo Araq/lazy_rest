@@ -10,7 +10,8 @@ import lazy_rest, external/badger_bits/bb_system, strtabs
 ## <http://nimrod-lang.org/backends.html#backend-code-calling-nimrod>`_ which
 ## generates the appropriate ``.c`` and ``.h`` files inside the `nimcache
 ## directory <http://nimrod-lang.org/backends.html#nimcache-naming-logic>`_,
-## then compile those into your C program.
+## then compile those into your C program. For more information see the `C
+## usage guide <docs/c_usage.rst>`_.
 ##
 ## Due to the differences between Nimrod and C, most of the wrapper procs will
 ## assign the return values to Nimrod global variables so that their memory is

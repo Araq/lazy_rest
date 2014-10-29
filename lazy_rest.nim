@@ -5,6 +5,9 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
 ##
+## For more information regarding Nimrod usage see the `Nimrod usage guide
+## <docs/nimrod_usage.rst>`_.
+##
 ## If you are looking for the C API documentation, go to the
 ## `lazy_rest_c_api.nim <lazy_rest_c_api.html>`_ file.
 

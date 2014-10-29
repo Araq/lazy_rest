@@ -7,6 +7,7 @@ nimcache/
 
 # Full paths.
 /README.html
+/docs/c_usage.html
 /docs/changes.html
 /docs/error_handling.html
 /docs/nimrod_usage.html
