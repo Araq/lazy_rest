@@ -1,9 +1,14 @@
 *.swp
+.DS_Store
 nimcache/
 
 /LICENSE.html
 /README.html
 /docs/
+/external/
 /lazy_rest
 /lazy_rest.html
+/lazy_rest_c_api.html
+/lazy_rest_pkg/
 /nakefile
+/tests/
