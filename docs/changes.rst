@@ -19,3 +19,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/4>`_.
 * `Added API to customize safe error message
   <https://github.com/gradha/lazy_rest/issues/15>`_.
+* `Extracted and documented C API
+  <https://github.com/gradha/lazy_rest/issues/12>`_.
