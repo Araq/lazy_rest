@@ -21,3 +21,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/15>`_.
 * `Extracted and documented C API
   <https://github.com/gradha/lazy_rest/issues/12>`_.
+* `Avoids hanging on infinite recursive include directives
+  <https://github.com/gradha/lazy_rest/issues/11>`_.
