@@ -33,6 +33,7 @@ nimcache/
 /tests/errors/output/
 /tests/include/complex_recursion_a.html
 /tests/include/recursion_base.html
+/tests/include/relative.html
 /tests/include/simple_include_01.html
 /tests/nimsrc/*.html
 /tests/threads/?manual*.html

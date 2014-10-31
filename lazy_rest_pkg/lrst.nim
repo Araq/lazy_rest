@@ -37,6 +37,7 @@ type
     meNewSectionExpected,
     meGeneralParseError,
     meInvalidDirective,
+    meRecursiveInclude,
     mwRedefinitionOfLabel,
     mwUnknownSubstitution,
     mwUnsupportedLanguage,
@@ -66,6 +67,7 @@ const
     meNewSectionExpected: "new section expected",
     meGeneralParseError: "general parse error",
     meInvalidDirective: "invalid directive: '$1'",
+    meRecursiveInclude: "can't open '$1' due to recursion",
     mwRedefinitionOfLabel: "redefinition of label '$1'",
     mwUnknownSubstitution: "unknown substitution '$1'",
     mwUnsupportedLanguage: "language '$1' not supported",
@@ -1537,7 +1539,7 @@ proc dirInclude(p: var TRstParser): PRstNode =
     for prev in p.filename_stack:
       assert prev.real_path.not_nil and prev.real_path.len > 0
       if expanded == prev.real_path:
-        rstMessage(p, meCannotOpenFile, input_filename)
+        rstMessage(p, meRecursiveInclude, input_filename)
         return
 
     # XXX: error handling; recursive file inclusion!

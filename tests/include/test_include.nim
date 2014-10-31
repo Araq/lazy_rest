@@ -13,3 +13,5 @@ when isMainModule:
   writeFile("complex_recursion_a.html",
     safe_rst_file_to_html("complex_recursion_a.rst"))
 
+  echo "Testing repetitive relative includes…"
+  writeFile("relative.html", safe_rst_file_to_html("relative.rst"))
