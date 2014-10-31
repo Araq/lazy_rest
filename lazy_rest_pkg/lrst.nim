@@ -37,6 +37,7 @@ type
     meNewSectionExpected,
     meGeneralParseError,
     meInvalidDirective,
+    meRecursiveInclude,
     mwRedefinitionOfLabel,
     mwUnknownSubstitution,
     mwUnsupportedLanguage,
@@ -66,6 +67,7 @@ const
     meNewSectionExpected: "new section expected",
     meGeneralParseError: "general parse error",
     meInvalidDirective: "invalid directive: '$1'",
+    meRecursiveInclude: "can't open '$1' due to recursion",
     mwRedefinitionOfLabel: "redefinition of label '$1'",
     mwUnknownSubstitution: "unknown substitution '$1'",
     mwUnsupportedLanguage: "language '$1' not supported",
@@ -270,6 +272,13 @@ type
     key*: string
     value*: PRstNode
 
+  File_info {.final.} = object ## Keeps the user input/full path representation.
+    real_path: string ## Can be nil if the input has not been resolved yet. \
+    ## This is always an absolute path and will be passed to further include
+    ## directives or anything else requiring filesystem access.
+    input: string ## Stores just the input string (from the input document, \
+    ## command line switch, etc).
+
   TSharedState {.final.} = object
     options: TRstParseOptions   # parsing options
     uLevel, oLevel: int         # counters for the section levels
@@ -292,11 +301,35 @@ type
     tok*: TTokenSeq
     s*: PSharedState
     indentStack*: seq[int]
-    filename_stack*: seq[string] ## The top holds the current open file.
+    filename_stack*: seq[File_info] ## The top holds the current open file.
     line*, col*: int
     hasToc*: bool
 
   EParseError* = object of EInvalidValue
+
+proc new_file_info(input_path: string): File_info =
+  ## Creates and returns a File_info object with `input_path` as the relative
+  ## name.
+  ##
+  ## The full path won't be calculated at this time, that will be done by the
+  ## full() proc.
+  assert input_path.not_nil
+  assert input_path.len > 0
+  result.input = input_path
+
+
+proc full(f: var File_info): string =
+  ## Resolves a short name into a full path and returns it.
+  ##
+  ## If the name was previously resolved the cached version will be returned.
+  assert f.input.not_nil
+  if f.real_path.not_nil:
+    result = f.real_path
+    return
+
+  f.real_path = f.input.expand_filename
+  result = f.real_path
+
 
 proc whichMsgClass*(k: TMsgKind): TMsgClass =
   ## returns which message class `k` belongs to.
@@ -333,18 +366,16 @@ proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
   result.msgHandler = if msgHandler.not_nil: msgHandler else: defaultMsgHandler
   result.findFile = if findFile.not_nil: findFile else: defaultFindFile
 
-template last*[T](a: openarray[T]): T = a[high(a)]
-
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string) =
-  p.s.msgHandler(p.filename_stack.last, p.line + p.tok[p.idx].line,
+  p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
     p.col + p.tok[p.idx].col, msgKind, arg)
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string, line, col: int) =
-  p.s.msgHandler(p.filename_stack.last, p.line + line,
+  p.s.msgHandler(p.filename_stack.last.input, p.line + line,
     p.col + col, msgKind, arg)
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind) =
-  p.s.msgHandler(p.filename_stack.last, p.line + p.tok[p.idx].line,
+  p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
     p.col + p.tok[p.idx].col, msgKind, p.tok[p.idx].symbol)
 
 when false:
@@ -1491,41 +1522,41 @@ proc dirInclude(p: var TRstParser): PRstNode =
   #
   #The following options are recognized:
   #
-  #start-after : text to find in the external data file
-  #    Only the content after the first occurrence of the specified text will
-  #    be included.
-  #end-before : text to find in the external data file
-  #    Only the content before the first occurrence of the specified text
-  #    (but after any after text) will be included.
   #literal : flag (empty)
   #    The entire included text is inserted into the document as a single
   #    literal block (useful for program listings).
-  #encoding : name of text encoding
-  #    The text encoding of the external data file. Defaults to the document's
-  #    encoding (if specified).
   #
   result = nil
   var n = parseDirective(p, {hasArg, argIsFile, hasOptions}, nil)
-  var filename = strip(addNodes(n.sons[0]))
-  var path = p.s.findFile(p.filename_stack.last, filename)
+  var input_filename = strip(addNodes(n.sons[0]))
+  var path = p.s.findFile(p.filename_stack.last.full, input_filename)
   if path == "":
-    rstMessage(p, meCannotOpenFile, filename)
+    rstMessage(p, meCannotOpenFile, input_filename)
   else:
-    path = path.expand_filename
+    var file_info = new_file_info(path)
+    # Detect previous inclusions of this file.
+    let expanded = file_info.full
+    for prev in p.filename_stack:
+      assert prev.real_path.not_nil and prev.real_path.len > 0
+      if expanded == prev.real_path:
+        rstMessage(p, meRecursiveInclude, input_filename)
+        return
+
     # XXX: error handling; recursive file inclusion!
     if getFieldValue(n, "literal") != "":
       result = newRstNode(rnLiteralBlock)
-      add(result, newRstNode(rnLeaf, readFile(path)))
+      add(result, newRstNode(rnLeaf, readFile(file_info.full)))
     else:
       var q: TRstParser
       initParser(q, p.s)
       q.filename_stack = p.filename_stack
-      q.filename_stack.add(path)
-      q.col += getTokens(readFile(path), false, q.tok)
+      q.filename_stack.add(file_info)
+      q.col += getTokens(q.filename_stack.last.full.read_file, false, q.tok)
       # workaround a GCC bug; more like the interior pointer bug?
       #if find(q.tok[high(q.tok)].symbol, "\0\x01\x02") > 0:
       #  InternalError("Too many binary zeros in include file")
       result = parseDoc(q)
+
 
 proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
   ## Parses a code block.
@@ -1541,11 +1572,11 @@ proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
   ## ``default-language``, which is unlikely to collide with a field specified
   ## by any random rst input file.
   result = parseDirective(p, {hasArg, hasOptions}, parseLiteralBlock)
-  var filename = strip(getFieldValue(result, "file"))
-  if filename != "":
-    var path = p.s.findFile(p.filename_stack.last, filename)
+  var input_filename = strip(getFieldValue(result, "file"))
+  if input_filename != "":
+    var path = p.s.findFile(p.filename_stack.last.full, input_filename)
     if path == "":
-      rstMessage(p, meCannotOpenFile, filename)
+      rstMessage(p, meCannotOpenFile, input_filename)
     else:
       path = path.expand_filename
     var n = newRstNode(rnLiteralBlock)
@@ -1596,11 +1627,11 @@ proc dirIndex(p: var TRstParser): PRstNode =
 
 proc dirRawAux(p: var TRstParser, result: var PRstNode, kind: TRstNodeKind,
                contentParser: TSectionParser) =
-  var filename = getFieldValue(result, "file")
-  if filename.len > 0:
-    var path = p.s.findFile(p.filename_stack.last, filename)
+  var input_filename = getFieldValue(result, "file")
+  if input_filename.len > 0:
+    var path = p.s.findFile(p.filename_stack.last.full, input_filename)
     if path.len == 0:
-      rstMessage(p, meCannotOpenFile, filename)
+      rstMessage(p, meCannotOpenFile, input_filename)
     else:
       path = path.expand_filename
       var f = readFile(path)
@@ -1721,7 +1752,7 @@ proc rstParse*(text, filename: string,
                msgHandler: TMsgHandler = nil): PRstNode =
   var p: TRstParser
   initParser(p, newSharedState(options, findFile, msgHandler))
-  p.filename_stack.add(filename)
+  p.filename_stack.add(new_file_info(filename))
   p.line = line
   p.col = column + getTokens(text, roSkipPounds in options, p.tok)
   result = resolveSubs(p, parseDoc(p))
