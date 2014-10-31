@@ -1532,6 +1532,14 @@ proc dirInclude(p: var TRstParser): PRstNode =
     rstMessage(p, meCannotOpenFile, input_filename)
   else:
     var file_info = new_file_info(path)
+    # Detect previous inclusions of this file.
+    let expanded = file_info.full
+    for prev in p.filename_stack:
+      assert prev.real_path.not_nil and prev.real_path.len > 0
+      if expanded == prev.real_path:
+        rstMessage(p, meCannotOpenFile, input_filename)
+        return
+
     # XXX: error handling; recursive file inclusion!
     if getFieldValue(n, "literal") != "":
       result = newRstNode(rnLiteralBlock)
