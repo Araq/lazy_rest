@@ -364,8 +364,6 @@ proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
   result.msgHandler = if msgHandler.not_nil: msgHandler else: defaultMsgHandler
   result.findFile = if findFile.not_nil: findFile else: defaultFindFile
 
-template last*[T](a: openarray[T]): T = a[high(a)]
-
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string) =
   p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
     p.col + p.tok[p.idx].col, msgKind, arg)
