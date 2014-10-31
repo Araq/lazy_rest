@@ -1491,18 +1491,9 @@ proc dirInclude(p: var TRstParser): PRstNode =
   #
   #The following options are recognized:
   #
-  #start-after : text to find in the external data file
-  #    Only the content after the first occurrence of the specified text will
-  #    be included.
-  #end-before : text to find in the external data file
-  #    Only the content before the first occurrence of the specified text
-  #    (but after any after text) will be included.
   #literal : flag (empty)
   #    The entire included text is inserted into the document as a single
   #    literal block (useful for program listings).
-  #encoding : name of text encoding
-  #    The text encoding of the external data file. Defaults to the document's
-  #    encoding (if specified).
   #
   result = nil
   var n = parseDirective(p, {hasArg, argIsFile, hasOptions}, nil)
