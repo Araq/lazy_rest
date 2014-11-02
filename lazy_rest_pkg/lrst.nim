@@ -61,8 +61,9 @@ type
     ##
     ## The callback should return the path to the final file. If the file can't
     ## be resolved for whatever reason (e.g final path falls out of sandboxed
-    ## environment), it should return the empty string. All exceptions raised
-    ## inside the callback will be treated as returning the empty string.
+    ## environment), it should return the empty string or ``nil``. All
+    ## exceptions raised inside the callback will be treated as returning the
+    ## empty string.
 
 const
   messages: array [TMsgKind, string] = [

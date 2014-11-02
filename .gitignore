@@ -34,6 +34,7 @@ nimcache/
 /tests/include/absolute_unix.html
 /tests/include/absolute_windows.html
 /tests/include/complex_recursion_a.html
+/tests/include/flattened_includes.html
 /tests/include/recursion_base.html
 /tests/include/relative.html
 /tests/include/simple_include_01.html
