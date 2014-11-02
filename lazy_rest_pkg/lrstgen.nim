@@ -78,7 +78,7 @@ proc init(p: var CodeBlockParams) =
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
     config: PStringTable, filename: string,
-    options: TRstParseOptions, findFile: Find_file_handler,
+    options: TRstParseOptions, findFile: Find_file_handler = nil_find_file,
     msgHandler: TMsgHandler) =
   ## Initializes a ``TRstGenerator``.
   ##
@@ -132,7 +132,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   g.splitAfter = 20
   g.theIndex = ""
   g.options = options
-  g.findFile = findFile
+  g.findFile = if findFile.is_nil: nil_find_file else: findFile
   g.currentSection = ""
   let fileParts = filename.splitFile
   if fileParts.ext == ".nim":

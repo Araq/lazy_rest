@@ -1764,7 +1764,6 @@ proc rstParse*(text, filename: string,
                options: TRstParseOptions,
                findFile: Find_file_handler = nil_find_file,
                msgHandler: TMsgHandler = nil): PRstNode =
-  assert findFile.not_nil
   var p: TRstParser
   initParser(p, newSharedState(options, findFile, msgHandler))
   p.filename_stack.add(new_file_info(filename))
