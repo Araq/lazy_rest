@@ -86,7 +86,16 @@ proc unrestricted_find_file*(current_filename, target_filename: string):
   ## resolved, hence the *unrestricted*. You might want to provide your own
   ## security aware version which restricts absolute paths. Or disable file
   ## access altogether passing the `lrst.nil_find_file()
-  ## <lazy_rest_pkg/lrst.html#nil_find_file>`_ proc where appropriate.
+  ## <lazy_rest_pkg/lrst.html#nil_find_file>`_ proc where appropriate. Example:
+  ##
+  ## .. code-block:: nimrod
+  ##
+  ##   if trusted_source:
+  ##     buf = safe_rst_file_to_html(filename,
+  ##       find_file = unrestricted_find_file)
+  ##   else:
+  ##     buf = safe_rst_file_to_html(filename,
+  ##       find_file = nil_find_file)
   assert current_filename.not_nil and current_filename.len > 0
   assert target_filename.not_nil and target_filename.len > 0
   #debug("Asking for '" & target_filename & "'")
