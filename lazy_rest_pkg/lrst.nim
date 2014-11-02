@@ -51,13 +51,17 @@ type
   Find_file_handler* = proc (current_filename, target_filename: string):
       string {.nimcall.} ## Callback to resolve file paths. \
     ##
+    ## The `current_filename` parameter is the path to the current file being
+    ## processed (it could change through several include directives, and will
+    ## always be absolute).
+    ##
+    ## The `target_filename` parameter is the string as found in include
+    ## directives in rst documents which requires resolving. Note that the
+    ## `target_filename` parameter might be an absolute path.
+    ##
     ## The callback should return the path to the final file. If the file can't
-    ## be resolved, it should return the empty string. The `target_filename`
-    ## parameter is the string as found in include directives in rst documents
-    ## which requires resolving. The `current_filename` is the path to the
-    ## current file being processed (it could change through several include
-    ## directives).
-
+    ## be resolved for whatever reason (e.g final path falls out of sandboxed
+    ## environment), it should return the empty string.
 
 const
   messages: array [TMsgKind, string] = [
@@ -347,15 +351,16 @@ proc defaultMsgHandler*(filename: string, line, col: int, msgkind: TMsgKind,
   if mc == mcError: raise newException(EParseError, message)
   else: writeln(stdout, message)
 
-proc defaultFindFile*(current_filename, target_filename: string):
+
+proc nil_find_file*(current_filename, target_filename: string):
     string {.procvar.} =
-  assert current_filename.not_nil
-  assert target_filename.not_nil
-  let
-    dir = current_filename.parent_dir
-    target = dir/target_filename
-  if target.exists_file: result = target
-  else: result = ""
+  ## Always returns the empty string.
+  ##
+  ## This is a dummy proc you can use when you don't want include files to be
+  ## resolved at all. Follows the `Find_file_handler type specification
+  ## <#Find_file_handler>`_.
+  result = ""
+
 
 proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
     msgHandler: TMsgHandler): PSharedState =
@@ -364,7 +369,7 @@ proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
   result.refs = @[]
   result.options = options
   result.msgHandler = if msgHandler.not_nil: msgHandler else: defaultMsgHandler
-  result.findFile = if findFile.not_nil: findFile else: defaultFindFile
+  result.findFile = if findFile.not_nil: findFile else: nil_find_file
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string) =
   p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,

@@ -74,6 +74,31 @@ var G: Global_state
 G.default_config = load_config(rest_default_config)
 
 
+proc unrestricted_find_file*(current_filename, target_filename: string):
+    string {.procvar.} =
+  ## Default handler to resolve file path navigation.
+  ##
+  ## This proc is called according to the `Find_file_handler type specification
+  ## <lazy_rest_pkg/lrst.html#Find_file_handler>`_. The includes are always
+  ## resolved, hence the *unrestricted*. You might want to provide your own
+  ## security aware version which restricts absolute paths. Or disable file
+  ## access altogether passing the `lrst/nil_find_file()
+  ## <lazy_rest_pkg/lrst.html#nil_find_file>`_ proc where appropriate.
+  assert current_filename.not_nil and current_filename.len > 0
+  assert target_filename.not_nil and target_filename.len > 0
+  #debug("Asking for '" & target_filename & "'")
+  #debug("from '" & current_filename & "'")
+  result = ""
+  if target_filename.is_absolute:
+    if target_filename.exists_file:
+      result = target_filename
+  else:
+    let path = current_filename.parent_dir / target_filename
+    if path.exists_file:
+      result = path
+  #debug("\tReturning '" & result & "'")
+
+
 proc load_config(mem_string: string): PStringTable =
   ## Parses the configuration and returns it as a PStringTable.
   ##
@@ -120,18 +145,6 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
     except: discard
 
 
-proc debug_find_file(current, filename: string): string =
-  ## Small wrapper around default file handler to debug paths.
-  debug("Asking for '" & filename & "'")
-  debug("Global is '" & current.parent_dir & "'")
-  result = current.parent_dir / filename
-  if result.exists_file:
-    debug("Returning '" & result & "'")
-    return
-  else:
-    result = ""
-
-
 proc rst_string_to_html*(content, filename: string,
     config: PStringTable = nil): string =
   ## Converts a content named filename into a string with HTML tags.
@@ -167,11 +180,11 @@ proc rst_string_to_html*(content, filename: string,
     G.did_start_logger = true
 
   GENERATOR.initRstGenerator(outHtml, config, filename, parse_options,
-    debug_find_file, lrst.defaultMsgHandler)
+    unrestricted_find_file, lrst.defaultMsgHandler)
 
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,
-    parse_options, debug_find_file)
+    parse_options, unrestricted_find_file)
   RESULT = newStringOfCap(30_000)
 
   # Render document into HTML chunk.
