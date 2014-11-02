@@ -49,7 +49,7 @@ type
     ## What to do in case of an error.
 
   Find_file_handler* = proc (current_filename, target_filename: string):
-      string {.nimcall.} ## Callback to resolve file paths. \
+      string {.nimcall, raises:[] .} ## Callback to resolve file paths. \
     ##
     ## The `current_filename` parameter is the path to the current file being
     ## processed (it could change through several include directives, and will
@@ -61,7 +61,8 @@ type
     ##
     ## The callback should return the path to the final file. If the file can't
     ## be resolved for whatever reason (e.g final path falls out of sandboxed
-    ## environment), it should return the empty string.
+    ## environment), it should return the empty string. All exceptions raised
+    ## inside the callback will be treated as returning the empty string.
 
 const
   messages: array [TMsgKind, string] = [
@@ -353,7 +354,7 @@ proc defaultMsgHandler*(filename: string, line, col: int, msgkind: TMsgKind,
 
 
 proc nil_find_file*(current_filename, target_filename: string):
-    string {.procvar.} =
+    string {.procvar, raises: [].} =
   ## Always returns the empty string.
   ##
   ## This is a dummy proc you can use when you don't want include files to be
@@ -1532,35 +1533,39 @@ proc dirInclude(p: var TRstParser): PRstNode =
   #    literal block (useful for program listings).
   #
   result = nil
-  var n = parseDirective(p, {hasArg, argIsFile, hasOptions}, nil)
-  var input_filename = strip(addNodes(n.sons[0]))
-  var path = p.s.findFile(p.filename_stack.last.full, input_filename)
-  if path == "":
+  var
+    n = parseDirective(p, {hasArg, argIsFile, hasOptions}, nil)
+    input_filename = strip(addNodes(n.sons[0]))
+    path: string
+  try: path = p.s.findFile(p.filename_stack.last.full, input_filename)
+  except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
+  if path.is_nil or path.len < 1:
     rstMessage(p, meCannotOpenFile, input_filename)
-  else:
-    var file_info = new_file_info(path)
-    # Detect previous inclusions of this file.
-    let expanded = file_info.full
-    for prev in p.filename_stack:
-      assert prev.real_path.not_nil and prev.real_path.len > 0
-      if expanded == prev.real_path:
-        rstMessage(p, meRecursiveInclude, input_filename)
-        return
+    return
 
-    # XXX: error handling; recursive file inclusion!
-    if getFieldValue(n, "literal") != "":
-      result = newRstNode(rnLiteralBlock)
-      add(result, newRstNode(rnLeaf, readFile(file_info.full)))
-    else:
-      var q: TRstParser
-      initParser(q, p.s)
-      q.filename_stack = p.filename_stack
-      q.filename_stack.add(file_info)
-      q.col += getTokens(q.filename_stack.last.full.read_file, false, q.tok)
-      # workaround a GCC bug; more like the interior pointer bug?
-      #if find(q.tok[high(q.tok)].symbol, "\0\x01\x02") > 0:
-      #  InternalError("Too many binary zeros in include file")
-      result = parseDoc(q)
+  var file_info = new_file_info(path)
+  # Detect previous inclusions of this file.
+  let expanded = file_info.full
+  for prev in p.filename_stack:
+    assert prev.real_path.not_nil and prev.real_path.len > 0
+    if expanded == prev.real_path:
+      rstMessage(p, meRecursiveInclude, input_filename)
+      return
+
+  # XXX: error handling; recursive file inclusion!
+  if getFieldValue(n, "literal") != "":
+    result = newRstNode(rnLiteralBlock)
+    add(result, newRstNode(rnLeaf, readFile(file_info.full)))
+  else:
+    var q: TRstParser
+    initParser(q, p.s)
+    q.filename_stack = p.filename_stack
+    q.filename_stack.add(file_info)
+    q.col += getTokens(q.filename_stack.last.full.read_file, false, q.tok)
+    # workaround a GCC bug; more like the interior pointer bug?
+    #if find(q.tok[high(q.tok)].symbol, "\0\x01\x02") > 0:
+    #  InternalError("Too many binary zeros in include file")
+    result = parseDoc(q)
 
 
 proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
@@ -1579,8 +1584,10 @@ proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
   result = parseDirective(p, {hasArg, hasOptions}, parseLiteralBlock)
   var input_filename = strip(getFieldValue(result, "file"))
   if input_filename != "":
-    var path = p.s.findFile(p.filename_stack.last.full, input_filename)
-    if path == "":
+    var path: string
+    try: path = p.s.findFile(p.filename_stack.last.full, input_filename)
+    except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
+    if path.is_nil or path.len < 1:
       rstMessage(p, meCannotOpenFile, input_filename)
     else:
       path = path.expand_filename
@@ -1634,8 +1641,10 @@ proc dirRawAux(p: var TRstParser, result: var PRstNode, kind: TRstNodeKind,
                contentParser: TSectionParser) =
   var input_filename = getFieldValue(result, "file")
   if input_filename.len > 0:
-    var path = p.s.findFile(p.filename_stack.last.full, input_filename)
-    if path.len == 0:
+    var path: string
+    try: path = p.s.findFile(p.filename_stack.last.full, input_filename)
+    except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
+    if path.is_nil or path.len < 1:
       rstMessage(p, meCannotOpenFile, input_filename)
     else:
       path = path.expand_filename
@@ -1753,8 +1762,9 @@ proc resolveSubs(p: var TRstParser, n: PRstNode): PRstNode =
 proc rstParse*(text, filename: string,
                line, column: int, hasToc: var bool,
                options: TRstParseOptions,
-               findFile: Find_file_handler = nil,
+               findFile: Find_file_handler = nil_find_file,
                msgHandler: TMsgHandler = nil): PRstNode =
+  assert findFile.not_nil
   var p: TRstParser
   initParser(p, newSharedState(options, findFile, msgHandler))
   p.filename_stack.add(new_file_info(filename))

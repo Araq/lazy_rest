@@ -75,7 +75,7 @@ G.default_config = load_config(rest_default_config)
 
 
 proc unrestricted_find_file*(current_filename, target_filename: string):
-    string {.procvar.} =
+    string {.procvar, raises:[].} =
   ## Default handler to resolve file path navigation.
   ##
   ## This proc is called according to the `Find_file_handler type specification
