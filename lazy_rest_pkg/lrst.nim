@@ -801,7 +801,10 @@ proc parseUntil(p: var TRstParser, father: PRstNode, postfix: string,
     of tkWhite:
       add(father, newRstNode(rnLeaf, " "))
       inc(p.idx)
-    else: rstMessage(p, meExpected, postfix, line, col)
+    else:
+      rstMessage(p, meExpected, postfix, line, col)
+      #quit("TEST ignore_errors/evil_asterisks.rst")
+      break
 
 proc parseMarkdownCodeblock(p: var TRstParser): PRstNode =
   var args = newRstNode(rnDirArg)
