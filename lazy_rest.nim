@@ -184,7 +184,8 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
 
 proc rst_string_to_html*(content, filename: string,
     config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file): string =
+    find_file: Find_file_handler = unrestricted_find_file,
+    msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a content named filename into a string with HTML tags.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
@@ -223,11 +224,11 @@ proc rst_string_to_html*(content, filename: string,
     G.did_start_logger = true
 
   GENERATOR.initRstGenerator(outHtml, config, filename, parse_options,
-    find_file, stdout_msg_handler)
+    find_file, msg_handler)
 
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,
-    parse_options, find_file)
+    parse_options, find_file, msg_handler)
   RESULT = newStringOfCap(30_000)
 
   # Render document into HTML chunk.
@@ -260,7 +261,8 @@ proc rst_string_to_html*(content, filename: string,
 
 
 proc rst_file_to_html*(filename: string, config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file): string =
+    find_file: Find_file_handler = unrestricted_find_file,
+    msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a filename with rest content into a string with HTML tags.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
@@ -273,7 +275,8 @@ proc rst_file_to_html*(filename: string, config: PStringTable = nil,
   rassert filename.not_nil, msg:
     raise new_exception(EInvalidValue, msg)
 
-  result = rst_string_to_html(readFile(filename), filename, config, find_file)
+  result = rst_string_to_html(readFile(filename), filename, config,
+    find_file, msg_handler)
 
 
 proc add_pre_number_lines(content: string): string =
@@ -457,8 +460,8 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
 proc safe_rst_string_to_html*(filename, data: string,
     ERRORS: ptr seq[string] = nil, config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file):
-    string {.raises: [].} =
+    find_file: Find_file_handler = unrestricted_find_file,
+    msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
   ## Wrapper over `rst_string_to_html <#rst_string_to_html>`_ to catch
   ## exceptions.
   ##
@@ -499,7 +502,7 @@ proc safe_rst_string_to_html*(filename, data: string,
     return
 
   try:
-    result = rst_string_to_html(data, filename, config, find_file)
+    result = rst_string_to_html(data, filename, config, find_file, msg_handler)
   except:
     append_error_to_list()
     result = build_error_html(filename, data, ERRORS, config)
@@ -507,8 +510,8 @@ proc safe_rst_string_to_html*(filename, data: string,
 
 proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
     config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file):
-    string {.raises: [].} =
+    find_file: Find_file_handler = unrestricted_find_file,
+    msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
   ## Wrapper over `rst_file_to_html <#rst_file_to_html>`_ to catch exceptions.
   ##
   ## Returns always a valid HTML. If something bad happens, it tries to show
@@ -542,7 +545,7 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ##   else:
   ##     filename.change_file_ext("html").write_file(html)
   try:
-    result = rst_file_to_html(filename, config, find_file)
+    result = rst_file_to_html(filename, config, find_file, msg_handler)
   except:
     append_error_to_list()
     var CONTENT: string
