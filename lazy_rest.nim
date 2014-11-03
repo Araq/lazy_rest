@@ -3,9 +3,11 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
   external/badger_bits/bb_system
 
 export Find_file_handler
+export TMsgClass
 export TMsgHandler
 export TMsgKind
 export nil_find_file
+export rst_messages
 export whichMsgClass
 
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
