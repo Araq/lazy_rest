@@ -1127,6 +1127,7 @@ proc whichSection(p: TRstParser): TRstNodeKind =
     elif match(p, p.idx, "+a+"):
       result = rnGridTable
       rstMessage(p, meGridTableNotImplemented)
+      #quit "TEST ignore_errors/grid_table.rst"
     elif isDefList(p):
       result = rnDefList
     elif isOptionList(p):
