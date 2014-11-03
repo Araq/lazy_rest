@@ -1622,6 +1622,7 @@ proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
     if path.is_nil or path.len < 1:
       rstMessage(p, meCannotOpenFile, input_filename)
       #quit "TEST ignore_errors/missing_code_block.rst"
+      return
 
     try:
       path = path.expand_filename
@@ -1629,6 +1630,8 @@ proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
       add(n, newRstNode(rnLeaf, readFile(path)))
       result.sons[2] = n
     except EOS, EIO:
+      rstMessage(p, meCannotOpenFile, input_filename)
+      #quit "TEST ignore_errors/missing_code_block.rst"
       return
 
   # Extend the field block if we are using our custom extension.
@@ -1682,11 +1685,18 @@ proc dirRawAux(p: var TRstParser, result: var PRstNode, kind: TRstNodeKind,
     except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
     if path.is_nil or path.len < 1:
       rstMessage(p, meCannotOpenFile, input_filename)
-    else:
+      #quit "TEST ignore_errors/missing_raw.rst"
+      return
+
+    try:
       path = path.expand_filename
       var f = readFile(path)
       result = newRstNode(kind)
       add(result, newRstNode(rnLeaf, f))
+    except EOS, EIO:
+      rstMessage(p, meCannotOpenFile, input_filename)
+      #quit "TEST ignore_errors/missing_raw.rst"
+      return
   else:
     result.kind = kind
     add(result, parseDirBody(p, contentParser))
@@ -1708,6 +1718,7 @@ proc dirRaw(p: var TRstParser): PRstNode =
       dirRawAux(p, result, rnRawLatex, parseLiteralBlock)
     else:
       rstMessage(p, meInvalidDirective, result.sons[0].sons[0].text)
+      #quit "TEST ignore_errors/unknown_raw.rst"
   else:
     dirRawAux(p, result, rnRaw, parseSectionWrapper)
 
