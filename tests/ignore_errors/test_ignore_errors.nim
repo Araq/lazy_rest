@@ -1,5 +1,8 @@
 import lazy_rest, os, strutils
 
+## This test verifies that parsing of the document can happen despite a custom
+## message handler not raising errors when they are encountered. The generated
+## output also helps to see what would be produced in these cases.
 
 proc setup() =
   copy_file_with_permissions(".."/"errors"/"evil_asterisks.rst",

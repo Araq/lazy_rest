@@ -1741,10 +1741,13 @@ proc parseDotDot(p: var TRstParser): PRstNode =
         result = dirRaw(p)
       else:
         rstMessage(p, meInvalidDirective, d)
+        #Doesn't have a specific test, it's pretty much like the generic below.
     of dkCode: result = dirCodeBlock(p)
     of dkCodeBlock: result = dirCodeBlock(p, nimrodExtension = true)
     of dkIndex: result = dirIndex(p)
-    else: rstMessage(p, meInvalidDirective, d)
+    else:
+      rstMessage(p, meInvalidDirective, d)
+      #quit "TEST ignore_errors/invalid_directive.rst"
     popInd(p)
   elif match(p, p.idx, " _"):
     # hyperlink target:
@@ -1768,6 +1771,7 @@ proc parseDotDot(p: var TRstParser): PRstNode =
       b = dirImage(p)
     else:
       rstMessage(p, meInvalidDirective, p.tok[p.idx].symbol)
+      #quit "TEST ignore_errors/invalid_substitution.rst"
     setSub(p, addNodes(a), b)
   elif match(p, p.idx, " ["):
     # footnotes, citations
