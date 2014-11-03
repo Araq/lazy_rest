@@ -823,6 +823,7 @@ proc parseMarkdownCodeblock(p: var TRstParser): PRstNode =
     case p.tok[p.idx].kind
     of tkEof:
       rstMessage(p, meExpected, "```")
+      #quit "TEST ignore_errors/markdown_block.rst"
       break
     of tkPunct:
       if p.tok[p.idx].symbol == "```":
