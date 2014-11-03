@@ -801,6 +801,7 @@ proc parseUntil(p: var TRstParser, father: PRstNode, postfix: string,
       inc(p.idx)
       if p.tok[p.idx].kind == tkIndent:
         rstMessage(p, meExpected, postfix, line, col)
+        #quit "TEST ignore_errors/indent.rst"
         break
     of tkWhite:
       add(father, newRstNode(rnLeaf, " "))
