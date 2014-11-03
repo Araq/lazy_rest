@@ -1584,7 +1584,6 @@ proc dirInclude(p: var TRstParser): PRstNode =
       #quit "TEST ignore_errors/recursion_self.rst"
       return
 
-  # XXX: error handling; recursive file inclusion!
   if getFieldValue(n, "literal") != "":
     result = newRstNode(rnLiteralBlock)
     add(result, newRstNode(rnLeaf, readFile(file_info.full)))
