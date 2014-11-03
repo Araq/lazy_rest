@@ -1571,6 +1571,7 @@ proc dirInclude(p: var TRstParser): PRstNode =
   except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
   if path.is_nil or path.len < 1:
     rstMessage(p, meCannotOpenFile, input_filename)
+    #quit "TEST ignore_errors/missing_include.rst"
     return
 
   var file_info = new_file_info(path)
@@ -1580,6 +1581,7 @@ proc dirInclude(p: var TRstParser): PRstNode =
     assert prev.real_path.not_nil and prev.real_path.len > 0
     if expanded == prev.real_path:
       rstMessage(p, meRecursiveInclude, input_filename)
+      #quit "TEST ignore_errors/recursion_self.rst"
       return
 
   # XXX: error handling; recursive file inclusion!
@@ -1619,11 +1621,15 @@ proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
     except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
     if path.is_nil or path.len < 1:
       rstMessage(p, meCannotOpenFile, input_filename)
-    else:
+      #quit "TEST ignore_errors/missing_code_block.rst"
+
+    try:
       path = path.expand_filename
-    var n = newRstNode(rnLiteralBlock)
-    add(n, newRstNode(rnLeaf, readFile(path)))
-    result.sons[2] = n
+      var n = newRstNode(rnLiteralBlock)
+      add(n, newRstNode(rnLeaf, readFile(path)))
+      result.sons[2] = n
+    except EOS, EIO:
+      return
 
   # Extend the field block if we are using our custom extension.
   if nimrodExtension:
