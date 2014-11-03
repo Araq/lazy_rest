@@ -2,8 +2,11 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
   parsecfg, subexes, strtabs, streams, times, cgi, logging,
   external/badger_bits/bb_system
 
-export nil_find_file
 export Find_file_handler
+export TMsgHandler
+export TMsgKind
+export nil_find_file
+export whichMsgClass
 
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
@@ -75,6 +78,28 @@ type
 var G: Global_state
 # Load default configuration.
 G.default_config = load_config(rest_default_config)
+
+
+proc stdout_msg_handler*(filename: string, line, col: int,
+    msgkind: TMsgKind, arg: string) {.procvar, raises: [EParseError].} =
+  ## Default handler to report warnings/errors.
+  ##
+  ## This implementation shows the warning or error through ``stdout``. In the
+  ## case of error the ``EParseError`` exception will be raised to avoid
+  ## continuing.
+  let mc = msgkind.whichMsgClass
+  var message = filename & "(" & $line & ", " & $col & ") " & $mc
+  try:
+    let reason = rst_messages[msgkind] % arg
+    message.add(": " & reason)
+  except EInvalidValue:
+    discard
+
+  if mc == mcError:
+    raise newException(EParseError, message)
+  else:
+    try: writeln(stdout, message)
+    except EIO: discard
 
 
 proc unrestricted_find_file*(current_filename, target_filename: string):
@@ -198,7 +223,7 @@ proc rst_string_to_html*(content, filename: string,
     G.did_start_logger = true
 
   GENERATOR.initRstGenerator(outHtml, config, filename, parse_options,
-    find_file, lrst.defaultMsgHandler)
+    find_file, stdout_msg_handler)
 
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,

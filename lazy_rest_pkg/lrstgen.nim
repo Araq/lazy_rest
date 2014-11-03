@@ -79,7 +79,7 @@ proc init(p: var CodeBlockParams) =
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
     config: PStringTable, filename: string,
     options: TRstParseOptions, findFile: Find_file_handler = nil_find_file,
-    msgHandler: TMsgHandler) =
+    msgHandler: TMsgHandler = nil_msg_handler) =
   ## Initializes a ``TRstGenerator``.
   ##
   ## You need to call this before using a ``TRstGenerator`` with any other
@@ -111,7 +111,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ## The ``msgHandler`` is a proc used for user error reporting. It will be
   ## called with the filename, line, col, and type of any error found during
   ## parsing. If you pass ``nil``, a default message handler will be used which
-  ## writes the messages to the standard output.
+  ## silently discards all messages.
   ##
   ## Example:
   ##
@@ -132,13 +132,24 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   g.splitAfter = 20
   g.theIndex = ""
   g.options = options
-  g.findFile = if findFile.is_nil: nil_find_file else: findFile
+  #See below…
+  #g.findFile = if findFile.is_nil: nil_find_file else: findFile
+  if findFile.is_nil:
+    g.findFile = nil_find_file
+  else:
+    g.findFile = findFile
   g.currentSection = ""
   let fileParts = filename.splitFile
   if fileParts.ext == ".nim":
     g.currentSection = "Module " & fileParts.name
   g.seenIndexTerms = initTable[string, int]()
-  g.msgHandler = msgHandler
+  # The following line doesn't compile, seems like a bug.
+  #g.msgHandler = if msgHandler.is_nil: nil_msg_handler else: msgHandler
+  # The separate if/else block works fine…
+  if msgHandler.is_nil:
+    g.msgHandler = nil_msg_handler
+  else:
+    g.msgHandler = msgHandler
 
   let s = config["split.item.toc"]
   if s != "": g.splitAfter = parseInt(s)
@@ -1202,10 +1213,6 @@ $content
 
 # ---------- forum ---------------------------------------------------------
 
-proc onlineFindFile(current, filename: string): string =
-  # we don't find any files in online mode:
-  result = ""
-
 proc rstToHtml*(s: string, options: TRstParseOptions,
                 config: PStringTable): string =
   ## Converts an input rst string into embeddable HTML.
@@ -1230,8 +1237,8 @@ proc rstToHtml*(s: string, options: TRstParseOptions,
 
   const filen = "input"
   var d: TRstGenerator
-  initRstGenerator(d, outHtml, config, filen, options, onlineFindFile,
-                   lrst.defaultMsgHandler)
+  initRstGenerator(d, outHtml, config, filen, options, lrst.nil_find_file,
+                   lrst.nil_msg_handler)
   var dummyHasToc = false
   var rst = rstParse(s, filen, 0, 1, dummyHasToc, options)
   result = ""

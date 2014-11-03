@@ -46,7 +46,16 @@ type
   TMsgHandler* =
       proc (filename: string, line, col: int,
         msgKind: TMsgKind, arg: string) {.nimcall.} ## \
-    ## What to do in case of an error.
+    ## Callback to report warnings and errors to end users.
+    ##
+    ## This proc is called with the filename, line and column information of a
+    ## warning/error. The kind of error is passed as well as a string with the
+    ## description of the problem. The callback is meant to display this
+    ## information to the user or log it somewhere.
+    ##
+    ## In case of an error type the handler is meant to raise an exception like
+    ## `EParseError <#EParseError>`_ to avoid continuing processing the file.
+    ## If no exceptions are raised, processing of the rst file will continue.
 
   Find_file_handler* = proc (current_filename, target_filename: string):
       string {.nimcall, raises:[] .} ## Callback to resolve file paths. \
@@ -66,7 +75,7 @@ type
     ## empty string.
 
 const
-  messages: array [TMsgKind, string] = [
+  rst_messages*: array [TMsgKind, string] = [
     meCannotOpenFile: "cannot open '$1'",
     meExpected: "'$1' expected",
     meGridTableNotImplemented: "grid table is not implemented",
@@ -338,20 +347,33 @@ proc full(f: var File_info): string =
 
 
 proc whichMsgClass*(k: TMsgKind): TMsgClass =
-  ## returns which message class `k` belongs to.
+  ## Returns which message class `k` belongs to.
+  ##
+  ## You can use this to know if you should raise an exception in your
+  ## `TMsgHandler <#TMsgHandler>`_ callback proc.
   case ($k)[1]
   of 'e', 'E': result = mcError
   of 'w', 'W': result = mcWarning
   of 'h', 'H': result = mcHint
   else: assert false, "msgkind does not fit naming scheme"
 
-proc defaultMsgHandler*(filename: string, line, col: int, msgkind: TMsgKind,
-                        arg: string) {.procvar.} =
+proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
+    arg: string) {.procvar, raises: [EParseError].} =
+  ## Nil output message handler.
+  ##
+  ## The only thing this does is to raise an exception if the `msgkind`
+  ## parameter is of class `mcError <#TMsgClass>`_.
   let mc = msgkind.whichMsgClass
-  let a = messages[msgkind] % arg
-  let message = "$1($2, $3) $4: $5" % [filename, $line, $col, $mc, a]
-  if mc == mcError: raise newException(EParseError, message)
-  else: writeln(stdout, message)
+  if mc != mcError:
+    return
+
+  var message = filename & "(" & $line & ", " & $col & ") " & $mc
+  try:
+    let reason = rst_messages[msgkind] % arg
+    message.add(": " & reason)
+  except EInvalidValue:
+    discard
+  raise newException(EParseError, message)
 
 
 proc nil_find_file*(current_filename, target_filename: string):
@@ -370,7 +392,7 @@ proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
   result.subs = @[]
   result.refs = @[]
   result.options = options
-  result.msgHandler = if msgHandler.not_nil: msgHandler else: defaultMsgHandler
+  result.msgHandler = if msgHandler.not_nil: msgHandler else: nil_msg_handler
   result.findFile = if findFile.not_nil: findFile else: nil_find_file
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string) =
@@ -1442,9 +1464,6 @@ proc parseSectionWrapper(p: var TRstParser): PRstNode =
   while (result.kind == rnInner) and (len(result) == 1):
     result = result.sons[0]
 
-proc `$`(t: TToken): string =
-  result = $t.kind & ' ' & (if isNil(t.symbol): "NIL" else: t.symbol)
-
 proc parseDoc(p: var TRstParser): PRstNode =
   result = parseSectionWrapper(p)
   if p.tok[p.idx].kind != tkEof:
@@ -1764,7 +1783,7 @@ proc rstParse*(text, filename: string,
                line, column: int, hasToc: var bool,
                options: TRstParseOptions,
                findFile: Find_file_handler = nil_find_file,
-               msgHandler: TMsgHandler = nil): PRstNode =
+               msgHandler: TMsgHandler = nil_msg_handler): PRstNode =
   var p: TRstParser
   initParser(p, newSharedState(options, findFile, msgHandler))
   p.filename_stack.add(new_file_info(filename))
