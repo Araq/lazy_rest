@@ -33,6 +33,8 @@ nimcache/
 /tests/errors/output/
 /tests/ignore_errors/evil_asterisks.html
 /tests/ignore_errors/evil_asterisks.rst
+/tests/ignore_errors/reference.html
+/tests/ignore_errors/replace.html
 /tests/include/absolute_unix.html
 /tests/include/absolute_windows.html
 /tests/include/complex_recursion_a.html

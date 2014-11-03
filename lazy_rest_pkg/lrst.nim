@@ -527,6 +527,7 @@ proc getReferenceName(p: var TRstParser, endStr: string): PRstNode =
         add(res, newLeaf(p))
     else:
       rstMessage(p, meExpected, endStr)
+      #quit "TEST ignore_errors/reference.rst"
       break
     inc(p.idx)
   result = res
@@ -538,8 +539,11 @@ proc untilEol(p: var TRstParser): PRstNode =
     inc(p.idx)
 
 proc expect(p: var TRstParser, tok: string) =
-  if p.tok[p.idx].symbol == tok: inc(p.idx)
-  else: rstMessage(p, meExpected, tok)
+  if p.tok[p.idx].symbol == tok:
+    inc(p.idx)
+  else:
+    rstMessage(p, meExpected, tok)
+    #quit "TEST ignore_errors/replace.rst"
 
 proc isInlineMarkupEnd(p: TRstParser, markup: string): bool =
   result = p.tok[p.idx].symbol == markup
@@ -803,7 +807,7 @@ proc parseUntil(p: var TRstParser, father: PRstNode, postfix: string,
       inc(p.idx)
     else:
       rstMessage(p, meExpected, postfix, line, col)
-      #quit("TEST ignore_errors/evil_asterisks.rst")
+      #quit "TEST ignore_errors/evil_asterisks.rst"
       break
 
 proc parseMarkdownCodeblock(p: var TRstParser): PRstNode =
