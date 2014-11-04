@@ -7,6 +7,7 @@ export TMsgClass
 export TMsgHandler
 export TMsgKind
 export nil_find_file
+export nil_msg_handler
 export rst_messages
 export whichMsgClass
 
@@ -620,7 +621,8 @@ proc set_normal_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     G.user_normal_error = rst_string_to_html(input_rst,
-      "set_normal_error_rst.input_rst", find_file = nil_find_file)
+      "set_normal_error_rst.input_rst", find_file = nil_find_file,
+      msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
 
@@ -656,7 +658,7 @@ proc set_safe_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     html = rst_string_to_html(input_rst, "set_normal_error_rst.input_rst",
-      find_file = nil_find_file)
+      find_file = nil_find_file, msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
     return
