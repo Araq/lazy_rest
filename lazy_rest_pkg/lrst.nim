@@ -43,6 +43,9 @@ type
     mwUnsupportedLanguage,
     mwUnsupportedField
 
+  EParseError* = object of EInvalidValue ## \
+    ## Explicit exception raised by <#TMsgHandler>`_.
+
   TMsgHandler* =
       proc (filename: string, line, col: int,
         msgKind: TMsgKind, arg: string) {.nimcall.} ## \
@@ -58,7 +61,7 @@ type
     ## If no exceptions are raised, processing of the rst file will continue.
 
   Find_file_handler* = proc (current_filename, target_filename: string):
-      string {.nimcall, raises:[] .} ## Callback to resolve file paths. \
+      string {.nimcall.} ## Callback to resolve file paths. \
     ##
     ## The `current_filename` parameter is the path to the current file being
     ## processed (it could change through several include directives, and will
@@ -320,8 +323,6 @@ type
     line*, col*: int
     hasToc*: bool
 
-  EParseError* = object of EInvalidValue
-
 proc new_file_info(input_path: string): File_info =
   ## Creates and returns a File_info object with `input_path` as the relative
   ## name.
@@ -358,7 +359,7 @@ proc whichMsgClass*(k: TMsgKind): TMsgClass =
   else: assert false, "msgkind does not fit naming scheme"
 
 proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
-    arg: string) {.procvar, raises: [EParseError].} =
+    arg: string) {.procvar.} =
   ## Nil output message handler.
   ##
   ## The only thing this does is to raise an exception if the `msgkind`
@@ -377,7 +378,7 @@ proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
 
 
 proc nil_find_file*(current_filename, target_filename: string):
-    string {.procvar, raises: [].} =
+    string {.procvar.} =
   ## Always returns the empty string.
   ##
   ## This is a dummy proc you can use when you don't want include files to be
