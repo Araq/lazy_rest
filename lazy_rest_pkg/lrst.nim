@@ -61,7 +61,8 @@ type
     ## If no exceptions are raised, processing of the rst file will continue.
 
   Find_file_handler* {.exportc:"lr_find_file_handler".} =
-      proc (current_filename, target_filename: string): string {.nimcall.} ## \
+      proc (current_filename, target_filename: string):
+        string {.raises: [].} ## \
     ## Callback to resolve file paths.
     ##
     ## The `current_filename` parameter is the path to the current file being
@@ -360,7 +361,8 @@ proc whichMsgClass*(k: TMsgKind): TMsgClass =
   else: assert false, "msgkind does not fit naming scheme"
 
 proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
-    arg: string) {.procvar, exportc:"lr_nil_msg_handler".} =
+    arg: string) {.procvar, exportc:"lr_nil_msg_handler",
+    raises: [EParseError].} =
   ## Nil output message handler.
   ##
   ## The only thing this does is to raise an exception if the `msgkind`
@@ -379,7 +381,7 @@ proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
 
 
 proc nil_find_file_handler*(current_filename, target_filename: string):
-    string {.procvar, exportc:"lr_nil_find_file".} =
+    string {.procvar, exportc:"lr_nil_find_file", raises: [].} =
   ## Always returns the empty string.
   ##
   ## This is a dummy proc you can use when you don't want include files to be

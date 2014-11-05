@@ -61,7 +61,7 @@ template override_config() =
 
 
 proc lr_version_int*(major, minor, maintenance: ptr cint)
-    {.exportc, cdecl.} =
+    {.exportc, cdecl, raises: [].} =
   ## Wraps `version_int <lazy_rest.html#version_int>`_ for C.
   ##
   ## Pass pointers to whatever version values you are interested it and they
@@ -78,7 +78,7 @@ proc lr_version_int*(major, minor, maintenance: ptr cint)
   if maintenance.not_nil: maintenance[] = version_int.maintenance.cint
 
 
-proc lr_version_str*(): cstring {.exportc.} =
+proc lr_version_str*(): cstring {.exportc, raises: [].} =
   ## Wraps `version_str <lazy_rest.html#version_str>`_ for C.
   ##
   ## Always returns the same pointer to a valid ``cstring``. Example:
@@ -90,7 +90,7 @@ proc lr_version_str*(): cstring {.exportc.} =
 
 
 proc lr_parse_rst_options*(options: cstring): PStringTable
-    {.exportc.} =
+    {.exportc, raises: [].} =
   ## Wraps `parse_rst_options() <lazy_rest.html#parse_rst_options>`_ for C.
   ##
   ## The return value is stored in a global variable so future calls to this
@@ -111,7 +111,7 @@ proc lr_parse_rst_options*(options: cstring): PStringTable
 
 
 proc lr_set_global_rst_options*(options: cstring): cint
-    {.discardable, exportc.} =
+    {.discardable, exportc, raises: [].} =
   ## Works around `lr_parse_rst_options() <#lr_parse_rst_options>`_ limitations.
   ##
   ## Since in C you can't get a hold of the type of a ``PStringTable``
@@ -156,7 +156,7 @@ proc lr_set_nimrod_msg_handler*(func: TMsgHandler) {.exportc.} =
 
 
 proc lr_rst_string_to_html*(content, filename: cstring,
-    config: PStringTable): cstring {.exportc.} =
+    config: PStringTable): cstring {.exportc, raises: [].} =
   ## Wraps `rst_string_to_html() <lazy_rest.html#rst_string_to_html>`_ for C.
   ##
   ## Returns a ``cstring`` with HTML or a ``null`` pointer if there were
@@ -189,7 +189,7 @@ proc lr_rst_string_to_html*(content, filename: cstring,
     C.error_rst_string_to_html = get_current_exception()
 
 
-proc lr_rst_string_to_html_error*(): cstring {.exportc.} =
+proc lr_rst_string_to_html_error*(): cstring {.exportc, raises: [].} =
   ## Returns the error string for `lr_rst_string_to_html()
   ## <#lr_rst_string_to_html>`_.
   ##
@@ -215,7 +215,7 @@ proc lr_rst_string_to_html_error*(): cstring {.exportc.} =
 
 
 proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
-    cstring {.exportc.} =
+    cstring {.exportc, raises: [].} =
   ## Wraps `rst_file_to_html() <lazy_rest.html#rst_file_to_html>`_ for C.
   ##
   ## Returns a ``cstring`` with HTML or a ``null`` pointer if there were
@@ -245,7 +245,7 @@ proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
     C.error_rst_file_to_html = get_current_exception()
 
 
-proc lr_rst_file_to_html_error*(): cstring {.exportc.} =
+proc lr_rst_file_to_html_error*(): cstring {.exportc, raises: [].} =
   ## Returns the error string for `lr_rst_file_to_html()
   ## <#lr_rst_file_to_html>`_.
   ##
@@ -271,7 +271,7 @@ proc lr_rst_file_to_html_error*(): cstring {.exportc.} =
 
 proc lr_safe_rst_string_to_html*(filename, data: cstring,
     ERRORS: ptr cint, config: PStringTable):
-    cstring {.exportc.} =
+    cstring {.exportc, raises: [].} =
   ## Wraps `safe_rst_string_to_html()
   ## <lazy_rest.html#safe_rst_string_to_html>`_ for C.
   ##
@@ -304,7 +304,7 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
 
 
 proc lr_safe_rst_string_to_html_error*(pos: cint): cstring
-    {.exportc.} =
+    {.exportc, raises: [].} =
   ## Returns error strings for `lr_safe_rst_string_to_html()
   ## <#lr_safe_rst_string_to_html>`_.
   ##
@@ -339,7 +339,7 @@ proc lr_safe_rst_string_to_html_error*(pos: cint): cstring
 
 
 proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
-    config: PStringTable): cstring {.exportc.} =
+    config: PStringTable): cstring {.exportc, raises: [].} =
   ## Wraps `safe_rst_file_to_html() <lazy_rest.html#safe_rst_file_to_html>`_
   ## for C.
   ##
@@ -370,7 +370,7 @@ proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
 
 
 proc lr_safe_rst_file_to_html_error*(pos: cint): cstring
-    {.exportc.} =
+    {.exportc, raises: [].} =
   ## Returns error strings for `lr_safe_rst_file_to_html()
   ## <#lr_safe_rst_file_to_html>`_.
   ##
@@ -406,7 +406,7 @@ proc lr_safe_rst_file_to_html_error*(pos: cint): cstring
 
 
 proc lr_nim_file_to_html*(filename: cstring, number_lines: cint,
-    config: PStringTable): cstring {.exportc.} =
+    config: PStringTable): cstring {.exportc, raises: [].} =
   ## Wraps `nim_file_to_html() <lazy_rest.html#nim_file_to_html>`_ for C.
   ##
   ## The Nimrod boolean parameter is replaced by an ``int`` (non zero ==
@@ -425,7 +425,7 @@ proc lr_nim_file_to_html*(filename: cstring, number_lines: cint,
 
 
 proc lr_set_normal_error_rst*(input_rst: cstring): cint
-    {.exportc.} =
+    {.exportc, raises: [].} =
   ## Exports `set_normal_error_rst() <lazy_rest.html#set_normal_error_rst>`_
   ## for C.
   ##
@@ -442,7 +442,7 @@ proc lr_set_normal_error_rst*(input_rst: cstring): cint
 
 
 proc lr_set_normal_error_rst_error*(pos: cint): cstring
-    {.exportc.} =
+    {.exportc, raises: [].} =
   ## Returns error strings for `lr_set_normal_error_rst()
   ## <#lr_set_normal_error_rst>`_.
   ##
@@ -472,7 +472,7 @@ proc lr_set_normal_error_rst_error*(pos: cint): cstring
 
 
 proc lr_set_safe_error_rst*(input_rst: cstring): cint
-    {.exportc.} =
+    {.exportc, raises: [].} =
   ## Exports `set_safe_error_rst() <lazy_rest.html#set_safe_error_rst>`_ for C.
   ##
   ## The C API returns the number of errors instead of the list of error
@@ -488,7 +488,7 @@ proc lr_set_safe_error_rst*(input_rst: cstring): cint
 
 
 proc lr_set_safe_error_rst_error*(pos: cint): cstring
-    {.exportc.} =
+    {.exportc, raises: [].} =
   ## Returns error strings for `lr_set_safe_error_rst()
   ## <#lr_set_safe_error_rst>`_.
   ##
