@@ -10,19 +10,6 @@ const
   out_dir = "output"
 
 
-proc custom_msg_handler*(filename: string, line, col: int,
-    msgkind: TMsgKind, arg: string) {.procvar, raises:[].} =
-  echo "Did find something"
-
-
-proc test_custom_handler() =
-  echo "Testing now custom handler"
-  write_file(out_dir/"no_errors.html",
-    rst_file_to_html("evil_asterisks.rst",
-      msg_handler = custom_msg_handler))
-  echo "Finished testing"
-
-
 proc test_safe_procs(file_prefix: string, config: PStringTable) =
   # First test without error control.
   for src in tests:
@@ -112,9 +99,6 @@ proc run_tests() =
   errors = set_safe_error_rst(nil)
   doAssert errors.len < 1
   render_errors(out_dir/"default_")
-
-  # Disabled for the moment, the parser can't deal with non errors.
-  #test_custom_handler()
 
 
 when isMainModule:

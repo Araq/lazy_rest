@@ -44,11 +44,11 @@ type
     mwUnsupportedField
 
   EParseError* = object of EInvalidValue ## \
-    ## Explicit exception raised by <#TMsgHandler>`_.
+    ## Exception raised when `TMsgHandler <#TMsgHandler>`_ returns ``true``.
 
   TMsgHandler* {.exportc:"lr_msg_handler".} =
       proc (filename: string, line, col: int,
-        msgKind: TMsgKind, arg: string) {.nimcall.} ## \
+        msgKind: TMsgKind, arg: string): string {.raises: [].} ## \
     ## Callback to report warnings and errors to end users.
     ##
     ## This proc is called with the filename, line and column information of a
@@ -56,9 +56,12 @@ type
     ## description of the problem. The callback is meant to display this
     ## information to the user or log it somewhere.
     ##
-    ## In case of an error type the handler is meant to raise an exception like
-    ## `EParseError <#EParseError>`_ to avoid continuing processing the file.
-    ## If no exceptions are raised, processing of the rst file will continue.
+    ## If the callback wants to stop processing of the rst file, it should
+    ## return a non ``nil`` string. This string could contain the same
+    ## formatted error message presented to the user, as it will be used to
+    ## raise `EParseError <#EParseError>`_ internally. If the callback doesn't
+    ## wish to interrupt processing (e.g. in case of a lesser warning) then it
+    ## should return ``nil``.
 
   Find_file_handler* {.exportc:"lr_find_file_handler".} =
       proc (current_filename, target_filename: string):
@@ -360,24 +363,25 @@ proc whichMsgClass*(k: TMsgKind): TMsgClass =
   of 'h', 'H': result = mcHint
   else: assert false, "msgkind does not fit naming scheme"
 
+
 proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
-    arg: string) {.procvar, exportc:"lr_nil_msg_handler",
-    raises: [EParseError].} =
+    arg: string): string {.procvar, exportc:"lr_nil_msg_handler",
+    raises: [].} =
   ## Nil output message handler.
   ##
-  ## The only thing this does is to raise an exception if the `msgkind`
-  ## parameter is of class `mcError <#TMsgClass>`_.
+  ## The only thing this does is to return the error message if the `msgkind`
+  ## parameter is of class `mcError <#TMsgClass>`_. Otherwise returns ``nil``,
+  ## which will discard warnings and hints.
   let mc = msgkind.whichMsgClass
   if mc != mcError:
     return
 
-  var message = filename & "(" & $line & ", " & $col & ") " & $mc
+  result = filename & "(" & $line & ", " & $col & ") " & $mc
   try:
     let reason = rst_messages[msgkind] % arg
-    message.add(": " & reason)
+    result.add(": " & reason)
   except EInvalidValue:
     discard
-  raise newException(EParseError, message)
 
 
 proc nil_find_file_handler*(current_filename, target_filename: string):
@@ -399,17 +403,25 @@ proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
   result.msgHandler = if msgHandler.not_nil: msgHandler else: nil_msg_handler
   result.findFile = if findFile.not_nil: findFile else: nil_find_file_handler
 
+
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string) =
-  p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
-    p.col + p.tok[p.idx].col, msgKind, arg)
+  let msg = p.s.msgHandler(p.filename_stack.last.input,
+    p.line + p.tok[p.idx].line, p.col + p.tok[p.idx].col, msgKind, arg)
+  if msg.not_nil: raise new_exception(EParseError, msg)
+
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string, line, col: int) =
-  p.s.msgHandler(p.filename_stack.last.input, p.line + line,
+  let msg = p.s.msgHandler(p.filename_stack.last.input, p.line + line,
     p.col + col, msgKind, arg)
+  if msg.not_nil: raise new_exception(EParseError, msg)
+
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind) =
-  p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
-    p.col + p.tok[p.idx].col, msgKind, p.tok[p.idx].symbol)
+  let msg = p.s.msgHandler(p.filename_stack.last.input,
+    p.line + p.tok[p.idx].line, p.col + p.tok[p.idx].col, msgKind,
+    p.tok[p.idx].symbol)
+  if msg.not_nil: raise new_exception(EParseError, msg)
+
 
 when false:
   proc corrupt(p: TRstParser) =

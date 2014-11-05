@@ -23,7 +23,8 @@
 ## <https://en.wikipedia.org/wiki/LaTeX>`_ are poorly supported.
 
 import strutils, os, hashes, strtabs, lazy_rest_pkg/lrstast,
-  lazy_rest_pkg/lrst, lhighlite, tables, sequtils, algorithm, parseutils
+  lazy_rest_pkg/lrst, lhighlite, tables, sequtils, algorithm, parseutils,
+  external/badger_bits/bb_system
 
 const
   HtmlExt = "html"
@@ -75,6 +76,12 @@ proc init(p: var CodeBlockParams) =
   p.startLine = 1
   p.lang = langNone
   p.langStr = ""
+
+template rstMessage(d: PDoc, line, col: int, msgKind: TMsgKind, arg: string) =
+  # Wrapper around msgHandler to raise an exception when non nil is returned.
+  assert d.msgHandler.not_nil
+  let msg = d.msgHandler(d.filename, line, col, msgKind, arg)
+  if msg.not_nil: raise new_exception(EParseError, msg)
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
     config: PStringTable, filename: string,
@@ -804,7 +811,7 @@ proc parseCodeBlockField(d: PDoc, n: PRstNode, params: var CodeBlockParams) =
     params.langStr = n.getFieldValue.strip
     params.lang = params.langStr.getSourceLanguage
   else:
-    d.msgHandler(d.filename, 1, 0, mwUnsupportedField, n.getArgument)
+    d.rstMessage(1, 0, mwUnsupportedField, n.getArgument)
 
 proc parseCodeBlockParams(d: PDoc, n: PRstNode): CodeBlockParams =
   ## Iterates over all code block fields and returns processed params.
@@ -870,7 +877,7 @@ proc renderCodeBlock(d: PDoc, n: PRstNode, result: var string) =
   dispA(d.target, result, blockStart, "\\begin{rstpre}\n", [])
   if params.lang == langNone:
     if len(params.langStr) > 0:
-      d.msgHandler(d.filename, 1, 0, mwUnsupportedLanguage, params.langStr)
+      d.rstMessage(1, 0, mwUnsupportedLanguage, params.langStr)
       d.unknownLangs = true
       result.add("""<code class="language-""" &
         params.langStr.to_lower.strip & """">""")

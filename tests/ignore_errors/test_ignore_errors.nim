@@ -10,7 +10,7 @@ proc setup() =
 
 
 proc custom_msg_handler(filename: string, line, col: int,
-    msgkind: TMsgKind, arg: string) {.procvar, raises:[].} =
+    msgkind: TMsgKind, arg: string): string {.procvar, raises:[].} =
   let mc = msgkind.whichMsgClass
   var message = filename & "(" & $line & ", " & $col & ") " & $mc
   try:

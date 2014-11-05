@@ -84,13 +84,14 @@ G.default_config = load_config(rest_default_config)
 
 
 proc stdout_msg_handler*(filename: string, line, col: int,
-    msgkind: TMsgKind, arg: string) {.procvar, raises: [EParseError],
+    msgkind: TMsgKind, arg: string): string {.procvar, raises: [],
     exportc:"lr_stdout_msg_handler".} =
   ## Default handler to report warnings/errors.
   ##
   ## This implementation shows the warning or error through ``stdout``. In the
-  ## case of error the ``EParseError`` exception will be raised to avoid
-  ## continuing.
+  ## case of error the message is returned so that the ``EParseError``
+  ## exception can be raised to avoid continuing. This procvar conforms to the
+  ## `TMsgHandler type <lazy_rest_pkg/lrst.html#TMsgHandler>`_.
   let mc = msgkind.whichMsgClass
   var message = filename & "(" & $line & ", " & $col & ") " & $mc
   try:
@@ -100,7 +101,7 @@ proc stdout_msg_handler*(filename: string, line, col: int,
     discard
 
   if mc == mcError:
-    raise newException(EParseError, message)
+    result = message
   else:
     try: writeln(stdout, message)
     except EIO: discard
