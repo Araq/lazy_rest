@@ -183,7 +183,8 @@ proc lr_rst_string_to_html*(content, filename: cstring,
   C.error_rst_string_to_html = nil
 
   try:
-    C.ret_rst_string_to_html = rst_string_to_html(content, filename, config)
+    C.ret_rst_string_to_html = rst_string_to_html(content, filename, config,
+      msg_handler = C.msg_handler)
     result = C.ret_rst_string_to_html.nil_cstring
   except:
     C.error_rst_string_to_html = get_current_exception()
@@ -239,7 +240,8 @@ proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
   C.error_rst_file_to_html = nil
 
   try:
-    C.ret_rst_file_to_html = rst_file_to_html(filename, config)
+    C.ret_rst_file_to_html = rst_file_to_html(filename, config,
+      msg_handler = C.msg_handler)
     result = C.ret_rst_file_to_html.nil_cstring
   except:
     C.error_rst_file_to_html = get_current_exception()
@@ -296,7 +298,8 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
   C.errors_safe_rst_string_to_html = @[]
 
   C.ret_safe_rst_string_to_html = safe_rst_string_to_html(filename, data,
-    C.errors_safe_rst_string_to_html.addr, config)
+    C.errors_safe_rst_string_to_html.addr, config,
+    msg_handler = C.msg_handler)
 
   result = C.ret_safe_rst_string_to_html.nil_cstring
   if ERRORS.not_nil:
@@ -362,7 +365,8 @@ proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
   C.errors_safe_rst_file_to_html = @[]
 
   C.ret_safe_rst_file_to_html = safe_rst_file_to_html(filename,
-    C.errors_safe_rst_file_to_html.addr, config)
+    C.errors_safe_rst_file_to_html.addr, config,
+    msg_handler = C.msg_handler)
 
   result = C.ret_safe_rst_file_to_html.nil_cstring
   if ERRORS.not_nil:

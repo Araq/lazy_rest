@@ -236,4 +236,20 @@ void run_c_test(char *error_rst, char *special_options)
 			valid_rst_filename, 0, 0);
 		overwrite("temp_global_options_3.html", s);
 	}
+
+	// Verify changing the callback works.
+	{
+		// Test error condition.
+		char *s = lr_rst_string_to_html(bad_rst_string,
+			"<bad-string>", 0);
+		assert(0 == s && "Should return nil due to parsing errors");
+		// Change to custom callback which ignores errors.
+		lr_set_nimrod_msg_handler(ignore_msg_handler);
+		s = lr_rst_string_to_html(bad_rst_string, "<bad-string>", 0);
+		assert(s && "Should return non nil due to ignored errors");
+		// Now go back to an error handler, but with nil output.
+		lr_set_nimrod_msg_handler(0);
+		s = lr_rst_string_to_html(bad_rst_string, "<bad-string>", 0);
+		assert(0 == s && "Should return nil due to errors");
+	}
 }
