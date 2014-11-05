@@ -46,7 +46,7 @@ type
   EParseError* = object of EInvalidValue ## \
     ## Explicit exception raised by <#TMsgHandler>`_.
 
-  TMsgHandler* =
+  TMsgHandler* {.exportc:"lr_msg_handler".} =
       proc (filename: string, line, col: int,
         msgKind: TMsgKind, arg: string) {.nimcall.} ## \
     ## Callback to report warnings and errors to end users.
@@ -60,8 +60,9 @@ type
     ## `EParseError <#EParseError>`_ to avoid continuing processing the file.
     ## If no exceptions are raised, processing of the rst file will continue.
 
-  Find_file_handler* = proc (current_filename, target_filename: string):
-      string {.nimcall.} ## Callback to resolve file paths. \
+  Find_file_handler* {.exportc:"lr_find_file_handler".} =
+      proc (current_filename, target_filename: string): string {.nimcall.} ## \
+    ## Callback to resolve file paths.
     ##
     ## The `current_filename` parameter is the path to the current file being
     ## processed (it could change through several include directives, and will
@@ -359,7 +360,7 @@ proc whichMsgClass*(k: TMsgKind): TMsgClass =
   else: assert false, "msgkind does not fit naming scheme"
 
 proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
-    arg: string) {.procvar.} =
+    arg: string) {.procvar, exportc:"lr_nil_msg_handler".} =
   ## Nil output message handler.
   ##
   ## The only thing this does is to raise an exception if the `msgkind`
@@ -377,8 +378,8 @@ proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
   raise newException(EParseError, message)
 
 
-proc nil_find_file*(current_filename, target_filename: string):
-    string {.procvar.} =
+proc nil_find_file_handler*(current_filename, target_filename: string):
+    string {.procvar, exportc:"lr_nil_find_file".} =
   ## Always returns the empty string.
   ##
   ## This is a dummy proc you can use when you don't want include files to be
@@ -394,7 +395,7 @@ proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
   result.refs = @[]
   result.options = options
   result.msgHandler = if msgHandler.not_nil: msgHandler else: nil_msg_handler
-  result.findFile = if findFile.not_nil: findFile else: nil_find_file
+  result.findFile = if findFile.not_nil: findFile else: nil_find_file_handler
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string) =
   p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
@@ -1813,7 +1814,7 @@ proc resolveSubs(p: var TRstParser, n: PRstNode): PRstNode =
 proc rstParse*(text, filename: string,
                line, column: int, hasToc: var bool,
                options: TRstParseOptions,
-               findFile: Find_file_handler = nil_find_file,
+               findFile: Find_file_handler = nil_find_file_handler,
                msgHandler: TMsgHandler = nil_msg_handler): PRstNode =
   var p: TRstParser
   initParser(p, newSharedState(options, findFile, msgHandler))

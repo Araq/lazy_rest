@@ -48,9 +48,12 @@ type
     ret_set_normal_error_rst: seq[string]
     ret_set_safe_error_rst: seq[string]
     global_options: PStringTable
+    msg_handler: TMsgHandler
 
 
 var C: C_state
+# Set some global defaults which can't be nil.
+C.msg_handler = stdout_msg_handler
 
 
 template override_config() =
@@ -125,6 +128,31 @@ proc lr_set_global_rst_options*(options: cstring): cint
   ## ``nil``, non zero otherwise.
   C.global_options = options.lr_parse_rst_options
   result = if C.global_options.is_nil: 0 else: 1
+
+
+proc lr_set_nimrod_msg_handler*(func: TMsgHandler) {.exportc.} =
+  ## Specifies the Nimrod message handler to use for rst processing.
+  ##
+  ## Since the C API doesn't provide explicit callback parameters, you can use
+  ## this function to specify which of the built in Nimrod callbacks you want
+  ## to use. The available callbacks are:
+  ##
+  ## * `lr_stdout_msg_handler <lazy_rest.html#stdout_msg_handler>`_.
+  ## * `lr_nil_msg_handler <lazy_rest_pkg/lrst.html#nil_msg_handler>`_.
+  ##
+  ## If instead of builtin Nimrod procs you would prefer to provide your own C
+  ## function, use lr_set_c_msg_handler. Passing ``NULL`` to this function is
+  ## equal to passing `lr_nil_msg_handler
+  ## <lazy_rest_pkg/lrst.html#nil_msg_handler>`_. Calling this function does
+  ## not override whatever C callback you might have previously set with
+  ## lr_set_c_msg_handler(), which take precedence over the Nimrod version.
+  ##
+  ## If you don't call this proc, the default value is lr_stdout_msg_handler
+  ## like in the `Nimrod API <lazy_rest.html>`_.
+  if func.is_nil:
+    C.msg_handler = nil_msg_handler
+  else:
+    C.msg_handler = func
 
 
 proc lr_rst_string_to_html*(content, filename: cstring,

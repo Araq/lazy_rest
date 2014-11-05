@@ -78,7 +78,8 @@ proc init(p: var CodeBlockParams) =
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
     config: PStringTable, filename: string,
-    options: TRstParseOptions, findFile: Find_file_handler = nil_find_file,
+    options: TRstParseOptions,
+    findFile: Find_file_handler = nil_find_file_handler,
     msgHandler: TMsgHandler = nil_msg_handler) =
   ## Initializes a ``TRstGenerator``.
   ##
@@ -133,9 +134,9 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   g.theIndex = ""
   g.options = options
   #See below…
-  #g.findFile = if findFile.is_nil: nil_find_file else: findFile
+  #g.findFile = if findFile.is_nil: nil_find_file_handler else: findFile
   if findFile.is_nil:
-    g.findFile = nil_find_file
+    g.findFile = nil_find_file_handler
   else:
     g.findFile = findFile
   g.currentSection = ""
@@ -1237,8 +1238,8 @@ proc rstToHtml*(s: string, options: TRstParseOptions,
 
   const filen = "input"
   var d: TRstGenerator
-  initRstGenerator(d, outHtml, config, filen, options, lrst.nil_find_file,
-                   lrst.nil_msg_handler)
+  initRstGenerator(d, outHtml, config, filen, options,
+    nil_find_file_handler, nil_msg_handler)
   var dummyHasToc = false
   var rst = rstParse(s, filen, 0, 1, dummyHasToc, options)
   result = ""

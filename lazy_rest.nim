@@ -6,7 +6,7 @@ export Find_file_handler
 export TMsgClass
 export TMsgHandler
 export TMsgKind
-export nil_find_file
+export nil_find_file_handler
 export nil_msg_handler
 export rst_messages
 export whichMsgClass
@@ -84,7 +84,8 @@ G.default_config = load_config(rest_default_config)
 
 
 proc stdout_msg_handler*(filename: string, line, col: int,
-    msgkind: TMsgKind, arg: string) {.procvar.} =
+    msgkind: TMsgKind, arg: string) {.procvar,
+    exportc:"lr_stdout_msg_handler".} =
   ## Default handler to report warnings/errors.
   ##
   ## This implementation shows the warning or error through ``stdout``. In the
@@ -105,25 +106,26 @@ proc stdout_msg_handler*(filename: string, line, col: int,
     except EIO: discard
 
 
-proc unrestricted_find_file*(current_filename, target_filename: string):
-    string {.procvar.} =
+proc unrestricted_find_file_handler*(current_filename, target_filename: string):
+    string {.procvar, exportc:"lr_unrestricted_find_file_handler".} =
   ## Default handler to resolve file path navigation.
   ##
   ## This proc is called according to the `Find_file_handler type specification
   ## <lazy_rest_pkg/lrst.html#Find_file_handler>`_. The includes are always
   ## resolved, hence the *unrestricted*. You might want to provide your own
   ## security aware version which restricts absolute paths. Or disable file
-  ## access altogether passing the `lrst.nil_find_file()
-  ## <lazy_rest_pkg/lrst.html#nil_find_file>`_ proc where appropriate. Example:
+  ## access altogether passing the `lrst.nil_find_file_handler()
+  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc where appropriate.
+  ## Example:
   ##
   ## .. code-block:: nimrod
   ##
   ##   if trusted_source:
   ##     buf = safe_rst_file_to_html(filename,
-  ##       find_file = unrestricted_find_file)
+  ##       find_file = unrestricted_find_file_handler)
   ##   else:
   ##     buf = safe_rst_file_to_html(filename,
-  ##       find_file = nil_find_file)
+  ##       find_file = nil_find_file_handler)
   assert current_filename.not_nil and current_filename.len > 0
   assert target_filename.not_nil and target_filename.len > 0
   #debug("Asking for '" & target_filename & "'")
@@ -187,7 +189,7 @@ proc parse_rst_options*(options: string): PStringTable =
 
 proc rst_string_to_html*(content, filename: string,
     config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a content named filename into a string with HTML tags.
   ##
@@ -200,10 +202,11 @@ proc rst_string_to_html*(content, filename: string,
   ## `lazy_rest/lrstgen.initRstGenerator()
   ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
   ##
-  ## By default the `find_file` parameter will be the `unrestricted_find_file()
-  ## <#unrestricted_find_file>`_ proc. If you pass ``nil`` the
-  ## `lrst.nil_find_file() <lazy_rest_pkg/lrst.html#nil_find_file>`_ proc will
-  ## be used instead.
+  ## By default the `find_file` parameter will be the
+  ## `unrestricted_find_file_handler() <#unrestricted_find_file_handler>`_
+  ## proc. If you pass ``nil`` the `lrst.nil_find_file_handler()
+  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc will be used
+  ## instead.
   assert content.not_nil
   assert G.default_config.not_nil
   let
@@ -264,16 +267,17 @@ proc rst_string_to_html*(content, filename: string,
 
 
 proc rst_file_to_html*(filename: string, config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a filename with rest content into a string with HTML tags.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
   ##
-  ## By default the `find_file` parameter will be the `unrestricted_find_file()
-  ## <#unrestricted_find_file>`_ proc. If you pass ``nil`` the
-  ## `lrst.nil_find_file() <lazy_rest_pkg/lrst.html#nil_find_file>`_ proc will
-  ## be used instead.
+  ## By default the `find_file` parameter will be the
+  ## `unrestricted_find_file_handler() <#unrestricted_find_file_handler>`_
+  ## proc. If you pass ``nil`` the `lrst.nil_find_file_handler()
+  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc will be used
+  ## instead.
   const msg = "filename parameter can't be nil!"
   rassert filename.not_nil, msg:
     raise new_exception(EInvalidValue, msg)
@@ -462,7 +466,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
 proc safe_rst_string_to_html*(filename, data: string,
     ERRORS: ptr seq[string] = nil, config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Wrapper over `rst_string_to_html <#rst_string_to_html>`_ to catch
   ## exceptions.
@@ -512,7 +516,7 @@ proc safe_rst_string_to_html*(filename, data: string,
 
 proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
     config: PStringTable = nil,
-    find_file: Find_file_handler = unrestricted_find_file,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Wrapper over `rst_file_to_html <#rst_file_to_html>`_ to catch exceptions.
   ##
@@ -583,7 +587,7 @@ proc nim_file_to_html*(filename: string, number_lines = true,
       (if number_lines: with_numbers else: without_numbers)
     SOURCE.add(readFile(filename).replace("\n", "\n  "))
     result = rst_string_to_html(SOURCE, filename, config,
-      find_file = nil_find_file)
+      find_file = nil_find_file_handler)
   except E_Base:
     result = "<html><body><h1>Error for " & filename & "</h1></body></html>"
   except EOS:
@@ -620,7 +624,7 @@ proc set_normal_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     G.user_normal_error = rst_string_to_html(input_rst,
-      "set_normal_error_rst.input_rst", find_file = nil_find_file,
+      "set_normal_error_rst.input_rst", find_file = nil_find_file_handler,
       msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
@@ -657,7 +661,7 @@ proc set_safe_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     html = rst_string_to_html(input_rst, "set_normal_error_rst.input_rst",
-      find_file = nil_find_file, msg_handler = nil_msg_handler)
+      find_file = nil_find_file_handler, msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
     return
