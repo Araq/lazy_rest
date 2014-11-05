@@ -1,4 +1,4 @@
-import lazy_rest, external/badger_bits/bb_system, strtabs
+import lazy_rest, external/badger_bits/bb_system, strtabs, strutils
 
 ## Exported C API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
@@ -34,6 +34,16 @@ import lazy_rest, external/badger_bits/bb_system, strtabs
 
 
 type
+  lr_c_msg_handler* {.exportc.} =
+    proc(filename: cstring, line, col: cint,
+      msgkind: char, arg: cstring): cstring {.raises: [].} ## \
+    ## Defines a C callback for message handlers.
+    ##
+    ## This callback works exactly the same like `TMsgHandler
+    ## <lazy_rest_pkg/lrst.html#TMsgHandler>`_ but for C code. These callbacks
+    ## are set globally through the `lr_set_c_msg_handler()
+    ## <#lr_set_c_msg_handler>`_.
+
   C_state = object
     error_rst_file_to_html: ref E_Base
     error_rst_string_to_html: ref E_Base
@@ -48,17 +58,48 @@ type
     ret_set_normal_error_rst: seq[string]
     ret_set_safe_error_rst: seq[string]
     global_options: PStringTable
-    msg_handler: TMsgHandler
+    msg_handler: tuple[nim: TMsgHandler, c: lr_c_msg_handler] # \
+    # The C message handler takes precedence over the nim version.
 
 
 var C: C_state
 # Set some global defaults which can't be nil.
-C.msg_handler = stdout_msg_handler
+C.msg_handler.nim = stdout_msg_handler
 
 
 template override_config() =
   let config {.inject.} = if config == nil: C.global_options else: config
 
+
+proc msg_callback_wrapper(filename: string, line, col: int,
+    msgkind: TMsgKind, arg: string): string {.procvar, raises: [].} =
+  ## Wrapps the C callback.
+  assert C.msg_handler.c.not_nil
+  assert len($msgKind) > 1
+
+  var reason = arg
+  try: reason = rst_messages[msgkind] % arg
+  except EInvalidValue: discard
+
+  let
+    filename = filename.nil_cstring
+    arg = arg.nil_cstring
+    kind = ($msgKind)[1]
+    msg = C.msg_handler.c(filename, line.cint, col.cint, kind, reason)
+
+  if msg.not_nil:
+    result = $msg
+
+
+template global_msg_handler(): TMsgHandler =
+  ## Helper to choose the C or Nimrod message handlers as callbacks.
+  ##
+  ## Returns the appropriate TMsgHandler depending on previous calls to
+  ## `lr_set_nimrod_msg_handler() <#lr_set_nimrod_msg_handler>`_ and
+  ## `lr_set_c_msg_handler() <#lr_set_c_msg_handler>`_. The C version will use
+  ## the special Nimrod callback wrapper.
+  if C.msg_handler.c.not_nil: msg_callback_wrapper
+  else: C.msg_handler.nim
 
 proc lr_version_int*(major, minor, maintenance: ptr cint)
     {.exportc, cdecl, raises: [].} =
@@ -141,18 +182,30 @@ proc lr_set_nimrod_msg_handler*(func: TMsgHandler) {.exportc.} =
   ## * `lr_nil_msg_handler <lazy_rest_pkg/lrst.html#nil_msg_handler>`_.
   ##
   ## If instead of builtin Nimrod procs you would prefer to provide your own C
-  ## function, use lr_set_c_msg_handler. Passing ``NULL`` to this function is
-  ## equal to passing `lr_nil_msg_handler
+  ## function, use `lr_set_c_msg_handler() <#lr_set_c_msg_handler>`_. Passing
+  ## ``NULL`` to this function is equal to passing `lr_nil_msg_handler
   ## <lazy_rest_pkg/lrst.html#nil_msg_handler>`_. Calling this function does
-  ## not override whatever C callback you might have previously set with
-  ## lr_set_c_msg_handler(), which take precedence over the Nimrod version.
+  ## **not** override whatever C callback you might have previously set with
+  ## `lr_set_c_msg_handler() <#lr_set_c_msg_handler>`_, which take precedence
+  ## over the Nimrod version.
   ##
   ## If you don't call this proc, the default value is lr_stdout_msg_handler
   ## like in the `Nimrod API <lazy_rest.html>`_.
   if func.is_nil:
-    C.msg_handler = nil_msg_handler
+    C.msg_handler.nim = nil_msg_handler
   else:
-    C.msg_handler = func
+    C.msg_handler.nim = func
+
+
+proc lr_set_c_msg_handler*(func: lr_c_msg_handler) {.exportc.} =
+  ## Specifies the C message handler to use for rst processing.
+  ##
+  ## This is like `lr_set_nimrod_msg_handler() <#lr_set_nimrod_msg_handler>`_
+  ## but allows you to set a custom C callback. Callbacks passed in to this
+  ## function take precedence over the Nimrod callback. Passing ``NULL`` will
+  ## disable the C callback (which implicitly activates the failsafe Nimrod
+  ## one).
+  C.msg_handler.c = func
 
 
 proc lr_rst_string_to_html*(content, filename: cstring,
@@ -184,7 +237,7 @@ proc lr_rst_string_to_html*(content, filename: cstring,
 
   try:
     C.ret_rst_string_to_html = rst_string_to_html(content, filename, config,
-      msg_handler = C.msg_handler)
+      msg_handler = global_msg_handler())
     result = C.ret_rst_string_to_html.nil_cstring
   except:
     C.error_rst_string_to_html = get_current_exception()
@@ -241,7 +294,7 @@ proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
 
   try:
     C.ret_rst_file_to_html = rst_file_to_html(filename, config,
-      msg_handler = C.msg_handler)
+      msg_handler = global_msg_handler())
     result = C.ret_rst_file_to_html.nil_cstring
   except:
     C.error_rst_file_to_html = get_current_exception()
@@ -299,7 +352,7 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
 
   C.ret_safe_rst_string_to_html = safe_rst_string_to_html(filename, data,
     C.errors_safe_rst_string_to_html.addr, config,
-    msg_handler = C.msg_handler)
+    msg_handler = global_msg_handler())
 
   result = C.ret_safe_rst_string_to_html.nil_cstring
   if ERRORS.not_nil:
@@ -366,7 +419,7 @@ proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
 
   C.ret_safe_rst_file_to_html = safe_rst_file_to_html(filename,
     C.errors_safe_rst_file_to_html.addr, config,
-    msg_handler = C.msg_handler)
+    msg_handler = global_msg_handler())
 
   result = C.ret_safe_rst_file_to_html.nil_cstring
   if ERRORS.not_nil:

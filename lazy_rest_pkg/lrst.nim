@@ -46,7 +46,7 @@ type
   EParseError* = object of EInvalidValue ## \
     ## Exception raised when `TMsgHandler <#TMsgHandler>`_ returns ``true``.
 
-  TMsgHandler* {.exportc:"lr_msg_handler".} =
+  TMsgHandler* {.exportc:"lr_nim_msg_handler".} =
       proc (filename: string, line, col: int,
         msgKind: TMsgKind, arg: string): string {.raises: [].} ## \
     ## Callback to report warnings and errors to end users.
