@@ -96,7 +96,7 @@ template global_msg_handler(): TMsgHandler =
   ## Helper to choose the C or Nimrod message handlers as callbacks.
   ##
   ## Returns the appropriate TMsgHandler depending on previous calls to
-  ## `lr_set_nimrod_msg_handler() <#lr_set_nimrod_msg_handler>`_ and
+  ## `lr_set_nim_msg_handler() <#lr_set_nim_msg_handler>`_ and
   ## `lr_set_c_msg_handler() <#lr_set_c_msg_handler>`_. The C version will use
   ## the special Nimrod callback wrapper.
   if C.msg_handler.c.not_nil: msg_callback_wrapper
@@ -173,7 +173,7 @@ proc lr_set_global_rst_options*(options: cstring): cint
   result = if C.global_options.is_nil: 0 else: 1
 
 
-proc lr_set_nimrod_msg_handler*(func: TMsgHandler) {.exportc.} =
+proc lr_set_nim_msg_handler*(func: TMsgHandler) {.exportc.} =
   ## Specifies the Nimrod message handler to use for rst processing.
   ##
   ## Since the C API doesn't provide explicit callback parameters, you can use
@@ -203,7 +203,7 @@ proc lr_set_nimrod_msg_handler*(func: TMsgHandler) {.exportc.} =
 proc lr_set_c_msg_handler*(func: lr_c_msg_handler) {.exportc.} =
   ## Specifies the C message handler to use for rst processing.
   ##
-  ## This is like `lr_set_nimrod_msg_handler() <#lr_set_nimrod_msg_handler>`_
+  ## This is like `lr_set_nim_msg_handler() <#lr_set_nim_msg_handler>`_
   ## but allows you to set a custom C callback. Callbacks passed in to this
   ## function take precedence over the Nimrod callback. Passing ``NULL`` will
   ## disable the C callback (which implicitly activates the failsafe Nimrod
@@ -211,7 +211,7 @@ proc lr_set_c_msg_handler*(func: lr_c_msg_handler) {.exportc.} =
   C.msg_handler.c = func
 
 
-proc lr_set_nimrod_find_file_handler*(func: Find_file_handler) {.exportc.} =
+proc lr_set_nim_find_file_handler*(func: Find_file_handler) {.exportc.} =
   ## Specifies the Nimrod file handler to use for rst processing.
   ##
   ## Since the C API doesn't provide explicit callback parameters, you can use
