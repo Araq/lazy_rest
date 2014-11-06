@@ -35,7 +35,8 @@ void overwrite(const char* filename, const char* s)
 }
 
 // Message callback to deal with errors, very verbose and never fails.
-char* verbose_callback(char* filename, int line, int col, char kind, char* desc)
+char* verbose_message_callback(char* filename,
+	int line, int col, char kind, char* desc)
 {
 	printf("Woah woa wow, something happened in '%s'\n", filename);
 	printf("Line %d, col %d, kind %c: '%s'\n", line, col, kind, desc);
@@ -44,10 +45,40 @@ char* verbose_callback(char* filename, int line, int col, char kind, char* desc)
 }
 
 // Callback which nags at any ocassion with a serious existential problem.
-char* silent_failure_callback(char* filename,
+char* silent_message_failure_callback(char* filename,
 	int line, int col, char kind, char* desc)
 {
 	return exception_message;
+}
+
+// File handler which always fails silently.
+void failure_file_callback(char* current_filename, char* target_filename,
+	char* out_path, int out_size)
+{
+	return;
+}
+
+// Verbose file handler.
+void verbose_file_callback(char* current_filename, char* target_filename,
+	char* out_path, int out_size)
+{
+	printf("Got file request from '%s' to '%s'\n",
+		current_filename, target_filename);
+	// Copy the current_filename without overflow to the destination.
+	strncpy(out_path, current_filename, out_size - 1);
+	out_path[out_size - 1] = '\0';
+	// Remove up to the last path separator
+	char* s = strrchr(out_path, '/');
+	if (s) {
+		*(++s) = 0;
+	} else if (s = strrchr(out_path, '\\')) {
+		*(++s) = 0;
+	} else {
+		// No path separators? Clean target.
+		*(s = out_path) = 0;
+	}
+	strncpy(s, target_filename, out_size - 1 - (s - out_path));
+	printf("Will return '%s'\n", out_path);
 }
 
 // Entry point of the C test.
@@ -275,11 +306,11 @@ void run_c_test(char* error_rst, char* special_options)
 
 		// Retry custom verbose C callback which never fails.
 		printf("Ignore the following verbose error…\n");
-		lr_set_c_msg_handler(verbose_callback);
+		lr_set_c_msg_handler(verbose_message_callback);
 		s = lr_rst_string_to_html(bad_rst_string, "<bad-string>", 0);
 		assert(s && "Should return non nil due to ignored errors");
 		// Repeat with a callback which should fail, verify the error.
-		lr_set_c_msg_handler(silent_failure_callback);
+		lr_set_c_msg_handler(silent_message_failure_callback);
 		s = lr_rst_string_to_html(bad_rst_string, "<bad-string>", 0);
 		assert(0 == s && "Should return nil due to errors");
 		printf("Verbose C error: %s\n", lr_rst_string_to_html_error());
@@ -290,7 +321,7 @@ void run_c_test(char* error_rst, char* special_options)
 		assert(0 == s && "Should return nil due to errors");
 	}
 
-	// Test the find file callbacks.
+	// Test the Nimrod find file callbacks.
 	{
 		char* s;
 		int errors = 1;
@@ -310,5 +341,38 @@ void run_c_test(char* error_rst, char* special_options)
 		s = lr_safe_rst_file_to_html(
 			good_rst_include_filename, &errors, 0);
 		assert(1 == errors && "now everything fails");
+	}
+
+	// Test the C find file callbacks.
+	{
+		char* s;
+		int errors = 1;
+
+		// Make sure the nimrod file handler is nil, we override it from C.
+		lr_set_nim_find_file_handler(lr_nil_find_file_handler);
+		printf("Current file handler buffer size %d\n",
+			lr_set_find_file_buffer_size(-1));
+		lr_set_c_find_file_handler(verbose_file_callback);
+
+		s = lr_safe_rst_file_to_html(
+			good_rst_include_filename, &errors, 0);
+		assert(0 == errors);
+
+		s = lr_safe_rst_file_to_html(
+			bad_rst_include_filename, &errors, 0);
+		assert(1 == errors);
+		overwrite(bad_html_include_filename, s);
+
+		// Set valid Nimrod handler and nil C which should fail all tests.
+		lr_set_nim_find_file_handler(lr_unrestricted_find_file_handler);
+		lr_set_c_find_file_handler(failure_file_callback);
+		s = lr_safe_rst_file_to_html(
+			good_rst_include_filename, &errors, 0);
+		assert(1 == errors);
+		// Resetting this to null should make files work again.
+		lr_set_c_find_file_handler(0);
+		s = lr_safe_rst_file_to_html(
+			good_rst_include_filename, &errors, 0);
+		assert(0 == errors);
 	}
 }

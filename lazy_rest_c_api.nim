@@ -125,6 +125,7 @@ proc find_file_callback_wrapper(current_filename,
   ## Wraps the C callback.
   assert C.find_file_handler.c.not_nil
   var out_path = new_string_of_cap(C.find_file_buffer_size)
+  out_path[0] = '\0'
   let
     current_filename = current_filename.nil_cstring
     target_filename = target_filename.nil_cstring
@@ -318,7 +319,7 @@ proc lr_set_find_file_buffer_size*(s: cint): cint {.exportc.} =
   ## 255, but never smaller.
   if s >= min_c_file_buffer:
     C.find_file_buffer_size = s
-  result = s
+  result = C.find_file_buffer_size
 
 
 proc lr_rst_string_to_html*(content, filename: cstring,
