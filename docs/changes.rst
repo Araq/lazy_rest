@@ -23,3 +23,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/12>`_.
 * `Avoids hanging on infinite recursive include directives
   <https://github.com/gradha/lazy_rest/issues/11>`_.
+* `Added customisation of file include and message procs
+  <https://github.com/gradha/lazy_rest/issues/17>`_.

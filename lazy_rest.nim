@@ -2,6 +2,15 @@ import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
   parsecfg, subexes, strtabs, streams, times, cgi, logging,
   external/badger_bits/bb_system
 
+export Find_file_handler
+export TMsgClass
+export TMsgHandler
+export TMsgKind
+export nil_find_file_handler
+export nil_msg_handler
+export rst_messages
+export whichMsgClass
+
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
 ##
@@ -74,6 +83,66 @@ var G: Global_state
 G.default_config = load_config(rest_default_config)
 
 
+proc stdout_msg_handler*(filename: string, line, col: int,
+    msgkind: TMsgKind, arg: string): string {.procvar, raises: [],
+    exportc:"lr_stdout_msg_handler".} =
+  ## Default handler to report warnings/errors.
+  ##
+  ## This implementation shows the warning or error through ``stdout``. In the
+  ## case of error the message is returned so that the ``EParseError``
+  ## exception can be raised to avoid continuing. This procvar conforms to the
+  ## `TMsgHandler type specification <lazy_rest_pkg/lrst.html#TMsgHandler>`_.
+  let mc = msgkind.whichMsgClass
+  var message = filename & "(" & $line & ", " & $col & ") " & $mc
+  try:
+    let reason = rst_messages[msgkind] % arg
+    message.add(": " & reason)
+  except EInvalidValue:
+    discard
+
+  if mc == mcError:
+    result = message
+  else:
+    try: writeln(stdout, message)
+    except EIO: discard
+
+
+proc unrestricted_find_file_handler*(current_filename,
+    target_filename: string): string {.procvar,
+    exportc:"lr_unrestricted_find_file_handler", raises: [].} =
+  ## Default handler to resolve file path navigation.
+  ##
+  ## This proc is called according to the `Find_file_handler type specification
+  ## <lazy_rest_pkg/lrst.html#Find_file_handler>`_. The includes are always
+  ## resolved, hence the *unrestricted*. You might want to provide your own
+  ## security aware version which restricts absolute paths. Or disable file
+  ## access altogether passing the `lrst.nil_find_file_handler()
+  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc where appropriate.
+  ## Example:
+  ##
+  ## .. code-block:: nimrod
+  ##
+  ##   if trusted_source:
+  ##     buf = safe_rst_file_to_html(filename,
+  ##       find_file = unrestricted_find_file_handler)
+  ##   else:
+  ##     buf = safe_rst_file_to_html(filename,
+  ##       find_file = nil_find_file_handler)
+  assert current_filename.not_nil and current_filename.len > 0
+  assert target_filename.not_nil and target_filename.len > 0
+  #debug("Asking for '" & target_filename & "'")
+  #debug("from '" & current_filename & "'")
+  result = ""
+  if target_filename.is_absolute:
+    if target_filename.exists_file:
+      result = target_filename
+  else:
+    let path = current_filename.parent_dir / target_filename
+    if path.exists_file:
+      result = path
+  #debug("\tReturning '" & result & "'")
+
+
 proc load_config(mem_string: string): PStringTable =
   ## Parses the configuration and returns it as a PStringTable.
   ##
@@ -120,20 +189,10 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
     except: discard
 
 
-proc debug_find_file(current, filename: string): string =
-  ## Small wrapper around default file handler to debug paths.
-  debug("Asking for '" & filename & "'")
-  debug("Global is '" & current.parent_dir & "'")
-  result = current.parent_dir / filename
-  if result.exists_file:
-    debug("Returning '" & result & "'")
-    return
-  else:
-    result = ""
-
-
 proc rst_string_to_html*(content, filename: string,
-    config: PStringTable = nil): string =
+    config: PStringTable = nil,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
+    msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a content named filename into a string with HTML tags.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
@@ -144,6 +203,12 @@ proc rst_string_to_html*(content, filename: string,
   ## <#load_config>`_.  The value for the `config` parameter is explained in
   ## `lazy_rest/lrstgen.initRstGenerator()
   ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
+  ##
+  ## By default the `find_file` parameter will be the
+  ## `unrestricted_find_file_handler() <#unrestricted_find_file_handler>`_
+  ## proc. If you pass ``nil`` the `lrst.nil_find_file_handler()
+  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc will be used
+  ## instead.
   assert content.not_nil
   assert G.default_config.not_nil
   let
@@ -167,11 +232,11 @@ proc rst_string_to_html*(content, filename: string,
     G.did_start_logger = true
 
   GENERATOR.initRstGenerator(outHtml, config, filename, parse_options,
-    debug_find_file, lrst.defaultMsgHandler)
+    find_file, msg_handler)
 
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,
-    parse_options, debug_find_file)
+    parse_options, find_file, msg_handler)
   RESULT = newStringOfCap(30_000)
 
   # Render document into HTML chunk.
@@ -203,15 +268,24 @@ proc rst_string_to_html*(content, filename: string,
     "content", MOD_DESC]
 
 
-proc rst_file_to_html*(filename: string, config: PStringTable = nil): string =
+proc rst_file_to_html*(filename: string, config: PStringTable = nil,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
+    msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a filename with rest content into a string with HTML tags.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
+  ##
+  ## By default the `find_file` parameter will be the
+  ## `unrestricted_find_file_handler() <#unrestricted_find_file_handler>`_
+  ## proc. If you pass ``nil`` the `lrst.nil_find_file_handler()
+  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc will be used
+  ## instead.
   const msg = "filename parameter can't be nil!"
   rassert filename.not_nil, msg:
     raise new_exception(EInvalidValue, msg)
 
-  result = rst_string_to_html(readFile(filename), filename, config)
+  result = rst_string_to_html(readFile(filename), filename, config,
+    find_file, msg_handler)
 
 
 proc add_pre_number_lines(content: string): string =
@@ -394,8 +468,9 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
 
 proc safe_rst_string_to_html*(filename, data: string,
-    ERRORS: ptr seq[string] = nil, config: PStringTable = nil):
-    string {.raises: [].} =
+    ERRORS: ptr seq[string] = nil, config: PStringTable = nil,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
+    msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
   ## Wrapper over `rst_string_to_html <#rst_string_to_html>`_ to catch
   ## exceptions.
   ##
@@ -436,14 +511,16 @@ proc safe_rst_string_to_html*(filename, data: string,
     return
 
   try:
-    result = rst_string_to_html(data, filename, config)
+    result = rst_string_to_html(data, filename, config, find_file, msg_handler)
   except:
     append_error_to_list()
     result = build_error_html(filename, data, ERRORS, config)
 
 
 proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
-    config: PStringTable = nil): string {.raises: [].} =
+    config: PStringTable = nil,
+    find_file: Find_file_handler = unrestricted_find_file_handler,
+    msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
   ## Wrapper over `rst_file_to_html <#rst_file_to_html>`_ to catch exceptions.
   ##
   ## Returns always a valid HTML. If something bad happens, it tries to show
@@ -477,7 +554,7 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ##   else:
   ##     filename.change_file_ext("html").write_file(html)
   try:
-    result = rst_file_to_html(filename, config)
+    result = rst_file_to_html(filename, config, find_file, msg_handler)
   except:
     append_error_to_list()
     var CONTENT: string
@@ -512,7 +589,8 @@ proc nim_file_to_html*(filename: string, number_lines = true,
     SOURCE = title_symbols & "\n" & name & "\n" & title_symbols &
       (if number_lines: with_numbers else: without_numbers)
     SOURCE.add(readFile(filename).replace("\n", "\n  "))
-    result = rst_string_to_html(SOURCE, filename, config)
+    result = rst_string_to_html(SOURCE, filename, config,
+      find_file = nil_find_file_handler)
   except E_Base:
     result = "<html><body><h1>Error for " & filename & "</h1></body></html>"
   except EOS:
@@ -549,7 +627,8 @@ proc set_normal_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     G.user_normal_error = rst_string_to_html(input_rst,
-      "set_normal_error_rst.input_rst")
+      "set_normal_error_rst.input_rst", find_file = nil_find_file_handler,
+      msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
 
@@ -584,7 +663,8 @@ proc set_safe_error_rst*(input_rst: string):
     html: string
     ERRORS = result.addr
   try:
-    html = rst_string_to_html(input_rst, "set_normal_error_rst.input_rst")
+    html = rst_string_to_html(input_rst, "set_normal_error_rst.input_rst",
+      find_file = nil_find_file_handler, msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
     return
@@ -603,7 +683,3 @@ proc set_safe_error_rst*(input_rst: string):
     p2 = content_pos + required_string.len
   G.user_safe_error_start = html[0 .. p1]
   G.user_safe_error_end = html[p2 .. html.high]
-
-
-#when isMainModule:
-#  writeFile("out.html", rst_file_to_html("test.rst"))

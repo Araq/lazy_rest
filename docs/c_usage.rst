@@ -55,6 +55,6 @@ Practical example
 =================
 
 In the ``tests/c_api`` subdirectory you can find a `test_c_api.nim wrapper
-<../tests/c_api/test_c_api.nim>`_ around a `test_c_api.c
-<../tests/c_api/test_c_api.c>`_ file which makes use of the C API. That plus
-the public API documentation should be enough.
+<../tests/c_api/test_c_api.nim>`_ around a `c_test.c
+<../tests/c_api/c_test.c>`_ file which makes use of the C API. That plus the
+public API documentation should be enough.

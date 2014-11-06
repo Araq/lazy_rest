@@ -23,7 +23,8 @@
 ## <https://en.wikipedia.org/wiki/LaTeX>`_ are poorly supported.
 
 import strutils, os, hashes, strtabs, lazy_rest_pkg/lrstast,
-  lazy_rest_pkg/lrst, lhighlite, tables, sequtils, algorithm, parseutils
+  lazy_rest_pkg/lrst, lhighlite, tables, sequtils, algorithm, parseutils,
+  external/badger_bits/bb_system
 
 const
   HtmlExt = "html"
@@ -76,10 +77,17 @@ proc init(p: var CodeBlockParams) =
   p.lang = langNone
   p.langStr = ""
 
+template rstMessage(d: PDoc, line, col: int, msgKind: TMsgKind, arg: string) =
+  # Wrapper around msgHandler to raise an exception when non nil is returned.
+  assert d.msgHandler.not_nil
+  let msg = d.msgHandler(d.filename, line, col, msgKind, arg)
+  if msg.not_nil: raise new_exception(EParseError, msg)
+
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
     config: PStringTable, filename: string,
-    options: TRstParseOptions, findFile: Find_file_handler,
-    msgHandler: TMsgHandler) =
+    options: TRstParseOptions,
+    findFile: Find_file_handler = nil_find_file_handler,
+    msgHandler: TMsgHandler = nil_msg_handler) =
   ## Initializes a ``TRstGenerator``.
   ##
   ## You need to call this before using a ``TRstGenerator`` with any other
@@ -111,7 +119,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ## The ``msgHandler`` is a proc used for user error reporting. It will be
   ## called with the filename, line, col, and type of any error found during
   ## parsing. If you pass ``nil``, a default message handler will be used which
-  ## writes the messages to the standard output.
+  ## silently discards all messages.
   ##
   ## Example:
   ##
@@ -132,13 +140,24 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   g.splitAfter = 20
   g.theIndex = ""
   g.options = options
-  g.findFile = findFile
+  #See below…
+  #g.findFile = if findFile.is_nil: nil_find_file_handler else: findFile
+  if findFile.is_nil:
+    g.findFile = nil_find_file_handler
+  else:
+    g.findFile = findFile
   g.currentSection = ""
   let fileParts = filename.splitFile
   if fileParts.ext == ".nim":
     g.currentSection = "Module " & fileParts.name
   g.seenIndexTerms = initTable[string, int]()
-  g.msgHandler = msgHandler
+  # The following line doesn't compile, seems like a bug.
+  #g.msgHandler = if msgHandler.is_nil: nil_msg_handler else: msgHandler
+  # The separate if/else block works fine…
+  if msgHandler.is_nil:
+    g.msgHandler = nil_msg_handler
+  else:
+    g.msgHandler = msgHandler
 
   let s = config["split.item.toc"]
   if s != "": g.splitAfter = parseInt(s)
@@ -792,7 +811,7 @@ proc parseCodeBlockField(d: PDoc, n: PRstNode, params: var CodeBlockParams) =
     params.langStr = n.getFieldValue.strip
     params.lang = params.langStr.getSourceLanguage
   else:
-    d.msgHandler(d.filename, 1, 0, mwUnsupportedField, n.getArgument)
+    d.rstMessage(1, 0, mwUnsupportedField, n.getArgument)
 
 proc parseCodeBlockParams(d: PDoc, n: PRstNode): CodeBlockParams =
   ## Iterates over all code block fields and returns processed params.
@@ -858,7 +877,7 @@ proc renderCodeBlock(d: PDoc, n: PRstNode, result: var string) =
   dispA(d.target, result, blockStart, "\\begin{rstpre}\n", [])
   if params.lang == langNone:
     if len(params.langStr) > 0:
-      d.msgHandler(d.filename, 1, 0, mwUnsupportedLanguage, params.langStr)
+      d.rstMessage(1, 0, mwUnsupportedLanguage, params.langStr)
       d.unknownLangs = true
       result.add("""<code class="language-""" &
         params.langStr.to_lower.strip & """">""")
@@ -1202,10 +1221,6 @@ $content
 
 # ---------- forum ---------------------------------------------------------
 
-proc onlineFindFile(current, filename: string): string =
-  # we don't find any files in online mode:
-  result = ""
-
 proc rstToHtml*(s: string, options: TRstParseOptions,
                 config: PStringTable): string =
   ## Converts an input rst string into embeddable HTML.
@@ -1230,8 +1245,8 @@ proc rstToHtml*(s: string, options: TRstParseOptions,
 
   const filen = "input"
   var d: TRstGenerator
-  initRstGenerator(d, outHtml, config, filen, options, onlineFindFile,
-                   lrst.defaultMsgHandler)
+  initRstGenerator(d, outHtml, config, filen, options,
+    nil_find_file_handler, nil_msg_handler)
   var dummyHasToc = false
   var rst = rstParse(s, filen, 0, 1, dummyHasToc, options)
   result = ""

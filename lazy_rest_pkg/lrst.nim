@@ -43,24 +43,46 @@ type
     mwUnsupportedLanguage,
     mwUnsupportedField
 
-  TMsgHandler* =
-      proc (filename: string, line, col: int,
-        msgKind: TMsgKind, arg: string) {.nimcall.} ## \
-    ## What to do in case of an error.
+  EParseError* = object of EInvalidValue ## \
+    ## Exception raised when `TMsgHandler <#TMsgHandler>`_ returns ``true``.
 
-  Find_file_handler* = proc (current_filename, target_filename: string):
-      string {.nimcall.} ## Callback to resolve file paths. \
+  TMsgHandler* {.exportc:"lr_nim_msg_handler".} =
+      proc (filename: string, line, col: int,
+        msgKind: TMsgKind, arg: string): string {.raises: [].} ## \
+    ## Callback to report warnings and errors to end users.
+    ##
+    ## This proc is called with the filename, line and column information of a
+    ## warning/error. The kind of error is passed as well as a string with the
+    ## description of the problem. The callback is meant to display this
+    ## information to the user or log it somewhere.
+    ##
+    ## If the callback wants to stop processing of the rst file, it should
+    ## return a non ``nil`` string. This string could contain the same
+    ## formatted error message presented to the user, as it will be used to
+    ## raise `EParseError <#EParseError>`_ internally. If the callback doesn't
+    ## wish to interrupt processing (e.g. in case of a lesser warning) then it
+    ## should return ``nil``.
+
+  Find_file_handler* {.exportc:"lr_nim_find_file_handler".} =
+      proc (current_filename, target_filename: string):
+        string {.raises: [].} ## \
+    ## Callback to resolve file paths.
+    ##
+    ## The `current_filename` parameter is the path to the current file being
+    ## processed (it could change through several include directives, and will
+    ## always be absolute).
+    ##
+    ## The `target_filename` parameter is the string as found in include
+    ## directives in rst documents which requires resolving. Note that the
+    ## `target_filename` parameter might be an absolute path.
     ##
     ## The callback should return the path to the final file. If the file can't
-    ## be resolved, it should return the empty string. The `target_filename`
-    ## parameter is the string as found in include directives in rst documents
-    ## which requires resolving. The `current_filename` is the path to the
-    ## current file being processed (it could change through several include
-    ## directives).
-
+    ## be resolved for whatever reason (e.g final path falls out of sandboxed
+    ## environment), it should return the empty string or ``nil``. The callback
+    ## is not allowed to raise any exceptions.
 
 const
-  messages: array [TMsgKind, string] = [
+  rst_messages*: array [TMsgKind, string] = [
     meCannotOpenFile: "cannot open '$1'",
     meExpected: "'$1' expected",
     meGridTableNotImplemented: "grid table is not implemented",
@@ -305,8 +327,6 @@ type
     line*, col*: int
     hasToc*: bool
 
-  EParseError* = object of EInvalidValue
-
 proc new_file_info(input_path: string): File_info =
   ## Creates and returns a File_info object with `input_path` as the relative
   ## name.
@@ -332,30 +352,47 @@ proc full(f: var File_info): string =
 
 
 proc whichMsgClass*(k: TMsgKind): TMsgClass =
-  ## returns which message class `k` belongs to.
+  ## Returns which message class `k` belongs to.
+  ##
+  ## You can use this to know if you should raise an exception in your
+  ## `TMsgHandler <#TMsgHandler>`_ callback proc.
   case ($k)[1]
   of 'e', 'E': result = mcError
   of 'w', 'W': result = mcWarning
   of 'h', 'H': result = mcHint
   else: assert false, "msgkind does not fit naming scheme"
 
-proc defaultMsgHandler*(filename: string, line, col: int, msgkind: TMsgKind,
-                        arg: string) {.procvar.} =
-  let mc = msgkind.whichMsgClass
-  let a = messages[msgkind] % arg
-  let message = "$1($2, $3) $4: $5" % [filename, $line, $col, $mc, a]
-  if mc == mcError: raise newException(EParseError, message)
-  else: writeln(stdout, message)
 
-proc defaultFindFile*(current_filename, target_filename: string):
-    string {.procvar.} =
-  assert current_filename.not_nil
-  assert target_filename.not_nil
-  let
-    dir = current_filename.parent_dir
-    target = dir/target_filename
-  if target.exists_file: result = target
-  else: result = ""
+proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
+    arg: string): string {.procvar, exportc:"lr_nil_msg_handler",
+    raises: [].} =
+  ## Nil output message handler.
+  ##
+  ## The only thing this does is to return the error message if the `msgkind`
+  ## parameter is of class `mcError <#TMsgClass>`_. Otherwise returns ``nil``,
+  ## which will discard warnings and hints. Follows the `TMsgHandler type
+  ## specification <#TMsgHandler>`_.
+  let mc = msgkind.whichMsgClass
+  if mc != mcError:
+    return
+
+  result = filename & "(" & $line & ", " & $col & ") " & $mc
+  try:
+    let reason = rst_messages[msgkind] % arg
+    result.add(": " & reason)
+  except EInvalidValue:
+    discard
+
+
+proc nil_find_file_handler*(current_filename, target_filename: string):
+    string {.procvar, exportc:"lr_nil_find_file_handler", raises: [].} =
+  ## Always returns the empty string.
+  ##
+  ## This is a dummy proc you can use when you don't want include files to be
+  ## resolved at all. Follows the `Find_file_handler type specification
+  ## <#Find_file_handler>`_.
+  result = ""
+
 
 proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
     msgHandler: TMsgHandler): PSharedState =
@@ -363,20 +400,28 @@ proc newSharedState(options: TRstParseOptions, findFile: Find_file_handler,
   result.subs = @[]
   result.refs = @[]
   result.options = options
-  result.msgHandler = if msgHandler.not_nil: msgHandler else: defaultMsgHandler
-  result.findFile = if findFile.not_nil: findFile else: defaultFindFile
+  result.msgHandler = if msgHandler.not_nil: msgHandler else: nil_msg_handler
+  result.findFile = if findFile.not_nil: findFile else: nil_find_file_handler
+
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string) =
-  p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
-    p.col + p.tok[p.idx].col, msgKind, arg)
+  let msg = p.s.msgHandler(p.filename_stack.last.input,
+    p.line + p.tok[p.idx].line, p.col + p.tok[p.idx].col, msgKind, arg)
+  if msg.not_nil: raise new_exception(EParseError, msg)
+
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind, arg: string, line, col: int) =
-  p.s.msgHandler(p.filename_stack.last.input, p.line + line,
+  let msg = p.s.msgHandler(p.filename_stack.last.input, p.line + line,
     p.col + col, msgKind, arg)
+  if msg.not_nil: raise new_exception(EParseError, msg)
+
 
 proc rstMessage(p: TRstParser, msgKind: TMsgKind) =
-  p.s.msgHandler(p.filename_stack.last.input, p.line + p.tok[p.idx].line,
-    p.col + p.tok[p.idx].col, msgKind, p.tok[p.idx].symbol)
+  let msg = p.s.msgHandler(p.filename_stack.last.input,
+    p.line + p.tok[p.idx].line, p.col + p.tok[p.idx].col, msgKind,
+    p.tok[p.idx].symbol)
+  if msg.not_nil: raise new_exception(EParseError, msg)
+
 
 when false:
   proc corrupt(p: TRstParser) =
@@ -498,6 +543,7 @@ proc getReferenceName(p: var TRstParser, endStr: string): PRstNode =
         add(res, newLeaf(p))
     else:
       rstMessage(p, meExpected, endStr)
+      #quit "TEST ignore_errors/reference.rst"
       break
     inc(p.idx)
   result = res
@@ -509,8 +555,11 @@ proc untilEol(p: var TRstParser): PRstNode =
     inc(p.idx)
 
 proc expect(p: var TRstParser, tok: string) =
-  if p.tok[p.idx].symbol == tok: inc(p.idx)
-  else: rstMessage(p, meExpected, tok)
+  if p.tok[p.idx].symbol == tok:
+    inc(p.idx)
+  else:
+    rstMessage(p, meExpected, tok)
+    #quit "TEST ignore_errors/replace.rst"
 
 proc isInlineMarkupEnd(p: TRstParser, markup: string): bool =
   result = p.tok[p.idx].symbol == markup
@@ -768,11 +817,15 @@ proc parseUntil(p: var TRstParser, father: PRstNode, postfix: string,
       inc(p.idx)
       if p.tok[p.idx].kind == tkIndent:
         rstMessage(p, meExpected, postfix, line, col)
+        #quit "TEST ignore_errors/indent.rst"
         break
     of tkWhite:
       add(father, newRstNode(rnLeaf, " "))
       inc(p.idx)
-    else: rstMessage(p, meExpected, postfix, line, col)
+    else:
+      rstMessage(p, meExpected, postfix, line, col)
+      #quit "TEST ignore_errors/evil_asterisks.rst"
+      break
 
 proc parseMarkdownCodeblock(p: var TRstParser): PRstNode =
   var args = newRstNode(rnDirArg)
@@ -786,6 +839,7 @@ proc parseMarkdownCodeblock(p: var TRstParser): PRstNode =
     case p.tok[p.idx].kind
     of tkEof:
       rstMessage(p, meExpected, "```")
+      #quit "TEST ignore_errors/markdown_block.rst"
       break
     of tkPunct:
       if p.tok[p.idx].symbol == "```":
@@ -1089,6 +1143,7 @@ proc whichSection(p: TRstParser): TRstNodeKind =
     elif match(p, p.idx, "+a+"):
       result = rnGridTable
       rstMessage(p, meGridTableNotImplemented)
+      #quit "TEST ignore_errors/grid_table.rst"
     elif isDefList(p):
       result = rnDefList
     elif isOptionList(p):
@@ -1435,9 +1490,6 @@ proc parseSectionWrapper(p: var TRstParser): PRstNode =
   while (result.kind == rnInner) and (len(result) == 1):
     result = result.sons[0]
 
-proc `$`(t: TToken): string =
-  result = $t.kind & ' ' & (if isNil(t.symbol): "NIL" else: t.symbol)
-
 proc parseDoc(p: var TRstParser): PRstNode =
   result = parseSectionWrapper(p)
   if p.tok[p.idx].kind != tkEof:
@@ -1527,35 +1579,40 @@ proc dirInclude(p: var TRstParser): PRstNode =
   #    literal block (useful for program listings).
   #
   result = nil
-  var n = parseDirective(p, {hasArg, argIsFile, hasOptions}, nil)
-  var input_filename = strip(addNodes(n.sons[0]))
-  var path = p.s.findFile(p.filename_stack.last.full, input_filename)
-  if path == "":
+  var
+    n = parseDirective(p, {hasArg, argIsFile, hasOptions}, nil)
+    input_filename = strip(addNodes(n.sons[0]))
+    path: string
+  try: path = p.s.findFile(p.filename_stack.last.full, input_filename)
+  except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
+  if path.is_nil or path.len < 1:
     rstMessage(p, meCannotOpenFile, input_filename)
-  else:
-    var file_info = new_file_info(path)
-    # Detect previous inclusions of this file.
-    let expanded = file_info.full
-    for prev in p.filename_stack:
-      assert prev.real_path.not_nil and prev.real_path.len > 0
-      if expanded == prev.real_path:
-        rstMessage(p, meRecursiveInclude, input_filename)
-        return
+    #quit "TEST ignore_errors/missing_include.rst"
+    return
 
-    # XXX: error handling; recursive file inclusion!
-    if getFieldValue(n, "literal") != "":
-      result = newRstNode(rnLiteralBlock)
-      add(result, newRstNode(rnLeaf, readFile(file_info.full)))
-    else:
-      var q: TRstParser
-      initParser(q, p.s)
-      q.filename_stack = p.filename_stack
-      q.filename_stack.add(file_info)
-      q.col += getTokens(q.filename_stack.last.full.read_file, false, q.tok)
-      # workaround a GCC bug; more like the interior pointer bug?
-      #if find(q.tok[high(q.tok)].symbol, "\0\x01\x02") > 0:
-      #  InternalError("Too many binary zeros in include file")
-      result = parseDoc(q)
+  var file_info = new_file_info(path)
+  # Detect previous inclusions of this file.
+  let expanded = file_info.full
+  for prev in p.filename_stack:
+    assert prev.real_path.not_nil and prev.real_path.len > 0
+    if expanded == prev.real_path:
+      rstMessage(p, meRecursiveInclude, input_filename)
+      #quit "TEST ignore_errors/recursion_self.rst"
+      return
+
+  if getFieldValue(n, "literal") != "":
+    result = newRstNode(rnLiteralBlock)
+    add(result, newRstNode(rnLeaf, readFile(file_info.full)))
+  else:
+    var q: TRstParser
+    initParser(q, p.s)
+    q.filename_stack = p.filename_stack
+    q.filename_stack.add(file_info)
+    q.col += getTokens(q.filename_stack.last.full.read_file, false, q.tok)
+    # workaround a GCC bug; more like the interior pointer bug?
+    #if find(q.tok[high(q.tok)].symbol, "\0\x01\x02") > 0:
+    #  InternalError("Too many binary zeros in include file")
+    result = parseDoc(q)
 
 
 proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
@@ -1574,14 +1631,23 @@ proc dirCodeBlock(p: var TRstParser, nimrodExtension = false): PRstNode =
   result = parseDirective(p, {hasArg, hasOptions}, parseLiteralBlock)
   var input_filename = strip(getFieldValue(result, "file"))
   if input_filename != "":
-    var path = p.s.findFile(p.filename_stack.last.full, input_filename)
-    if path == "":
+    var path: string
+    try: path = p.s.findFile(p.filename_stack.last.full, input_filename)
+    except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
+    if path.is_nil or path.len < 1:
       rstMessage(p, meCannotOpenFile, input_filename)
-    else:
+      #quit "TEST ignore_errors/missing_code_block.rst"
+      return
+
+    try:
       path = path.expand_filename
-    var n = newRstNode(rnLiteralBlock)
-    add(n, newRstNode(rnLeaf, readFile(path)))
-    result.sons[2] = n
+      var n = newRstNode(rnLiteralBlock)
+      add(n, newRstNode(rnLeaf, readFile(path)))
+      result.sons[2] = n
+    except EOS, EIO:
+      rstMessage(p, meCannotOpenFile, input_filename)
+      #quit "TEST ignore_errors/missing_code_block.rst"
+      return
 
   # Extend the field block if we are using our custom extension.
   if nimrodExtension:
@@ -1629,14 +1695,23 @@ proc dirRawAux(p: var TRstParser, result: var PRstNode, kind: TRstNodeKind,
                contentParser: TSectionParser) =
   var input_filename = getFieldValue(result, "file")
   if input_filename.len > 0:
-    var path = p.s.findFile(p.filename_stack.last.full, input_filename)
-    if path.len == 0:
+    var path: string
+    try: path = p.s.findFile(p.filename_stack.last.full, input_filename)
+    except: rstMessage(p, meGeneralParseError, get_current_exception_msg())
+    if path.is_nil or path.len < 1:
       rstMessage(p, meCannotOpenFile, input_filename)
-    else:
+      #quit "TEST ignore_errors/missing_raw.rst"
+      return
+
+    try:
       path = path.expand_filename
       var f = readFile(path)
       result = newRstNode(kind)
       add(result, newRstNode(rnLeaf, f))
+    except EOS, EIO:
+      rstMessage(p, meCannotOpenFile, input_filename)
+      #quit "TEST ignore_errors/missing_raw.rst"
+      return
   else:
     result.kind = kind
     add(result, parseDirBody(p, contentParser))
@@ -1658,6 +1733,7 @@ proc dirRaw(p: var TRstParser): PRstNode =
       dirRawAux(p, result, rnRawLatex, parseLiteralBlock)
     else:
       rstMessage(p, meInvalidDirective, result.sons[0].sons[0].text)
+      #quit "TEST ignore_errors/unknown_raw.rst"
   else:
     dirRawAux(p, result, rnRaw, parseSectionWrapper)
 
@@ -1680,10 +1756,13 @@ proc parseDotDot(p: var TRstParser): PRstNode =
         result = dirRaw(p)
       else:
         rstMessage(p, meInvalidDirective, d)
+        #Doesn't have a specific test, it's pretty much like the generic below.
     of dkCode: result = dirCodeBlock(p)
     of dkCodeBlock: result = dirCodeBlock(p, nimrodExtension = true)
     of dkIndex: result = dirIndex(p)
-    else: rstMessage(p, meInvalidDirective, d)
+    else:
+      rstMessage(p, meInvalidDirective, d)
+      #quit "TEST ignore_errors/invalid_directive.rst"
     popInd(p)
   elif match(p, p.idx, " _"):
     # hyperlink target:
@@ -1707,6 +1786,7 @@ proc parseDotDot(p: var TRstParser): PRstNode =
       b = dirImage(p)
     else:
       rstMessage(p, meInvalidDirective, p.tok[p.idx].symbol)
+      #quit "TEST ignore_errors/invalid_substitution.rst"
     setSub(p, addNodes(a), b)
   elif match(p, p.idx, " ["):
     # footnotes, citations
@@ -1748,8 +1828,8 @@ proc resolveSubs(p: var TRstParser, n: PRstNode): PRstNode =
 proc rstParse*(text, filename: string,
                line, column: int, hasToc: var bool,
                options: TRstParseOptions,
-               findFile: Find_file_handler = nil,
-               msgHandler: TMsgHandler = nil): PRstNode =
+               findFile: Find_file_handler = nil_find_file_handler,
+               msgHandler: TMsgHandler = nil_msg_handler): PRstNode =
   var p: TRstParser
   initParser(p, newSharedState(options, findFile, msgHandler))
   p.filename_stack.add(new_file_info(filename))

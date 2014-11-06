@@ -31,9 +31,15 @@ nimcache/
 /tests/code_blocks/user_tests.html
 /tests/errors/*.html
 /tests/errors/output/
+/tests/ignore_errors/*.html
+/tests/ignore_errors/evil_asterisks.rst
+/tests/include/absolute_unix.html
+/tests/include/absolute_windows.html
 /tests/include/complex_recursion_a.html
+/tests/include/flattened_includes.html
 /tests/include/recursion_base.html
 /tests/include/relative.html
+/tests/include/repeat.html
 /tests/include/simple_include_01.html
 /tests/nimsrc/*.html
 /tests/threads/?manual*.html

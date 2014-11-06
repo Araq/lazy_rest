@@ -1,4 +1,4 @@
-import lazy_rest, external/badger_bits/bb_system, strtabs
+import lazy_rest, external/badger_bits/bb_system, strtabs, strutils
 
 ## Exported C API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
@@ -34,6 +34,37 @@ import lazy_rest, external/badger_bits/bb_system, strtabs
 
 
 type
+  lr_c_msg_handler* {.exportc.} =
+    proc(filename: cstring, line, col: cint,
+      msgkind: char, arg: cstring): cstring {.raises: [].} ## \
+    ## Defines a C callback for message handlers.
+    ##
+    ## This callback works exactly the same like `TMsgHandler
+    ## <lazy_rest_pkg/lrst.html#TMsgHandler>`_ but for C code. These callbacks
+    ## are set globally through the `lr_set_c_msg_handler()
+    ## <#lr_set_c_msg_handler>`_ proc.
+
+  lr_c_find_file_handler* {.exportc.} =
+    proc(current_filename, target_filename, out_path: cstring,
+      max_length: cint) {.raises: [].} ## \
+    ## Defines a C callback for resolving file paths.
+    ##
+    ## This callback works nearly the same like `Find_file_handler
+    ## <lazy_rest_pkg/lrst.html#Find_file_handler>`_ but for C code. These
+    ## callbacks are set globally through the `lr_set_c_find_file_handler()
+    ## <#lr_set_c_find_file_handler>`_ proc.
+    ##
+    ## The main difference with regards to the Nimrod version is that the C
+    ## version doesn't return any string due to memory management issues. The C
+    ## version should write the result of the file path operation to the pre
+    ## allocated `out_path`. The length of the buffer `out_path` is passed in
+    ## as the parameter `max_length`, your string must fit into this size
+    ## (including its NULL terminator!).
+    ##
+    ## By default `max_length` will be 255, but you can change this value with
+    ## `lr_set_find_file_buffer_size <#lr_set_find_file_buffer_size>`_.
+    ## Remember that paths are always UTF-8.
+
   C_state = object
     error_rst_file_to_html: ref E_Base
     error_rst_string_to_html: ref E_Base
@@ -48,13 +79,81 @@ type
     ret_set_normal_error_rst: seq[string]
     ret_set_safe_error_rst: seq[string]
     global_options: PStringTable
+    msg_handler: tuple[nim: TMsgHandler, c: lr_c_msg_handler] # \
+    # The C message handler takes precedence over the nim version.
+    find_file_handler: tuple[nim: Find_file_handler,
+      c: lr_c_find_file_handler] # \
+    # The C find file handler takes precedence over the nim version.
+    find_file_buffer_size: cint
+
+
+const min_c_file_buffer = 255
 
 
 var C: C_state
+# Set some global defaults which can't be nil.
+C.msg_handler.nim = stdout_msg_handler
+C.find_file_handler.nim = unrestricted_find_file_handler
+C.find_file_buffer_size = min_c_file_buffer
 
 
 template override_config() =
   let config {.inject.} = if config == nil: C.global_options else: config
+
+
+proc msg_callback_wrapper(filename: string, line, col: int,
+    msgkind: TMsgKind, arg: string): string {.procvar, raises: [].} =
+  ## Wraps the C callback.
+  assert C.msg_handler.c.not_nil
+  assert len($msgKind) > 1
+
+  var reason = arg
+  try: reason = rst_messages[msgkind] % arg
+  except EInvalidValue: discard
+
+  let
+    filename = filename.nil_cstring
+    kind = ($msgKind)[1]
+    msg = C.msg_handler.c(filename, line.cint, col.cint, kind, reason)
+
+  if msg.not_nil:
+    result = $msg
+
+
+proc find_file_callback_wrapper(current_filename,
+    target_filename: string): string {.raises: [].} =
+  ## Wraps the C callback.
+  assert C.find_file_handler.c.not_nil
+  var out_path = new_string_of_cap(C.find_file_buffer_size)
+  out_path[0] = '\0'
+  let
+    current_filename = current_filename.nil_cstring
+    target_filename = target_filename.nil_cstring
+  C.find_file_handler.c(current_filename, target_filename, out_path[0].addr,
+    C.find_file_buffer_size.cint)
+  result = $cstring(out_path[0].addr)
+
+
+template global_msg_handler(): TMsgHandler =
+  ## Helper to choose the C or Nimrod message handlers as callbacks.
+  ##
+  ## Returns the appropriate TMsgHandler depending on previous calls to
+  ## `lr_set_nim_msg_handler() <#lr_set_nim_msg_handler>`_ and
+  ## `lr_set_c_msg_handler() <#lr_set_c_msg_handler>`_. The C version will use
+  ## the special Nimrod callback wrapper.
+  if C.msg_handler.c.not_nil: msg_callback_wrapper
+  else: C.msg_handler.nim
+
+
+template global_find_file_handler(): Find_file_handler =
+  ## Helper to choose the C or Nimrod file handlers as callbacks.
+  ##
+  ## Returns the appropriate Find_file_handler depending on previous calls to
+  ## `lr_set_nim_find_file_handler() <#lr_set_nim_find_file_handler>`_ and
+  ## `lr_set_c_find_file_handler() <#lr_set_c_find_file_handler>`_. The C
+  ## version will use the special Nimrod callback wrapper.
+  if C.find_file_handler.c.not_nil: find_file_callback_wrapper
+  else: C.find_file_handler.nim
 
 
 proc lr_version_int*(major, minor, maintenance: ptr cint)
@@ -127,6 +226,102 @@ proc lr_set_global_rst_options*(options: cstring): cint
   result = if C.global_options.is_nil: 0 else: 1
 
 
+proc lr_set_nim_msg_handler*(func: TMsgHandler) {.exportc.} =
+  ## Specifies the Nimrod message handler to use for rst processing.
+  ##
+  ## Since the C API doesn't provide explicit callback parameters, you can use
+  ## this function to specify which of the built in Nimrod callbacks you want
+  ## to use. The available callbacks are:
+  ##
+  ## * `lr_stdout_msg_handler <lazy_rest.html#stdout_msg_handler>`_.
+  ## * `lr_nil_msg_handler <lazy_rest_pkg/lrst.html#nil_msg_handler>`_.
+  ##
+  ## If instead of built in Nimrod procs you would prefer to provide your own C
+  ## function, use `lr_set_c_msg_handler() <#lr_set_c_msg_handler>`_. Passing
+  ## ``NULL`` to this function is equal to passing `lr_nil_msg_handler
+  ## <lazy_rest_pkg/lrst.html#nil_msg_handler>`_. Calling this function does
+  ## **not** override whatever C callback you might have previously set with
+  ## `lr_set_c_msg_handler() <#lr_set_c_msg_handler>`_, which takes precedence
+  ## over the Nimrod version.
+  ##
+  ## If you don't call this proc, the default value is `lr_stdout_msg_handler
+  ## <lazy_rest.html#stdout_msg_handler>`_ like in the `Nimrod API
+  ## <lazy_rest.html>`_.
+  if func.is_nil:
+    C.msg_handler.nim = nil_msg_handler
+  else:
+    C.msg_handler.nim = func
+
+
+proc lr_set_c_msg_handler*(func: lr_c_msg_handler) {.exportc.} =
+  ## Specifies the C message handler to use for rst processing.
+  ##
+  ## This is like `lr_set_nim_msg_handler() <#lr_set_nim_msg_handler>`_
+  ## but allows you to set a custom C callback. Callbacks passed in to this
+  ## function take precedence over the Nimrod callback. Passing ``NULL`` will
+  ## disable the C callback (which implicitly activates the failsafe Nimrod
+  ## one).
+  C.msg_handler.c = func
+
+
+proc lr_set_nim_find_file_handler*(func: Find_file_handler) {.exportc.} =
+  ## Specifies the Nimrod file handler to use for rst processing.
+  ##
+  ## Since the C API doesn't provide explicit callback parameters, you can use
+  ## this function to specify which of the built in Nimrod callbacks you want
+  ## to use. The available callbacks are:
+  ##
+  ## * `lr_unrestricted_find_file_handler()
+  ##   <lazy_rest.html#unrestricted_find_file_handler>`_.
+  ## * `lr_nil_find_file_handler()
+  ##   <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_.
+  ##
+  ## If instead of built in Nimrod procs you would prefer to provide your own C
+  ## function, use `lr_set_c_find_file_handler()
+  ## <#lr_set_c_find_file_handler>`_. Passing ``NULL`` to this function is
+  ## equal to passing `lr_nil_find_file_handler
+  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_. Calling this function
+  ## does **not** override whatever C callback you might have previously set
+  ## with `lr_set_c_find_file_handler() <#lr_set_c_find_file_handler>`_, which
+  ## take precedence over the Nimrod version.
+  ##
+  ## If you don't call this proc, the default value is
+  ## `lr_unrestricted_find_file_handler()
+  ## <lazy_rest.html#unrestricted_find_file_handler>`_ like in the `Nimrod API
+  ## <lazy_rest.html>`_.
+  if func.is_nil:
+    C.find_file_handler.nim = nil_find_file_handler
+  else:
+    C.find_file_handler.nim = func
+
+
+proc lr_set_c_find_file_handler*(func: lr_c_find_file_handler) {.exportc.} =
+  ## Specifies the C file handler to use for rst processing.
+  ##
+  ## This is like `lr_set_nim_find_file_handler()
+  ## <#lr_set_nim_find_file_handler>`_ but allows you to set a custom C
+  ## callback. Callbacks passed in to this function take precedence over the
+  ## Nimrod callback. Passing ``NULL`` will disable the C callback (which
+  ## implicitly activates the failsafe Nimrod one).
+  C.find_file_handler.c = func
+
+
+proc lr_set_find_file_buffer_size*(s: cint): cint {.exportc.} =
+  ## Sets and returns the size for future find file handler buffer sizes.
+  ##
+  ## The size of the output buffer for `lr_c_find_file_handler()
+  ## <#lr_c_find_file_handler>`_ callback functions can be changed by this
+  ## function. If you pass a negative value **or** a value which is too small
+  ## (less than 255), the current value won't change. You can use this feature
+  ## (passing a negative value) to query the current value.
+  ##
+  ## What this means is that you can set buffer sizes equal or greater than
+  ## 255, but never smaller.
+  if s >= min_c_file_buffer:
+    C.find_file_buffer_size = s
+  result = C.find_file_buffer_size
+
+
 proc lr_rst_string_to_html*(content, filename: cstring,
     config: PStringTable): cstring {.exportc, raises: [].} =
   ## Wraps `rst_string_to_html() <lazy_rest.html#rst_string_to_html>`_ for C.
@@ -155,7 +350,8 @@ proc lr_rst_string_to_html*(content, filename: cstring,
   C.error_rst_string_to_html = nil
 
   try:
-    C.ret_rst_string_to_html = rst_string_to_html(content, filename, config)
+    C.ret_rst_string_to_html = rst_string_to_html(content, filename, config,
+      global_find_file_handler(), global_msg_handler())
     result = C.ret_rst_string_to_html.nil_cstring
   except:
     C.error_rst_string_to_html = get_current_exception()
@@ -211,7 +407,8 @@ proc lr_rst_file_to_html*(filename: cstring, config: PStringTable):
   C.error_rst_file_to_html = nil
 
   try:
-    C.ret_rst_file_to_html = rst_file_to_html(filename, config)
+    C.ret_rst_file_to_html = rst_file_to_html(filename, config,
+      global_find_file_handler(), global_msg_handler())
     result = C.ret_rst_file_to_html.nil_cstring
   except:
     C.error_rst_file_to_html = get_current_exception()
@@ -268,7 +465,8 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
   C.errors_safe_rst_string_to_html = @[]
 
   C.ret_safe_rst_string_to_html = safe_rst_string_to_html(filename, data,
-    C.errors_safe_rst_string_to_html.addr, config)
+    C.errors_safe_rst_string_to_html.addr, config,
+    global_find_file_handler(), global_msg_handler())
 
   result = C.ret_safe_rst_string_to_html.nil_cstring
   if ERRORS.not_nil:
@@ -334,7 +532,8 @@ proc lr_safe_rst_file_to_html*(filename: cstring, ERRORS: ptr cint,
   C.errors_safe_rst_file_to_html = @[]
 
   C.ret_safe_rst_file_to_html = safe_rst_file_to_html(filename,
-    C.errors_safe_rst_file_to_html.addr, config)
+    C.errors_safe_rst_file_to_html.addr, config,
+    global_find_file_handler(), global_msg_handler())
 
   result = C.ret_safe_rst_file_to_html.nil_cstring
   if ERRORS.not_nil:
