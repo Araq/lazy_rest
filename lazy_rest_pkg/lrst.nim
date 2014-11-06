@@ -63,7 +63,7 @@ type
     ## wish to interrupt processing (e.g. in case of a lesser warning) then it
     ## should return ``nil``.
 
-  Find_file_handler* {.exportc:"lr_find_file_handler".} =
+  Find_file_handler* {.exportc:"lr_nim_find_file_handler".} =
       proc (current_filename, target_filename: string):
         string {.raises: [].} ## \
     ## Callback to resolve file paths.
@@ -78,9 +78,8 @@ type
     ##
     ## The callback should return the path to the final file. If the file can't
     ## be resolved for whatever reason (e.g final path falls out of sandboxed
-    ## environment), it should return the empty string or ``nil``. All
-    ## exceptions raised inside the callback will be treated as returning the
-    ## empty string.
+    ## environment), it should return the empty string or ``nil``. The callback
+    ## is not allowed to raise any exceptions.
 
 const
   rst_messages*: array [TMsgKind, string] = [
@@ -385,7 +384,7 @@ proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
 
 
 proc nil_find_file_handler*(current_filename, target_filename: string):
-    string {.procvar, exportc:"lr_nil_find_file", raises: [].} =
+    string {.procvar, exportc:"lr_nil_find_file_handler", raises: [].} =
   ## Always returns the empty string.
   ##
   ## This is a dummy proc you can use when you don't want include files to be
