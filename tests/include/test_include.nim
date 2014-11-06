@@ -3,7 +3,7 @@ import lazy_rest, os
 const
   rst_files = [
     "simple_include_01", "recursion_base", "complex_recursion_a",
-    "relative", "absolute_unix", "absolute_windows",
+    "relative", "absolute_unix", "absolute_windows", "repeat",
     ]
   flattened_files = ["flattened_includes"]
 

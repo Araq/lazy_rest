@@ -39,6 +39,7 @@ nimcache/
 /tests/include/flattened_includes.html
 /tests/include/recursion_base.html
 /tests/include/relative.html
+/tests/include/repeat.html
 /tests/include/simple_include_01.html
 /tests/nimsrc/*.html
 /tests/threads/?manual*.html
