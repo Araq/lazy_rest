@@ -91,7 +91,7 @@ proc stdout_msg_handler*(filename: string, line, col: int,
   ## This implementation shows the warning or error through ``stdout``. In the
   ## case of error the message is returned so that the ``EParseError``
   ## exception can be raised to avoid continuing. This procvar conforms to the
-  ## `TMsgHandler type <lazy_rest_pkg/lrst.html#TMsgHandler>`_.
+  ## `TMsgHandler type specification <lazy_rest_pkg/lrst.html#TMsgHandler>`_.
   let mc = msgkind.whichMsgClass
   var message = filename & "(" & $line & ", " & $col & ") " & $mc
   try:

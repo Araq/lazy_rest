@@ -6,6 +6,10 @@
 
 const char* valid_rst_filename = "temp_good.rst";
 const char* bad_rst_filename = "temp_bad.rst";
+const char* good_rst_include_filename = "include_good.rst";
+const char* bad_rst_include_filename = "include_bad.rst";
+const char* good_html_include_filename = "temp_include_good.html";
+const char* bad_html_include_filename = "temp_include_bad.html";
 const char* exception_message = "I was raised in a poor language";
 
 char valid_rst_string[] = "Embedded *rst* text";
@@ -284,5 +288,27 @@ void run_c_test(char* error_rst, char* special_options)
 		lr_set_c_msg_handler(0);
 		s = lr_rst_string_to_html(bad_rst_string, "<bad-string>", 0);
 		assert(0 == s && "Should return nil due to errors");
+	}
+
+	// Test the find file callbacks.
+	{
+		char* s;
+		int errors = 1;
+
+		s = lr_safe_rst_file_to_html(
+			good_rst_include_filename, &errors, 0);
+		overwrite(good_html_include_filename, s);
+		assert(0 == errors);
+
+		s = lr_safe_rst_file_to_html(
+			bad_rst_include_filename, &errors, 0);
+		assert(1 == errors);
+		overwrite(bad_html_include_filename, s);
+
+		// Changing the file handler will make all includes fail.
+		lr_set_nim_find_file_handler(lr_nil_find_file_handler);
+		s = lr_safe_rst_file_to_html(
+			good_rst_include_filename, &errors, 0);
+		assert(1 == errors && "now everything fails");
 	}
 }

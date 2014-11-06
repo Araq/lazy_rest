@@ -370,7 +370,8 @@ proc nil_msg_handler*(filename: string, line, col: int, msgkind: TMsgKind,
   ##
   ## The only thing this does is to return the error message if the `msgkind`
   ## parameter is of class `mcError <#TMsgClass>`_. Otherwise returns ``nil``,
-  ## which will discard warnings and hints.
+  ## which will discard warnings and hints. Follows the `TMsgHandler type
+  ## specification <#TMsgHandler>`_.
   let mc = msgkind.whichMsgClass
   if mc != mcError:
     return
