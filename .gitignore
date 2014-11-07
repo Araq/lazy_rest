@@ -42,5 +42,6 @@ nimcache/
 /tests/include/repeat.html
 /tests/include/simple_include_01.html
 /tests/nimsrc/*.html
+/tests/runtime_change/nearly_empty.html
 /tests/threads/?manual*.html
 /tests/threads/nimrod_doc
