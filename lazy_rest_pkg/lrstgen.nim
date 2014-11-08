@@ -44,7 +44,7 @@ type
 
   TRstGenerator* = object of TObject
     target*: TOutputTarget
-    config*: PStringTable
+    config: PStringTable
     splitAfter*: int          # split too long entries in the TOC
     tocPart*: seq[TTocEntry]
     hasToc*: bool
@@ -1172,52 +1172,10 @@ proc defaultConfig*(): PStringTable =
   ## `rstToHtml <#rstToHtml>`_ to generate the bare minimum HTML.
   result = newStringTable(modeStyleInsensitive)
 
-  template setConfigVar(key, val: expr) =
-    result[key] = val
-
   # If you need to modify these values, it might be worth updating the template
   # file in config/nimdoc.cfg.
-  setConfigVar("split.item.toc", "20")
-  setConfigVar("doc.section", """
-<div class="section" id="$sectionID">
-<h1><a class="toc-backref" href="#$sectionTitleID">$sectionTitle</a></h1>
-<dl class="item">
-$content
-</dl></div>
-""")
-  setConfigVar("doc.section.toc", """
-<li>
-  <a class="reference" href="#$sectionID" id="$sectionTitleID">$sectionTitle</a>
-  <ul class="simple">
-    $content
-  </ul>
-</li>
-""")
-  setConfigVar("doc.item", """
-<dt id="$itemID"><a name="$itemSymOrIDEnc"></a><pre>$header</pre></dt>
-<dd>
-$desc
-</dd>
-""")
-  setConfigVar("doc.item.toc", """
-  <li><a class="reference" href="#$itemSymOrIDEnc"
-    title="$header_plain">$name</a></li>
-""")
-  setConfigVar("doc.toc", """
-<div class="navigation" id="navigation">
-<ul class="simple">
-$content
-</ul>
-</div>""")
-  setConfigVar("doc.body_toc", """
-$tableofcontents
-<div class="content" id="content">
-$moduledesc
-$content
-</div>
-""")
-  setConfigVar("doc.body_no_toc", "$moduledesc $content")
-  setConfigVar("doc.file", "$content")
+  result["split.item.toc"] = "20"
+  result["doc.file"] = "$content"
 
 # ---------- forum ---------------------------------------------------------
 
