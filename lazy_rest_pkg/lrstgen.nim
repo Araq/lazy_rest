@@ -42,7 +42,7 @@ type
   TMetaEnum* = enum
     metaNone, metaTitle, metaSubtitle, metaAuthor, metaVersion
 
-  TLayeredConf = object of TObject ## \
+  TLayeredConf* = object of TObject ## \
     ## Holds both a custom and default configurations.
     ##
     ## The user configuration can be nil, but the default can't be.
@@ -50,7 +50,7 @@ type
 
   TRstGenerator* = object of TObject
     target*: TOutputTarget
-    config: TLayeredConf
+    config*: TLayeredConf
     splitAfter*: int          # split too long entries in the TOC
     tocPart*: seq[TTocEntry]
     hasToc*: bool
@@ -77,7 +77,7 @@ type
     lang: TSourceLanguage ## Type of highlighting, by default none.
 
 
-proc `[]`(t: TLayeredConf, key: string): string =
+proc `[]`*(t: TLayeredConf, key: string): string =
   ## Returns the key from the user configuration or the default configuration.
   ##
   ## If the key is not found, the empty string is returned.

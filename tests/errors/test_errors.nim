@@ -14,7 +14,7 @@ proc test_safe_procs(file_prefix: string, config: PStringTable) =
   # First test without error control.
   for src in tests:
     let dest = file_prefix & src.change_file_ext("html")
-    dest.write_file(src.safe_rst_file_to_html(config = config))
+    dest.write_file(src.safe_rst_file_to_html(user_config = config))
     do_assert dest.exists_file
 
   # Now do some in memory checks.
@@ -30,7 +30,8 @@ proc test_safe_procs(file_prefix: string, config: PStringTable) =
   for src in tests:
     let dest = file_prefix & src.change_file_ext("html")
     errors = @[]
-    dest.write_file(src.safe_rst_file_to_html(errors.addr, config = config))
+    dest.write_file(src.safe_rst_file_to_html(errors.addr,
+      user_config = config))
     do_assert dest.exists_file
     do_assert errors.len > 0
     echo "Ignore this: ", errors[0]
