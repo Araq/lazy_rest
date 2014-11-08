@@ -22,9 +22,10 @@
 ## many options and tweaking. `LaTeX documents
 ## <https://en.wikipedia.org/wiki/LaTeX>`_ are poorly supported.
 
-import strutils, os, hashes, strtabs, lazy_rest_pkg/lrstast,
-  lazy_rest_pkg/lrst, lhighlite, tables, sequtils, algorithm, parseutils,
-  external/badger_bits/bb_system
+import
+  strutils, os, hashes, strtabs, lazy_rest_pkg/lrstast, lazy_rest_pkg/lrst,
+  lhighlite, tables, sequtils, algorithm, parseutils,
+  external/badger_bits/bb_system, lazy_rest_pkg/lconfig
 
 const
   HtmlExt = "html"

@@ -1,6 +1,7 @@
-import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
-  parsecfg, subexes, strtabs, streams, times, cgi, logging,
-  external/badger_bits/bb_system
+import
+  lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils, parsecfg, subexes,
+  strtabs, streams, times, cgi, logging, external/badger_bits/bb_system,
+  lazy_rest_pkg/lconfig
 
 export Find_file_handler
 export TMsgClass

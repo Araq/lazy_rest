@@ -12,19 +12,10 @@
 ## also supported.
 
 import
-  os, strutils, lazy_rest_pkg/lrstast, external/badger_bits/bb_system
+  os, strutils, lazy_rest_pkg/lrstast, external/badger_bits/bb_system,
+  lazy_rest_pkg/lconfig
 
 type
-  TRstParseOption* = enum     ## options for the RST parser
-    roSkipPounds,             ## skip ``#`` at line beginning (documentation
-                              ## embedded in Nimrod comments)
-    roSupportSmilies,         ## make the RST parser support smilies like ``:)``
-    roSupportRawDirective,    ## support the ``raw`` directive (don't support
-                              ## it for sandboxing)
-    roSupportMarkdown         ## support additional features of markdown
-
-  TRstParseOptions* = set[TRstParseOption]
-
   TMsgClass* = enum
     mcHint = "Hint",
     mcWarning = "Warning",

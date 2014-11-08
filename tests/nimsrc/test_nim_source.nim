@@ -13,7 +13,7 @@ proc test() =
     count.inc
 
   echo "Did render ", count, " nim files."
-  doAssert 5 == count, "Number of nim files didn't match, did you add some?"
+  doAssert 6 == count, "Number of nim files didn't match, did you add some?"
 
 when isMainModule:
   test()
