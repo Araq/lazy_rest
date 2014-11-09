@@ -14,3 +14,8 @@ type
     roSupportMarkdown ## support markdown triple quote fenced blocks
 
   TRstParseOptions* = set[TRstParseOption]
+
+const
+  lrc_doc_file* = "doc.file" ## \
+  ## Key used to access the PStringTable storing the skeleton of the HTML rest
+  ## render. This skeleton has to contain the ``$content`` string.

@@ -258,7 +258,7 @@ proc rst_string_to_html*(content, filename: string,
   #if title.len < 1: title = filename.split_path.tail
 
   # Now finish by adding header, CSS and stuff.
-  result = subex(GENERATOR.config["doc.file"]) % ["title", title,
+  result = subex(GENERATOR.config[lrc_doc_file]) % ["title", title,
     "date", last_mod_gmt.format("yyyy-MM-dd"),
     "time", last_mod_gmt.format("HH:mm"),
     "local_date", last_mod_local.format("yyyy-MM-dd"),

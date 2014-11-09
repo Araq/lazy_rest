@@ -112,16 +112,17 @@ proc defaultConfig*(): PStringTable =
   ## with the Nimrod compiler.
   ##
   ## The only difference between the contents of that file and the values
-  ## provided by this proc is the ``doc.file`` variable. The ``doc.file``
-  ## variable of the configuration file contains HTML to build standalone
-  ## pages, while this proc returns just the content for procs like
-  ## `rstToHtml() <#rstToHtml>`_ to generate the bare minimum HTML.
+  ## provided by this proc is the `lrc_doc_file <lconfig.html#lrc_doc_file>`_
+  ## variable. The `lrc_doc_file <lconfig.html#lrc_doc_file>`_ variable of the
+  ## configuration file contains HTML to build standalone pages, while this
+  ## proc returns just the content for procs like `rstToHtml() <#rstToHtml>`_
+  ## to generate the bare minimum HTML.
   result = newStringTable(modeStyleInsensitive)
 
   # If you need to modify these values, it might be worth updating the template
   # file in config/nimdoc.cfg.
   result["split.item.toc"] = "20"
-  result["doc.file"] = "$content"
+  result[lrc_doc_file] = "$content"
 
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
