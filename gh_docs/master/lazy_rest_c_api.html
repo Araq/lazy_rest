@@ -248,6 +248,18 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
   </ul>
 </li>
 <li>
+  <a class="reference" href="#7" id="57">Types</a>
+  <ul class="simple">
+      <li><a class="reference" href="#lr_c_msg_handler"
+    title="lr_c_msg_handler* = proc (filename: cstring; line, col: cint; msgkind: char; 
+                          arg: cstring): cstring"><wbr />lr_<wbr />c_<wbr />msg_<wbr />handler</a></li>
+  <li><a class="reference" href="#lr_c_find_file_handler"
+    title="lr_c_find_file_handler* = proc (current_filename, target_filename, out_path: cstring; 
+                                max_length: cint)"><wbr />lr_<wbr />c_<wbr />find_<wbr />file_<wbr />handler</a></li>
+
+  </ul>
+</li>
+<li>
   <a class="reference" href="#12" id="62">Procs</a>
   <ul class="simple">
       <li><a class="reference" href="#lr_version_int,ptr.cint,ptr.cint,ptr.cint"
@@ -258,6 +270,16 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
     title="lr_parse_rst_options*(options: cstring): PStringTable"><wbr />lr_<wbr />parse_<wbr />rst_<wbr />options</a></li>
   <li><a class="reference" href="#lr_set_global_rst_options,cstring"
     title="lr_set_global_rst_options*(options: cstring): cint"><wbr />lr_<wbr />set_<wbr />global_<wbr />rst_<wbr />options</a></li>
+  <li><a class="reference" href="#lr_set_nim_msg_handler,TMsgHandler"
+    title="lr_set_nim_msg_handler*(func: TMsgHandler)"><wbr />lr_<wbr />set_<wbr />nim_<wbr />msg_<wbr />handler</a></li>
+  <li><a class="reference" href="#lr_set_c_msg_handler,lr_c_msg_handler"
+    title="lr_set_c_msg_handler*(func: lr_c_msg_handler)"><wbr />lr_<wbr />set_<wbr />c_<wbr />msg_<wbr />handler</a></li>
+  <li><a class="reference" href="#lr_set_nim_find_file_handler,Find_file_handler"
+    title="lr_set_nim_find_file_handler*(func: Find_file_handler)"><wbr />lr_<wbr />set_<wbr />nim_<wbr />find_<wbr />file_<wbr />handler</a></li>
+  <li><a class="reference" href="#lr_set_c_find_file_handler,lr_c_find_file_handler"
+    title="lr_set_c_find_file_handler*(func: lr_c_find_file_handler)"><wbr />lr_<wbr />set_<wbr />c_<wbr />find_<wbr />file_<wbr />handler</a></li>
+  <li><a class="reference" href="#lr_set_find_file_buffer_size,cint"
+    title="lr_set_find_file_buffer_size*(s: cint): cint"><wbr />lr_<wbr />set_<wbr />find_<wbr />file_<wbr />buffer_<wbr />size</a></li>
   <li><a class="reference" href="#lr_rst_string_to_html,cstring,cstring,PStringTable"
     title="lr_rst_string_to_html*(content, filename: cstring; config: PStringTable): cstring"><wbr />lr_<wbr />rst_<wbr />string_<wbr />to_<wbr />html</a></li>
   <li><a class="reference" href="#lr_rst_string_to_html_error,"
@@ -302,7 +324,34 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <div class="section" id="6">
 <h1><a class="toc-backref" href="#56">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="lazy_rest.html">lazy_rest</a>, <a class="reference external" href="external/badger_bits/bb_system.html">external/badger_bits/bb_system</a>, <a class="reference external" href="strtabs.html">strtabs</a>
+<a class="reference external" href="lazy_rest.html">lazy_rest</a>, <a class="reference external" href="external/badger_bits/bb_system.html">external/badger_bits/bb_system</a>, <a class="reference external" href="strtabs.html">strtabs</a>, <a class="reference external" href="strutils.html">strutils</a>
+</dl></div>
+<div class="section" id="7">
+<h1><a class="toc-backref" href="#57">Types</a></h1>
+<dl class="item">
+<dt id="lr_c_msg_handler"><a name="lr_c_msg_handler"></a><pre><span class="Identifier">lr_c_msg_handler</span><span class="Operator">*</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">.}</span> <span class="Other">=</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">line</span><span class="Other">,</span> <span class="Identifier">col</span><span class="Other">:</span> <span class="Identifier">cint</span><span class="Other">;</span> 
+                                      <span class="Identifier">msgkind</span><span class="Other">:</span> <span class="Identifier">char</span><span class="Other">;</span> <span class="Identifier">arg</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cstring</span> <span class="Other">{.</span>
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>
+Defines a C callback for message handlers.</p>
+<p>This callback works exactly the same like <a class="reference external" href="lazy_rest_pkg/lrst.html#TMsgHandler">TMsgHandler</a> but for C code. These callbacks are set globally through the <a class="reference external" href="#lr_set_c_msg_handler">lr_set_c_msg_handler()</a> proc.</p>
+
+
+</dd>
+<dt id="lr_c_find_file_handler"><a name="lr_c_find_file_handler"></a><pre><span class="Identifier">lr_c_find_file_handler</span><span class="Operator">*</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">.}</span> <span class="Other">=</span> <span class="Keyword">proc</span> <span class="Other">(</span>
+    <span class="Identifier">current_filename</span><span class="Other">,</span> <span class="Identifier">target_filename</span><span class="Other">,</span> <span class="Identifier">out_path</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">max_length</span><span class="Other">:</span> <span class="Identifier">cint</span><span class="Other">)</span> <span class="Other">{.</span>
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>
+Defines a C callback for resolving file paths.</p>
+<p>This callback works nearly the same like <a class="reference external" href="lazy_rest_pkg/lrst.html#Find_file_handler">Find_file_handler</a> but for C code. These callbacks are set globally through the <a class="reference external" href="#lr_set_c_find_file_handler">lr_set_c_find_file_handler()</a> proc.</p>
+<p>The main difference with regards to the Nimrod version is that the C version doesn't return any string due to memory management issues. The C version should write the result of the file path operation to the pre allocated <cite>out_path</cite>. The length of the buffer <cite>out_path</cite> is passed in as the parameter <cite>max_length</cite>, your string must fit into this size (including its NULL terminator!).</p>
+<p>By default <cite>max_length</cite> will be 255, but you can change this value with <a class="reference external" href="#lr_set_find_file_buffer_size">lr_set_find_file_buffer_size</a>. Remember that paths are always UTF-8.</p>
+
+
+</dd>
+
 </dl></div>
 <div class="section" id="12">
 <h1><a class="toc-backref" href="#62">Procs</a></h1>
@@ -342,6 +391,52 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <p>Since in C you can't get a hold of the type of a <tt class="docutils literal"><span class="pre">PStringTable</span></tt> conveniently, this will call <a class="reference external" href="#lr_parse_rst_options">lr_parse_rst_options()</a> and store the result in a special global variable. From this moment on, every call to the public API which accepts a <tt class="docutils literal"><span class="pre">PStringTable</span></tt>, if you pass <tt class="docutils literal"><span class="pre">null</span></tt> the global variable stored by this function will be used instead.</p>
 <p>At some point in the future this function will disappear (obviously when <tt class="docutils literal"><span class="pre">PStringTable</span></tt> can be exported properly).</p>
 <p>Returns zero if <a class="reference external" href="#lr_parse_rst_options">lr_parse_rst_options()</a> returned <tt class="docutils literal"><span class="pre">nil</span></tt>, non zero otherwise.</p>
+
+
+</dd>
+<dt id="lr_set_nim_msg_handler"><a name="lr_set_nim_msg_handler,TMsgHandler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_nim_msg_handler</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">func</span><span class="Other">:</span> <span class="Identifier">TMsgHandler</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Specifies the Nimrod message handler to use for rst processing.</p>
+<p>Since the C API doesn't provide explicit callback parameters, you can use this function to specify which of the built in Nimrod callbacks you want to use. The available callbacks are:</p>
+<ul class="simple"><li><a class="reference external" href="lazy_rest.html#stdout_msg_handler">lr_stdout_msg_handler</a>.</li>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#nil_msg_handler">lr_nil_msg_handler</a>.</li>
+</ul>
+<p>If instead of built in Nimrod procs you would prefer to provide your own C function, use <a class="reference external" href="#lr_set_c_msg_handler">lr_set_c_msg_handler()</a>. Passing <tt class="docutils literal"><span class="pre">NULL</span></tt> to this function is equal to passing <a class="reference external" href="lazy_rest_pkg/lrst.html#nil_msg_handler">lr_nil_msg_handler</a>. Calling this function does <strong>not</strong> override whatever C callback you might have previously set with <a class="reference external" href="#lr_set_c_msg_handler">lr_set_c_msg_handler()</a>, which takes precedence over the Nimrod version.</p>
+<p>If you don't call this proc, the default value is <a class="reference external" href="lazy_rest.html#stdout_msg_handler">lr_stdout_msg_handler</a> like in the <a class="reference external" href="lazy_rest.html">Nimrod API</a>.</p>
+
+
+</dd>
+<dt id="lr_set_c_msg_handler"><a name="lr_set_c_msg_handler,lr_c_msg_handler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_c_msg_handler</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">func</span><span class="Other">:</span> <span class="Identifier">lr_c_msg_handler</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Specifies the C message handler to use for rst processing.</p>
+<p>This is like <a class="reference external" href="#lr_set_nim_msg_handler">lr_set_nim_msg_handler()</a> but allows you to set a custom C callback. Callbacks passed in to this function take precedence over the Nimrod callback. Passing <tt class="docutils literal"><span class="pre">NULL</span></tt> will disable the C callback (which implicitly activates the failsafe Nimrod one).</p>
+
+
+</dd>
+<dt id="lr_set_nim_find_file_handler"><a name="lr_set_nim_find_file_handler,Find_file_handler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_nim_find_file_handler</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">func</span><span class="Other">:</span> <span class="Identifier">Find_file_handler</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Specifies the Nimrod file handler to use for rst processing.</p>
+<p>Since the C API doesn't provide explicit callback parameters, you can use this function to specify which of the built in Nimrod callbacks you want to use. The available callbacks are:</p>
+<ul class="simple"><li><a class="reference external" href="lazy_rest.html#unrestricted_find_file_handler">lr_unrestricted_find_file_handler()</a>.</li>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#nil_find_file_handler">lr_nil_find_file_handler()</a>.</li>
+</ul>
+<p>If instead of built in Nimrod procs you would prefer to provide your own C function, use <a class="reference external" href="#lr_set_c_find_file_handler">lr_set_c_find_file_handler()</a>. Passing <tt class="docutils literal"><span class="pre">NULL</span></tt> to this function is equal to passing <a class="reference external" href="lazy_rest_pkg/lrst.html#nil_find_file_handler">lr_nil_find_file_handler</a>. Calling this function does <strong>not</strong> override whatever C callback you might have previously set with <a class="reference external" href="#lr_set_c_find_file_handler">lr_set_c_find_file_handler()</a>, which take precedence over the Nimrod version.</p>
+<p>If you don't call this proc, the default value is <a class="reference external" href="lazy_rest.html#unrestricted_find_file_handler">lr_unrestricted_find_file_handler()</a> like in the <a class="reference external" href="lazy_rest.html">Nimrod API</a>.</p>
+
+
+</dd>
+<dt id="lr_set_c_find_file_handler"><a name="lr_set_c_find_file_handler,lr_c_find_file_handler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_c_find_file_handler</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">func</span><span class="Other">:</span> <span class="Identifier">lr_c_find_file_handler</span><span class="Other">)</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Specifies the C file handler to use for rst processing.</p>
+<p>This is like <a class="reference external" href="#lr_set_nim_find_file_handler">lr_set_nim_find_file_handler()</a> but allows you to set a custom C callback. Callbacks passed in to this function take precedence over the Nimrod callback. Passing <tt class="docutils literal"><span class="pre">NULL</span></tt> will disable the C callback (which implicitly activates the failsafe Nimrod one).</p>
+
+
+</dd>
+<dt id="lr_set_find_file_buffer_size"><a name="lr_set_find_file_buffer_size,cint"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_find_file_buffer_size</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Identifier">cint</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cint</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Sets and returns the size for future find file handler buffer sizes.</p>
+<p>The size of the output buffer for <a class="reference external" href="#lr_c_find_file_handler">lr_c_find_file_handler()</a> callback functions can be changed by this function. If you pass a negative value <strong>or</strong> a value which is too small (less than 255), the current value won't change. You can use this feature (passing a negative value) to query the current value.</p>
+<p>What this means is that you can set buffer sizes equal or greater than 255, but never smaller.</p>
 
 
 </dd>
@@ -523,7 +618,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 
 </div>
 
-<small>Generated: 2014-10-29 01:37:10 UTC</small>
+<small>Generated: 2014-11-13 17:56:52 UTC</small>
 </div>
 </body>
 </html>

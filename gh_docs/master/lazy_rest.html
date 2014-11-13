@@ -260,18 +260,28 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <li>
   <a class="reference" href="#12" id="62">Procs</a>
   <ul class="simple">
-      <li><a class="reference" href="#parse_rst_options,string"
+      <li><a class="reference" href="#stdout_msg_handler,string,int,int,TMsgKind,string"
+    title="stdout_msg_handler*(filename: string; line, col: int; msgkind: TMsgKind; 
+                    arg: string): string"><wbr />stdout_<wbr />msg_<wbr />handler</a></li>
+  <li><a class="reference" href="#unrestricted_find_file_handler,string,string"
+    title="unrestricted_find_file_handler*(current_filename, target_filename: string): string"><wbr />unrestricted_<wbr />find_<wbr />file_<wbr />handler</a></li>
+  <li><a class="reference" href="#parse_rst_options,string"
     title="parse_rst_options*(options: string): PStringTable"><wbr />parse_<wbr />rst_<wbr />options</a></li>
-  <li><a class="reference" href="#rst_string_to_html,string,string,PStringTable"
-    title="rst_string_to_html*(content, filename: string; config: PStringTable = nil): string"><wbr />rst_<wbr />string_<wbr />to_<wbr />html</a></li>
-  <li><a class="reference" href="#rst_file_to_html,string,PStringTable"
-    title="rst_file_to_html*(filename: string; config: PStringTable = nil): string"><wbr />rst_<wbr />file_<wbr />to_<wbr />html</a></li>
-  <li><a class="reference" href="#safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable"
+  <li><a class="reference" href="#rst_string_to_html,string,string,PStringTable,Find_file_handler,TMsgHandler"
+    title="rst_string_to_html*(content, filename: string; config: PStringTable = nil; 
+    find_file: Find_file_handler = unrestricted_find_file_handler; 
+                    msg_handler: TMsgHandler = stdout_msg_handler): string"><wbr />rst_<wbr />string_<wbr />to_<wbr />html</a></li>
+  <li><a class="reference" href="#rst_file_to_html,string,PStringTable,Find_file_handler,TMsgHandler"
+    title="rst_file_to_html*(filename: string; config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                  msg_handler: TMsgHandler = stdout_msg_handler): string"><wbr />rst_<wbr />file_<wbr />to_<wbr />html</a></li>
+  <li><a class="reference" href="#safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler"
     title="safe_rst_string_to_html*(filename, data: string; ERRORS: ptr seq[string] = nil; 
-                         config: PStringTable = nil): string"><wbr />safe_<wbr />rst_<wbr />string_<wbr />to_<wbr />html</a></li>
-  <li><a class="reference" href="#safe_rst_file_to_html,string,ptr.seq[string],PStringTable"
+                         config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                         msg_handler: TMsgHandler = stdout_msg_handler): string"><wbr />safe_<wbr />rst_<wbr />string_<wbr />to_<wbr />html</a></li>
+  <li><a class="reference" href="#safe_rst_file_to_html,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler"
     title="safe_rst_file_to_html*(filename: string; ERRORS: ptr seq[string] = nil; 
-                       config: PStringTable = nil): string"><wbr />safe_<wbr />rst_<wbr />file_<wbr />to_<wbr />html</a></li>
+                       config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                       msg_handler: TMsgHandler = stdout_msg_handler): string"><wbr />safe_<wbr />rst_<wbr />file_<wbr />to_<wbr />html</a></li>
   <li><a class="reference" href="#nim_file_to_html,string,PStringTable"
     title="nim_file_to_html*(filename: string; number_lines = true; 
                   config: PStringTable = nil): string"><wbr />nim_<wbr />file_<wbr />to_<wbr />html</a></li>
@@ -319,6 +329,28 @@ Module version as a string. Something like <tt class="docutils literal"><span cl
 <div class="section" id="12">
 <h1><a class="toc-backref" href="#62">Procs</a></h1>
 <dl class="item">
+<dt id="stdout_msg_handler"><a name="stdout_msg_handler,string,int,int,TMsgKind,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">stdout_msg_handler</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">line</span><span class="Other">,</span> <span class="Identifier">col</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">msgkind</span><span class="Other">:</span> <span class="Identifier">TMsgKind</span><span class="Other">;</span> 
+                         <span class="Identifier">arg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">{.</span><span class="Identifier">procvar</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> 
+    <span class="Identifier">exportc</span><span class="Other">:</span> <span class="StringLit">&quot;lr_stdout_msg_handler&quot;</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Default handler to report warnings/errors.</p>
+<p>This implementation shows the warning or error through <tt class="docutils literal"><span class="pre">stdout</span></tt>. In the case of error the message is returned so that the <tt class="docutils literal"><span class="pre">EParseError</span></tt> exception can be raised to avoid continuing. This procvar conforms to the <a class="reference external" href="lazy_rest_pkg/lrst.html#TMsgHandler">TMsgHandler type specification</a>.</p>
+
+
+</dd>
+<dt id="unrestricted_find_file_handler"><a name="unrestricted_find_file_handler,string,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">unrestricted_find_file_handler</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">current_filename</span><span class="Other">,</span> <span class="Identifier">target_filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">{.</span>
+    <span class="Identifier">procvar</span><span class="Other">,</span> <span class="Identifier">exportc</span><span class="Other">:</span> <span class="StringLit">&quot;lr_unrestricted_find_file_handler&quot;</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Default handler to resolve file path navigation.</p>
+<p>This proc is called according to the <a class="reference external" href="lazy_rest_pkg/lrst.html#Find_file_handler">Find_file_handler type specification</a>. The includes are always resolved, hence the <em>unrestricted</em>. You might want to provide your own security aware version which restricts absolute paths. Or disable file access altogether passing the <a class="reference external" href="lazy_rest_pkg/lrst.html#nil_find_file_handler">lrst.nil_find_file_handler()</a> proc where appropriate. Example:</p>
+<pre><span class="Keyword">if</span> <span class="Identifier">trusted_source</span><span class="Punctuation">:</span>
+  <span class="Identifier">buf</span> <span class="Operator">=</span> <span class="Identifier">safe_rst_file_to_html</span><span class="Punctuation">(</span><span class="Identifier">filename</span><span class="Punctuation">,</span>
+    <span class="Identifier">find_file</span> <span class="Operator">=</span> <span class="Identifier">unrestricted_find_file_handler</span><span class="Punctuation">)</span>
+<span class="Keyword">else</span><span class="Punctuation">:</span>
+  <span class="Identifier">buf</span> <span class="Operator">=</span> <span class="Identifier">safe_rst_file_to_html</span><span class="Punctuation">(</span><span class="Identifier">filename</span><span class="Punctuation">,</span>
+    <span class="Identifier">find_file</span> <span class="Operator">=</span> <span class="Identifier">nil_find_file_handler</span><span class="Punctuation">)</span></pre>
+
+</dd>
 <dt id="parse_rst_options"><a name="parse_rst_options,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">parse_rst_options</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">options</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
 <p>Parses the options, returns nil if something goes wrong.</p>
@@ -326,24 +358,31 @@ Module version as a string. Something like <tt class="docutils literal"><span cl
 
 
 </dd>
-<dt id="rst_string_to_html"><a name="rst_string_to_html,string,string,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">rst_string_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">content</span><span class="Other">,</span> <span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
+<dt id="rst_string_to_html"><a name="rst_string_to_html,string,string,PStringTable,Find_file_handler,TMsgHandler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">rst_string_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">content</span><span class="Other">,</span> <span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> 
+    <span class="Identifier">find_file</span><span class="Other">:</span> <span class="Identifier">Find_file_handler</span> <span class="Other">=</span> <span class="Identifier">unrestricted_find_file_handler</span><span class="Other">;</span> 
+                         <span class="Identifier">msg_handler</span><span class="Other">:</span> <span class="Identifier">TMsgHandler</span> <span class="Other">=</span> <span class="Identifier">stdout_msg_handler</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
 <dd>
 <p>Converts a content named filename into a string with HTML tags.</p>
 <p>If there is any problem with the parsing, an exception could be thrown.</p>
 <p>You can pass nil as <cite>config</cite> if you want to use the default HTML rendering templates embedded in the module. Or you can load a configuration file with <a class="reference external" href="#parse_rst_options">parse_rst_options</a> or <a class="reference external" href="#load_config">load_config</a>.  The value for the <cite>config</cite> parameter is explained in <a class="reference external" href="lazy_rest_pkg/lrstgen.html#initRstGenerator">lazy_rest/lrstgen.initRstGenerator()</a>.</p>
+<p>By default the <cite>find_file</cite> parameter will be the <a class="reference external" href="#unrestricted_find_file_handler">unrestricted_find_file_handler()</a> proc. If you pass <tt class="docutils literal"><span class="pre">nil</span></tt> the <a class="reference external" href="lazy_rest_pkg/lrst.html#nil_find_file_handler">lrst.nil_find_file_handler()</a> proc will be used instead.</p>
 
 
 </dd>
-<dt id="rst_file_to_html"><a name="rst_file_to_html,string,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">rst_file_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
+<dt id="rst_file_to_html"><a name="rst_file_to_html,string,PStringTable,Find_file_handler,TMsgHandler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">rst_file_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> <span class="Identifier">find_file</span><span class="Other">:</span> <span class="Identifier">Find_file_handler</span> <span class="Other">=</span> <span class="Identifier">unrestricted_find_file_handler</span><span class="Other">;</span> 
+                       <span class="Identifier">msg_handler</span><span class="Other">:</span> <span class="Identifier">TMsgHandler</span> <span class="Other">=</span> <span class="Identifier">stdout_msg_handler</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
 <dd>
 <p>Converts a filename with rest content into a string with HTML tags.</p>
 <p>If there is any problem with the parsing, an exception could be thrown.</p>
+<p>By default the <cite>find_file</cite> parameter will be the <a class="reference external" href="#unrestricted_find_file_handler">unrestricted_find_file_handler()</a> proc. If you pass <tt class="docutils literal"><span class="pre">nil</span></tt> the <a class="reference external" href="lazy_rest_pkg/lrst.html#nil_find_file_handler">lrst.nil_find_file_handler()</a> proc will be used instead.</p>
 
 
 </dd>
-<dt id="safe_rst_string_to_html"><a name="safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">safe_rst_string_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">,</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
+<dt id="safe_rst_string_to_html"><a name="safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">safe_rst_string_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">,</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> 
                               <span class="Identifier">ERRORS</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> 
-                              <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+                              <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> <span class="Identifier">find_file</span><span class="Other">:</span> <span class="Identifier">Find_file_handler</span> <span class="Other">=</span> <span class="Identifier">unrestricted_find_file_handler</span><span class="Other">;</span> 
+                              <span class="Identifier">msg_handler</span><span class="Other">:</span> <span class="Identifier">TMsgHandler</span> <span class="Other">=</span> <span class="Identifier">stdout_msg_handler</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">{.</span>
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
 <p>Wrapper over <a class="reference external" href="#rst_string_to_html">rst_string_to_html</a> to catch exceptions.</p>
 <p>Returns always a valid HTML. If something bad happens, it tries to show the error for debugging but still returns valid HTML, though it may be quite different from what you expect. The <cite>filename</cite> parameter is only used for error reporting, you can pass nil or the empty string.</p>
@@ -362,8 +401,10 @@ Module version as a string. Something like <tt class="docutils literal"><span cl
   <span class="Comment"># Yay, use `html` without worries.</span></pre>
 
 </dd>
-<dt id="safe_rst_file_to_html"><a name="safe_rst_file_to_html,string,ptr.seq[string],PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">safe_rst_file_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">ERRORS</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> 
-                            <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dt id="safe_rst_file_to_html"><a name="safe_rst_file_to_html,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">safe_rst_file_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">ERRORS</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> 
+                            <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> <span class="Identifier">find_file</span><span class="Other">:</span> <span class="Identifier">Find_file_handler</span> <span class="Other">=</span> <span class="Identifier">unrestricted_find_file_handler</span><span class="Other">;</span> 
+                            <span class="Identifier">msg_handler</span><span class="Other">:</span> <span class="Identifier">TMsgHandler</span> <span class="Other">=</span> <span class="Identifier">stdout_msg_handler</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">{.</span>
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
 <p>Wrapper over <a class="reference external" href="#rst_file_to_html">rst_file_to_html</a> to catch exceptions.</p>
 <p>Returns always a valid HTML. If something bad happens, it tries to show the error for debugging but still returns valid HTML, though it may be quite different from what you expect.</p>
@@ -418,7 +459,7 @@ Module version as a string. Something like <tt class="docutils literal"><span cl
 
 </div>
 
-<small>Generated: 2014-10-29 01:37:10 UTC</small>
+<small>Generated: 2014-11-13 17:56:51 UTC</small>
 </div>
 </body>
 </html>

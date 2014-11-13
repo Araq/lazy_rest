@@ -239,148 +239,336 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <body>
 <div class="document" id="documentId">
 <h1 class="title">Index</h1>
-Documents: <a href="docs/c_usage.html">Lazy reST C usage guide</a>, <a href="docs/changes.html">Lazy reST changes log</a>, <a href="LICENSE.html">Lazy reST license</a>, <a href="README.html">Lazy reST readme</a>.<br><p />Modules: <a href="lazy_rest.html">lazy_rest</a>, <a href="lazy_rest_c_api.html">lazy_rest_c_api</a>.<br><p /><h2>Documentation files</h2>
-<ul><li><a href="docs/c_usage.html">Lazy reST C usage guide</a>
-<ul>
-<li><a href="docs/c_usage.html#installation">Installation</a>
-<li><a href="docs/c_usage.html#documentation">Documentation</a>
-<li><a href="docs/c_usage.html#practical-example">Practical example</a>
-</ul>
-</ul>
-<ul><li><a href="docs/changes.html">Lazy reST changes log</a>
-<ul>
-<li><a href="docs/changes.html#v0-1-0">v0.1.0, ????-??-??</a>
-</ul>
-</ul>
-<ul><li><a href="LICENSE.html">Lazy reST license</a>
-<ul>
-</ul>
-</ul>
-<ul><li><a href="README.html">Lazy reST readme</a>
-<ul>
-<li><a href="README.html#changes">Changes</a>
-<li><a href="README.html#license">License</a>
-<li><a href="README.html#usage">Usage</a>
-<li><a href="README.html#git-branches">Git branches</a>
-<li><a href="README.html#feedback">Feedback</a>
-</ul>
-</ul>
-<h2>API symbols</h2>
-<dt><span>lr_nim_file_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>add</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstast.html#add,PRstNode,PRstNode">lrstast : add*(father, son: PRstNode)</a></li>
+          </ul></dd>
+<dt><span>addIfNotNil</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstast.html#addIfNotNil,PRstNode,PRstNode">lrstast : addIfNotNil*(father, son: PRstNode)</a></li>
+          </ul></dd>
+<dt><span>addNodes</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#addNodes,PRstNode">lrst : addNodes*(n: PRstNode): string</a></li>
+          </ul></dd>
+<dt><span>defaultConfig</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns a default configuration for embedded HTML generation.…" href="lazy_rest_pkg/lrstgen.html#defaultConfig,">lrstgen : defaultConfig*(): PStringTable</a></li>
+          </ul></dd>
+<dt><span>EParseError</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lrst.html#EParseError">lrst : EParseError</a></li>
+          </ul></dd>
+<dt><span>esc</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#esc,TOutputTarget,string">lrstgen : esc*(target: TOutputTarget; s: string; splitAfter = - 1): string</a></li>
+          </ul></dd>
+<dt><span>escChar</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#escChar,TOutputTarget,string,char">lrstgen : escChar*(target: TOutputTarget; dest: var string; c: char)</a></li>
+          </ul></dd>
+<dt><span>Find_file_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lrst.html#Find_file_handler">lrst : Find_file_handler</a></li>
+          </ul></dd>
+<dt><span>formatNamedVars</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#formatNamedVars,string,openArray[string],openArray[string]">lrstgen : formatNamedVars*(frmt: string; varnames: openArray[string]; 
+                 varvalues: openArray[string]): string</a></li>
+          </ul></dd>
+<dt><span>getArgument</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#getArgument,PRstNode">lrst : getArgument*(n: PRstNode): string</a></li>
+          </ul></dd>
+<dt><span>getFieldValue</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns the value of a specific ``rnField`` node.…" href="lazy_rest_pkg/lrst.html#getFieldValue,PRstNode">lrst : getFieldValue*(n: PRstNode): string</a></li>
+          <li><a class="reference external" href="lazy_rest_pkg/lrst.html#getFieldValue,PRstNode,string">lrst : getFieldValue*(n: PRstNode; fieldname: string): string</a></li>
+          </ul></dd>
+<dt><span>IndexExt</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#IndexExt">lrstgen : IndexExt</a></li>
+          </ul></dd>
+<dt><span>initRstGenerator</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Initializes a ``TRstGenerator``.…" href="lazy_rest_pkg/lrstgen.html#initRstGenerator,TRstGenerator,TOutputTarget,PStringTable,string,TRstParseOptions,Find_file_handler,TMsgHandler">lrstgen : initRstGenerator*(g: var TRstGenerator; target: TOutputTarget; 
+                  config: PStringTable; filename: string; 
+                  options: TRstParseOptions; 
+                  findFile: Find_file_handler = nil_find_file_handler; 
+                  msgHandler: TMsgHandler = nil_msg_handler)</a></li>
+          </ul></dd>
+<dt><span>lastSon</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstast.html#lastSon,PRstNode">lrstast : lastSon*(n: PRstNode): PRstNode</a></li>
+          </ul></dd>
+<dt><span>len</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstast.html#len,PRstNode">lrstast : len*(n: PRstNode): int</a></li>
+          </ul></dd>
+<dt><span>lr_c_find_file_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_c_api.html#lr_c_find_file_handler">lazy_rest_c_api : lr_c_find_file_handler</a></li>
+          </ul></dd>
+<dt><span>lr_c_msg_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_c_api.html#lr_c_msg_handler">lazy_rest_c_api : lr_c_msg_handler</a></li>
+          </ul></dd>
+<dt><span>lr_nim_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `nim_file_to_html() &lt;lazy_rest.html#nim_file_to_html&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_nim_file_to_html,cstring,cint,PStringTable">lazy_rest_c_api : lr_nim_file_to_html*(filename: cstring; number_lines: cint; config: PStringTable): cstring</a></li>
           </ul></dd>
-<dt><span>lr_parse_rst_options:</span></dt><ul class="simple"><dd>
+<dt><span>lr_parse_rst_options</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `parse_rst_options() &lt;lazy_rest.html#parse_rst_options&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_parse_rst_options,cstring">lazy_rest_c_api : lr_parse_rst_options*(options: cstring): PStringTable</a></li>
           </ul></dd>
-<dt><span>lr_rst_file_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>lr_rst_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `rst_file_to_html() &lt;lazy_rest.html#rst_file_to_html&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_rst_file_to_html,cstring,PStringTable">lazy_rest_c_api : lr_rst_file_to_html*(filename: cstring; config: PStringTable): cstring</a></li>
           </ul></dd>
-<dt><span>lr_rst_file_to_html_error:</span></dt><ul class="simple"><dd>
+<dt><span>lr_rst_file_to_html_error</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Returns the error string for `lr_rst_file_to_html()…" href="lazy_rest_c_api.html#lr_rst_file_to_html_error,">lazy_rest_c_api : lr_rst_file_to_html_error*(): cstring</a></li>
           </ul></dd>
-<dt><span>lr_rst_string_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>lr_rst_string_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `rst_string_to_html() &lt;lazy_rest.html#rst_string_to_html&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_rst_string_to_html,cstring,cstring,PStringTable">lazy_rest_c_api : lr_rst_string_to_html*(content, filename: cstring; config: PStringTable): cstring</a></li>
           </ul></dd>
-<dt><span>lr_rst_string_to_html_error:</span></dt><ul class="simple"><dd>
+<dt><span>lr_rst_string_to_html_error</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Returns the error string for `lr_rst_string_to_html()…" href="lazy_rest_c_api.html#lr_rst_string_to_html_error,">lazy_rest_c_api : lr_rst_string_to_html_error*(): cstring</a></li>
           </ul></dd>
-<dt><span>lr_safe_rst_file_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>lr_safe_rst_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `safe_rst_file_to_html() &lt;lazy_rest.html#safe_rst_file_to_html&gt;`_…" href="lazy_rest_c_api.html#lr_safe_rst_file_to_html,cstring,ptr.cint,PStringTable">lazy_rest_c_api : lr_safe_rst_file_to_html*(filename: cstring; ERRORS: ptr cint; 
                           config: PStringTable): cstring</a></li>
           </ul></dd>
-<dt><span>lr_safe_rst_file_to_html_error:</span></dt><ul class="simple"><dd>
+<dt><span>lr_safe_rst_file_to_html_error</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Returns error strings for `lr_safe_rst_file_to_html()…" href="lazy_rest_c_api.html#lr_safe_rst_file_to_html_error,cint">lazy_rest_c_api : lr_safe_rst_file_to_html_error*(pos: cint): cstring</a></li>
           </ul></dd>
-<dt><span>lr_safe_rst_string_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>lr_safe_rst_string_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `safe_rst_string_to_html()…" href="lazy_rest_c_api.html#lr_safe_rst_string_to_html,cstring,cstring,ptr.cint,PStringTable">lazy_rest_c_api : lr_safe_rst_string_to_html*(filename, data: cstring; ERRORS: ptr cint; 
                             config: PStringTable): cstring</a></li>
           </ul></dd>
-<dt><span>lr_safe_rst_string_to_html_error:</span></dt><ul class="simple"><dd>
+<dt><span>lr_safe_rst_string_to_html_error</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Returns error strings for `lr_safe_rst_string_to_html()…" href="lazy_rest_c_api.html#lr_safe_rst_string_to_html_error,cint">lazy_rest_c_api : lr_safe_rst_string_to_html_error*(pos: cint): cstring</a></li>
           </ul></dd>
-<dt><span>lr_set_global_rst_options:</span></dt><ul class="simple"><dd>
+<dt><span>lr_set_c_find_file_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Specifies the C file handler to use for rst processing.…" href="lazy_rest_c_api.html#lr_set_c_find_file_handler,lr_c_find_file_handler">lazy_rest_c_api : lr_set_c_find_file_handler*(func: lr_c_find_file_handler)</a></li>
+          </ul></dd>
+<dt><span>lr_set_c_msg_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Specifies the C message handler to use for rst processing.…" href="lazy_rest_c_api.html#lr_set_c_msg_handler,lr_c_msg_handler">lazy_rest_c_api : lr_set_c_msg_handler*(func: lr_c_msg_handler)</a></li>
+          </ul></dd>
+<dt><span>lr_set_find_file_buffer_size</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Sets and returns the size for future find file handler buffer sizes.…" href="lazy_rest_c_api.html#lr_set_find_file_buffer_size,cint">lazy_rest_c_api : lr_set_find_file_buffer_size*(s: cint): cint</a></li>
+          </ul></dd>
+<dt><span>lr_set_global_rst_options</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Works around `lr_parse_rst_options() &lt;#lr_parse_rst_options&gt;`_ limitations.…" href="lazy_rest_c_api.html#lr_set_global_rst_options,cstring">lazy_rest_c_api : lr_set_global_rst_options*(options: cstring): cint</a></li>
           </ul></dd>
-<dt><span>lr_set_normal_error_rst:</span></dt><ul class="simple"><dd>
+<dt><span>lr_set_nim_find_file_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Specifies the Nimrod file handler to use for rst processing.…" href="lazy_rest_c_api.html#lr_set_nim_find_file_handler,Find_file_handler">lazy_rest_c_api : lr_set_nim_find_file_handler*(func: Find_file_handler)</a></li>
+          </ul></dd>
+<dt><span>lr_set_nim_msg_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Specifies the Nimrod message handler to use for rst processing.…" href="lazy_rest_c_api.html#lr_set_nim_msg_handler,TMsgHandler">lazy_rest_c_api : lr_set_nim_msg_handler*(func: TMsgHandler)</a></li>
+          </ul></dd>
+<dt><span>lr_set_normal_error_rst</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Exports `set_normal_error_rst() &lt;lazy_rest.html#set_normal_error_rst&gt;`_…" href="lazy_rest_c_api.html#lr_set_normal_error_rst,cstring">lazy_rest_c_api : lr_set_normal_error_rst*(input_rst: cstring): cint</a></li>
           </ul></dd>
-<dt><span>lr_set_normal_error_rst_error:</span></dt><ul class="simple"><dd>
+<dt><span>lr_set_normal_error_rst_error</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Returns error strings for `lr_set_normal_error_rst()…" href="lazy_rest_c_api.html#lr_set_normal_error_rst_error,cint">lazy_rest_c_api : lr_set_normal_error_rst_error*(pos: cint): cstring</a></li>
           </ul></dd>
-<dt><span>lr_set_safe_error_rst:</span></dt><ul class="simple"><dd>
+<dt><span>lr_set_safe_error_rst</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Exports `set_safe_error_rst() &lt;lazy_rest.html#set_safe_error_rst&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_set_safe_error_rst,cstring">lazy_rest_c_api : lr_set_safe_error_rst*(input_rst: cstring): cint</a></li>
           </ul></dd>
-<dt><span>lr_set_safe_error_rst_error:</span></dt><ul class="simple"><dd>
+<dt><span>lr_set_safe_error_rst_error</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Returns error strings for `lr_set_safe_error_rst()…" href="lazy_rest_c_api.html#lr_set_safe_error_rst_error,cint">lazy_rest_c_api : lr_set_safe_error_rst_error*(pos: cint): cstring</a></li>
           </ul></dd>
-<dt><span>lr_version_int:</span></dt><ul class="simple"><dd>
+<dt><span>lr_version_int</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `version_int &lt;lazy_rest.html#version_int&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_version_int,ptr.cint,ptr.cint,ptr.cint">lazy_rest_c_api : lr_version_int*(major, minor, maintenance: ptr cint)</a></li>
           </ul></dd>
-<dt><span>lr_version_str:</span></dt><ul class="simple"><dd>
+<dt><span>lr_version_str</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wraps `version_str &lt;lazy_rest.html#version_str&gt;`_ for C.…" href="lazy_rest_c_api.html#lr_version_str,">lazy_rest_c_api : lr_version_str*(): cstring</a></li>
           </ul></dd>
-<dt><span>nim_file_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>mergeIndexes</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Merges all index files in `dir` and returns the generated index as HTML.…" href="lazy_rest_pkg/lrstgen.html#mergeIndexes,string">lrstgen : mergeIndexes*(dir: string): string</a></li>
+          </ul></dd>
+<dt><span>newRstNode</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstast.html#newRstNode,TRstNodeKind">lrstast : newRstNode*(kind: TRstNodeKind): PRstNode</a></li>
+          <li><a class="reference external" href="lazy_rest_pkg/lrstast.html#newRstNode,TRstNodeKind,string">lrstast : newRstNode*(kind: TRstNodeKind; s: string): PRstNode</a></li>
+          </ul></dd>
+<dt><span>nextSplitPoint</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#nextSplitPoint,string,int">lrstgen : nextSplitPoint*(s: string; start: int): int</a></li>
+          </ul></dd>
+<dt><span>nil_find_file_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Always returns the empty string.…" href="lazy_rest_pkg/lrst.html#nil_find_file_handler,string,string">lrst : nil_find_file_handler*(current_filename, target_filename: string): string</a></li>
+          </ul></dd>
+<dt><span>nil_msg_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Nil output message handler.…" href="lazy_rest_pkg/lrst.html#nil_msg_handler,string,int,int,TMsgKind,string">lrst : nil_msg_handler*(filename: string; line, col: int; msgkind: TMsgKind; 
+                 arg: string): string</a></li>
+          </ul></dd>
+<dt><span>nim_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Puts the contents of `filename` in a code block to render as rest.…" href="lazy_rest.html#nim_file_to_html,string,PStringTable">lazy_rest : nim_file_to_html*(filename: string; number_lines = true; 
                   config: PStringTable = nil): string</a></li>
           </ul></dd>
-<dt><span>parse_rst_options:</span></dt><ul class="simple"><dd>
+<dt><span>parse_rst_options</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Parses the options, returns nil if something goes wrong.…" href="lazy_rest.html#parse_rst_options,string">lazy_rest : parse_rst_options*(options: string): PStringTable</a></li>
           </ul></dd>
-<dt><span>rst_file_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>PRstNode</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts a filename with rest content into a string with HTML tags.…" href="lazy_rest.html#rst_file_to_html,string,PStringTable">lazy_rest : rst_file_to_html*(filename: string; config: PStringTable = nil): string</a></li>
+          title="an RST node" href="lazy_rest_pkg/lrstast.html#PRstNode">lrstast : PRstNode</a></li>
           </ul></dd>
-<dt><span>rst_string_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>renderIndexTerm</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts a content named filename into a string with HTML tags.…" href="lazy_rest.html#rst_string_to_html,string,string,PStringTable">lazy_rest : rst_string_to_html*(content, filename: string; config: PStringTable = nil): string</a></li>
+          title="Renders the string decorated within \`foobar\`\:idx\: markers.…" href="lazy_rest_pkg/lrstgen.html#renderIndexTerm,PDoc,PRstNode,string">lrstgen : renderIndexTerm*(d: PDoc; n: PRstNode; result: var string)</a></li>
           </ul></dd>
-<dt><span>safe_rst_file_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>renderRstToJson</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Wrapper over `rst_file_to_html &lt;#rst_file_to_html&gt;`_ to catch exceptions.…" href="lazy_rest.html#safe_rst_file_to_html,string,ptr.seq[string],PStringTable">lazy_rest : safe_rst_file_to_html*(filename: string; ERRORS: ptr seq[string] = nil; 
-                       config: PStringTable = nil): string</a></li>
+          title="Writes the given RST node as JSON that is in the form…" href="lazy_rest_pkg/lrstast.html#renderRstToJson,PRstNode">lrstast : renderRstToJson*(node: PRstNode): string</a></li>
           </ul></dd>
-<dt><span>safe_rst_string_to_html:</span></dt><ul class="simple"><dd>
+<dt><span>renderRstToOut</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Wrapper over `rst_string_to_html &lt;#rst_string_to_html&gt;`_ to catch…" href="lazy_rest.html#safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable">lazy_rest : safe_rst_string_to_html*(filename, data: string; ERRORS: ptr seq[string] = nil; 
-                         config: PStringTable = nil): string</a></li>
+          title="Writes into ``result`` the rst ast ``n`` using the ``d`` configuration.…" href="lazy_rest_pkg/lrstgen.html#renderRstToOut,TRstGenerator,PRstNode,string">lrstgen : renderRstToOut*(d: var TRstGenerator; n: PRstNode; result: var string)</a></li>
           </ul></dd>
-<dt><span>set_normal_error_rst:</span></dt><ul class="simple"><dd>
+<dt><span>renderRstToRst</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="renders `n` into its string representation and appends to `result`." href="lazy_rest_pkg/lrstast.html#renderRstToRst,PRstNode,string">lrstast : renderRstToRst*(n: PRstNode; result: var string)</a></li>
+          </ul></dd>
+<dt><span>renderTocEntries</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#renderTocEntries,TRstGenerator,int,int,string">lrstgen : renderTocEntries*(d: var TRstGenerator; j: var int; lvl: int; result: var string)</a></li>
+          </ul></dd>
+<dt><span>reStructuredText</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#restructuredtext_1134164185">lazy_rest_pkg/lrstgen.html#restructuredtext_1134164185</a></li>
+          </ul></dd>
+<dt><span>rst_file_to_html</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Converts a filename with rest content into a string with HTML tags.…" href="lazy_rest.html#rst_file_to_html,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_file_to_html*(filename: string; config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                  msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
+          </ul></dd>
+<dt><span>rst_messages</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#rst_messages">lrst : rst_messages</a></li>
+          </ul></dd>
+<dt><span>rstnodeToRefname</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#rstnodeToRefname,PRstNode">lrst : rstnodeToRefname*(n: PRstNode): string</a></li>
+          </ul></dd>
+<dt><span>rstParse</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#rstParse,string,string,int,int,bool,TRstParseOptions,Find_file_handler,TMsgHandler">lrst : rstParse*(text, filename: string; line, column: int; hasToc: var bool; 
+          options: TRstParseOptions; 
+          findFile: Find_file_handler = nil_find_file_handler; 
+          msgHandler: TMsgHandler = nil_msg_handler): PRstNode</a></li>
+          </ul></dd>
+<dt><span>rst_string_to_html</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Converts a content named filename into a string with HTML tags.…" href="lazy_rest.html#rst_string_to_html,string,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_string_to_html*(content, filename: string; config: PStringTable = nil; 
+    find_file: Find_file_handler = unrestricted_find_file_handler; 
+                    msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
+          </ul></dd>
+<dt><span>rstToHtml</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Converts an input rst string into embeddable HTML.…" href="lazy_rest_pkg/lrstgen.html#rstToHtml,string,TRstParseOptions,PStringTable">lrstgen : rstToHtml*(s: string; options: TRstParseOptions; config: PStringTable): string</a></li>
+          </ul></dd>
+<dt><span>safe_rst_file_to_html</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wrapper over `rst_file_to_html &lt;#rst_file_to_html&gt;`_ to catch exceptions.…" href="lazy_rest.html#safe_rst_file_to_html,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler">lazy_rest : safe_rst_file_to_html*(filename: string; ERRORS: ptr seq[string] = nil; 
+                       config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                       msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
+          </ul></dd>
+<dt><span>safe_rst_string_to_html</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Wrapper over `rst_string_to_html &lt;#rst_string_to_html&gt;`_ to catch…" href="lazy_rest.html#safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler">lazy_rest : safe_rst_string_to_html*(filename, data: string; ERRORS: ptr seq[string] = nil; 
+                         config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                         msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
+          </ul></dd>
+<dt><span>setIndexTerm</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Adds a `term` to the index using the specified hyperlink identifier.…" href="lazy_rest_pkg/lrstgen.html#setIndexTerm,TRstGenerator,string,string">lrstgen : setIndexTerm*(d: var TRstGenerator; id, term: string; linkTitle, linkDesc = &quot;&quot;)</a></li>
+          </ul></dd>
+<dt><span>set_normal_error_rst</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Changes the default error page for ``safe_*`` function errors.…" href="lazy_rest.html#set_normal_error_rst,string">lazy_rest : set_normal_error_rst*(input_rst: string): seq[string]</a></li>
           </ul></dd>
-<dt><span>set_safe_error_rst:</span></dt><ul class="simple"><dd>
+<dt><span>set_safe_error_rst</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Changes the safe error page for ``safe_*`` function errors.…" href="lazy_rest.html#set_safe_error_rst,string">lazy_rest : set_safe_error_rst*(input_rst: string): seq[string]</a></li>
           </ul></dd>
-<dt><span>version_int:</span></dt><ul class="simple"><dd>
+<dt><span>splitter</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#splitter">lrstgen : splitter</a></li>
+          </ul></dd>
+<dt><span>stdout_msg_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Default handler to report warnings/errors.…" href="lazy_rest.html#stdout_msg_handler,string,int,int,TMsgKind,string">lazy_rest : stdout_msg_handler*(filename: string; line, col: int; msgkind: TMsgKind; 
+                    arg: string): string</a></li>
+          </ul></dd>
+<dt><span>TMetaEnum</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#TMetaEnum">lrstgen : TMetaEnum</a></li>
+          </ul></dd>
+<dt><span>TMsgClass</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#TMsgClass">lrst : TMsgClass</a></li>
+          </ul></dd>
+<dt><span>TMsgHandler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lrst.html#TMsgHandler">lrst : TMsgHandler</a></li>
+          </ul></dd>
+<dt><span>TMsgKind</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="the possible messages" href="lazy_rest_pkg/lrst.html#TMsgKind">lrst : TMsgKind</a></li>
+          </ul></dd>
+<dt><span>TOutputTarget</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="which document type to generate" href="lazy_rest_pkg/lrstgen.html#TOutputTarget">lrstgen : TOutputTarget</a></li>
+          </ul></dd>
+<dt><span>TRstGenerator</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lrstgen.html#TRstGenerator">lrstgen : TRstGenerator</a></li>
+          </ul></dd>
+<dt><span>TRstNode</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="an RST node's description" href="lazy_rest_pkg/lrstast.html#TRstNode">lrstast : TRstNode</a></li>
+          </ul></dd>
+<dt><span>TRstNodeKind</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="the possible node kinds of an PRstNode" href="lazy_rest_pkg/lrstast.html#TRstNodeKind">lrstast : TRstNodeKind</a></li>
+          </ul></dd>
+<dt><span>TRstNodeSeq</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrstast.html#TRstNodeSeq">lrstast : TRstNodeSeq</a></li>
+          </ul></dd>
+<dt><span>TRstParseOption</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="options for the RST parser" href="lazy_rest_pkg/lrst.html#TRstParseOption">lrst : TRstParseOption</a></li>
+          </ul></dd>
+<dt><span>TRstParseOptions</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="lazy_rest_pkg/lrst.html#TRstParseOptions">lrst : TRstParseOptions</a></li>
+          </ul></dd>
+<dt><span>unrestricted_find_file_handler</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Default handler to resolve file path navigation.…" href="lazy_rest.html#unrestricted_find_file_handler,string,string">lazy_rest : unrestricted_find_file_handler*(current_filename, target_filename: string): string</a></li>
+          </ul></dd>
+<dt><span>version_int</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="\…" href="lazy_rest.html#version_int">lazy_rest : version_int</a></li>
           </ul></dd>
-<dt><span>version_str:</span></dt><ul class="simple"><dd>
+<dt><span>version_str</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="\…" href="lazy_rest.html#version_str">lazy_rest : version_str</a></li>
           </ul></dd>
+<dt><span>whichMsgClass</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns which message class `k` belongs to.…" href="lazy_rest_pkg/lrst.html#whichMsgClass,TMsgKind">lrst : whichMsgClass*(k: TMsgKind): TMsgClass</a></li>
+          </ul></dd>
+<dt><span>writeIndexFile</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Writes the current index buffer to the specified output file.…" href="lazy_rest_pkg/lrstgen.html#writeIndexFile,TRstGenerator,string">lrstgen : writeIndexFile*(g: var TRstGenerator; outfile: string)</a></li>
+          </ul></dd>
 
-<small>Generated: 2014-10-29 01:37:10 UTC</small>
+<small>Generated: 2014-11-13 17:56:52 UTC</small>
 </div>
 </body>
 </html>
