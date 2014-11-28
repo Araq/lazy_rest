@@ -49,15 +49,23 @@ const
   ## <http://nimrod-lang.org/times.html#format>`_ for a list of valid format
   ## specifiers.
 
-  lrc_render_local_date_format* = "render.local_date.format"
+  lrc_render_local_date_format* = "render.local_date.format" ## \
   ## Key used to access the render local date format. See `times.format()
   ## <http://nimrod-lang.org/times.html#format>`_ for a list of valid format
   ## specifiers.
 
-  lrc_render_local_time_format* = "render.local_time.format"
+  lrc_render_local_time_format* = "render.local_time.format" ## \
   ## Key used to access the render local time format. See `times.format()
   ## <http://nimrod-lang.org/times.html#format>`_ for a list of valid format
   ## specifiers.
+
+  lrc_render_failure_test* = "render.failure.test" ## \
+  ## Special key used in lazy_rest unit testing to simulate serious errors.
+  ##
+  ## If you set this configuration key to the value `lrd_render_failure_test
+  ## <#lrd_render_failure_test>`_ you will get the special last resort error
+  ## page. See the `Lazy reST error handling <../docs/error_handling.html>`_
+  ## document for more information.
 
   lrc_split_item_toc* = "split.item_toc" ## \
   ## Key used to tweak the number of characters a table of content entry can
@@ -79,3 +87,7 @@ const
   lrd_render_local_date_format* = "yyyy-MM-dd"
   lrd_render_local_time_format* = "HH:mm"
   lrd_split_item_toc* = "20"
+  lrd_render_failure_test* =
+    "Why do people suffer through video content lesser than 4k?" ## \
+    ## Special value to set for `lrc_render_failure_test
+    ## <#lrc_render_failure_test>`_.

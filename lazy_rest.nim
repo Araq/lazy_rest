@@ -395,12 +395,13 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
   ## optional, the proc will figure what to do if they aren't present.
   ##
   ## The `config` parameter is only used to force special error testing. If the
-  ## config table contains the key ``lazy.rst.failure.test`` with the value
-  ## ``Why do people suffer through video content lesser than 4k?`` the
-  ## internal subex replacement will be forced to fail so as to test the
-  ## *static* version of the error HTML page. In general the subex replacement
-  ## will work, so you shouldn't worry too much about this. Unless you do, in
-  ## which case you should look at the output from the errors test suite.
+  ## config table contains the `lrc_render_failure_test
+  ## <lazy_rest_pkg/lconfig.html#lrc_render_failure_test>`_ key with the value
+  ## <lazy_rest_pkg/lconfig.html#lrd_render_failure_test>`_ the internal subex
+  ## replacement will be forced to fail so as to test the *static* version of
+  ## the error HTML page. In general the subex replacement will work, so you
+  ## shouldn't worry too much about this. Unless you do, in which case you
+  ## should look at the output from the errors test suite.
   result = ""
   var
     TIME_STR: array[4, string] # String representations, date, then time.
@@ -411,8 +412,8 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
   # Detect if we are forcing simulated error tests.
   var simulate_subex_failure = false
-  if config.not_nil and config["lazy.rst.failure.test"] ==
-      "Why do people suffer through video content lesser than 4k?":
+  if config.not_nil and
+      config[lrc_render_failure_test] == lrd_render_failure_test:
     simulate_subex_failure = true
 
   # Fixup title page as much as we can.

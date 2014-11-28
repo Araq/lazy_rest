@@ -1,4 +1,4 @@
-import lazy_rest, strutils, os, strtabs
+import lazy_rest, lazy_rest_pkg/lconfig, strutils, os, strtabs
 
 type Pair = tuple[src, dest: string]
 
@@ -79,8 +79,7 @@ proc build_template() =
 proc render_errors(prefix: string) =
   test_safe_procs(prefix & "normal_subex_errors_", nil)
   var config = newStringTable(modeStyleInsensitive)
-  config["lazy.rst.failure.test"] =
-    "Why do people suffer through video content lesser than 4k?"
+  config[lrc_render_failure_test] = lrd_render_failure_test
   test_safe_procs(prefix & "forced_subex_errors_", config)
 
 proc run_tests() =
