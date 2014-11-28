@@ -83,6 +83,10 @@ the following *dollar* variables:
   <../lazy_rest_pkg/lconfig.html#lrk_render_local_time>`_.
 * `lrk_render_file_time <../lazy_rest_pkg/lconfig.html#lrk_render_file_time>`_.
 * `lrk_render_content <../lazy_rest_pkg/lconfig.html#lrk_render_content>`_.
+* `lrk_render_version_str
+  <../lazy_rest_pkg/lconfig.html#lrk_render_version_str>`_.
+* `lrk_render_error_table
+  <../lazy_rest_pkg/lconfig.html#lrk_render_error_table>`_.
 
 If any of these values can't be provided by the library (e.g. input file is
 missing, thus no date/time values can be extracted) the empty string will be

@@ -150,11 +150,42 @@ const
   ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
   ## more information.
 
-  lrd_render_date_format* = "yyyy-MM-dd"
-  lrd_render_time_format* = "HH:mm"
-  lrd_render_local_date_format* = "yyyy-MM-dd"
-  lrd_render_local_time_format* = "HH:mm"
-  lrd_split_item_toc* = "20"
+  lrk_render_version_str* = "version_str" ## \
+  ## Replaced by the current version string number.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_error_table* = "errors" ## \
+  ## Replaced by an HTML table with the list of accumulated errors.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrd_render_date_format* = "yyyy-MM-dd" ## \
+  ## `Default value <lrstgen.html#defaultConfig>`_ for `lrc_render_date_format
+  ## <#lrc_render_date_format>`_.
+
+  lrd_render_time_format* = "HH:mm" ## \
+  ## `Default value <lrstgen.html#defaultConfig>`_ for `lrc_render_time_format
+  ## <#lrc_render_time_format>`_.
+
+  lrd_render_local_date_format* = "yyyy-MM-dd" ## \
+  ## `Default value <lrstgen.html#defaultConfig>`_ for
+  ## `lrc_render_local_date_format <#lrc_render_local_date_format>`_.
+
+  lrd_render_local_time_format* = "HH:mm" ## \
+  ## `Default value <lrstgen.html#defaultConfig>`_ for
+  ## `lrc_render_local_time_format <#lrc_render_local_time_format>`_.
+
+  lrd_split_item_toc* = "20" ## \
+  ## `Default value <lrstgen.html#defaultConfig>`_ for `lrc_split_item_toc
+  ## <#lrc_split_item_toc>`_.
+
   lrd_render_failure_test* =
     "Why do people suffer through video content lesser than 4k?" ## \
     ## Special value to set for `lrc_render_failure_test

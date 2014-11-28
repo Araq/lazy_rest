@@ -459,7 +459,8 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       lrk_render_title, ERROR_TITLE,
       lrk_render_local_date, TIME_STR[2], lrk_render_local_time, TIME_STR[3],
       lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
-      "version_str", version_str, "errors", ERRORS.build_error_table,
+      lrk_render_version_str, version_str,
+      lrk_render_error_table, ERRORS.build_error_table,
       lrk_render_content, CONTENT]
   except:
     ERRORS.append(get_current_exception())
