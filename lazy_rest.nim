@@ -255,18 +255,23 @@ proc rst_string_to_html*(content, filename: string,
   let
     last_mod_local = last_mod.getLocalTime
     last_mod_gmt = last_mod.getGMTime
+    render_date_format = GENERATOR.config[lrc_render_date_format]
+    render_time_format = GENERATOR.config[lrc_render_time_format]
+    render_local_date_format = GENERATOR.config[lrc_render_local_date_format]
+    render_local_time_format = GENERATOR.config[lrc_render_local_time_format]
   #if title.len < 1: title = filename.split_path.tail
 
   # Now finish by adding header, CSS and stuff.
-  result = subex(GENERATOR.config[lrc_doc_file]) % ["title", title,
-    "date", last_mod_gmt.format("yyyy-MM-dd"),
-    "time", last_mod_gmt.format("HH:mm"),
-    "local_date", last_mod_local.format("yyyy-MM-dd"),
-    "local_time", last_mod_local.format("HH:mm"),
-    "fileTime", $(int(last_mod_local.timeInfoToTime) * 1000),
-    "prism_js", if GENERATOR.unknownLangs: prism_js else: "",
-    "prism_css", if GENERATOR.unknownLangs: prism_css else: "",
-    "content", MOD_DESC]
+  result = subex(GENERATOR.config[lrc_render_template]) % [
+    lrk_render_title, title,
+    lrk_render_date, last_mod_gmt.format(render_date_format),
+    lrk_render_time, last_mod_gmt.format(render_time_format),
+    lrk_render_local_date, last_mod_local.format(render_local_date_format),
+    lrk_render_local_time, last_mod_local.format(render_local_time_format),
+    lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
+    lrk_render_prism_js, if GENERATOR.unknownLangs: prism_js else: "",
+    lrk_render_prism_css, if GENERATOR.unknownLangs: prism_css else: "",
+    lrk_render_content, MOD_DESC]
 
 
 proc rst_file_to_html*(filename: string, user_config: PStringTable = nil,

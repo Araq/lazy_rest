@@ -112,17 +112,22 @@ proc defaultConfig*(): PStringTable =
   ## with the Nimrod compiler.
   ##
   ## The only difference between the contents of that file and the values
-  ## provided by this proc is the `lrc_doc_file <lconfig.html#lrc_doc_file>`_
-  ## variable. The `lrc_doc_file <lconfig.html#lrc_doc_file>`_ variable of the
-  ## configuration file contains HTML to build standalone pages, while this
-  ## proc returns just the content for procs like `rstToHtml() <#rstToHtml>`_
-  ## to generate the bare minimum HTML.
+  ## provided by this proc is the `lrc_render_template
+  ## <lconfig.html#lrc_render_template>`_ variable. The `lrc_render_template
+  ## <lconfig.html#lrc_render_template>`_ variable of the configuration file
+  ## contains HTML to build standalone pages, while this proc returns just the
+  ## content for procs like `rstToHtml() <#rstToHtml>`_ to generate the bare
+  ## minimum HTML.
   result = newStringTable(modeStyleInsensitive)
 
   # If you need to modify these values, it might be worth updating the template
   # file in config/nimdoc.cfg.
-  result[lrc_split_item_toc] = "20"
-  result[lrc_doc_file] = "$content"
+  result[lrc_split_item_toc] = lrd_split_item_toc
+  result[lrc_render_template] = "$" & lrk_render_content
+  result[lrc_render_date_format] = lrd_render_date_format
+  result[lrc_render_time_format] = lrd_render_time_format
+  result[lrc_render_local_date_format] = lrd_render_local_date_format
+  result[lrc_render_local_time_format] = lrd_render_local_time_format
 
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,

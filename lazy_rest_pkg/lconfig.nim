@@ -5,6 +5,16 @@
 ## keys. These keys are used for the `PStringTable
 ## <http://nimrod-lang.org/strtabs.html#PStringTable>`_ types passed in the
 ## API.
+##
+## The constants with the ``lrk_`` prefix stand for lazy_rest render key
+## substitution. They are the strings that you can use inside your
+## `lrc_render_template <#lrc_render_template>`_ to specify different
+## parametrized values.
+##
+## The constants with the ``lrd_`` prefix stand for lazy_rest default values,
+## and are usually returned by `lrstgen.defaultConfig()
+## <lrstgen.html#defaultConfig>`_.
+
 
 type
   TRstParseOption* = enum     ## Options for the internal RST parser \
@@ -22,10 +32,50 @@ type
   TRstParseOptions* = set[TRstParseOption]
 
 const
-  lrc_doc_file* = "doc.file" ## \
+  lrc_render_template* = "render.template" ## \
   ## Key used to access the PStringTable storing the skeleton of the HTML rest
-  ## render. This skeleton has to contain the ``$content`` string at least.
+  ## render. This skeleton has to contain the `lrk_render_content
+  ## <#lrk_render_content>`_ `substitution expression
+  ## <http://nimrod-lang.org/subexes.html>`_ at least, but of course you can
+  ## use more.
+
+  lrc_render_date_format* = "render.date.format" ## \
+  ## Key used to access the render GMT date format. See `times.format()
+  ## <http://nimrod-lang.org/times.html#format>`_ for a list of valid format
+  ## specifiers.
+
+  lrc_render_time_format* = "render.time.format" ## \
+  ## Key used to access the render GMT time format. See `times.format()
+  ## <http://nimrod-lang.org/times.html#format>`_ for a list of valid format
+  ## specifiers.
+
+  lrc_render_local_date_format* = "render.local_date.format"
+  ## Key used to access the render local date format. See `times.format()
+  ## <http://nimrod-lang.org/times.html#format>`_ for a list of valid format
+  ## specifiers.
+
+  lrc_render_local_time_format* = "render.local_time.format"
+  ## Key used to access the render local time format. See `times.format()
+  ## <http://nimrod-lang.org/times.html#format>`_ for a list of valid format
+  ## specifiers.
+
   lrc_split_item_toc* = "split.item_toc" ## \
   ## Key used to tweak the number of characters a table of content entry can
   ## have nefore being split. The splitting prevents the TOC from growing too
   ## wide and obscuring the main text. The default value is 20.
+
+  lrk_render_title* = "title"
+  lrk_render_date* = "date"
+  lrk_render_time* = "time"
+  lrk_render_local_date* = "local_date"
+  lrk_render_local_time* = "local_time"
+  lrk_render_file_time* = "fileTime"
+  lrk_render_prism_js* = "prism_js"
+  lrk_render_prism_css* = "prism_css"
+  lrk_render_content* = "content"
+
+  lrd_render_date_format* = "yyyy-MM-dd"
+  lrd_render_time_format* = "HH:mm"
+  lrd_render_local_date_format* = "yyyy-MM-dd"
+  lrd_render_local_time_format* = "HH:mm"
+  lrd_split_item_toc* = "20"
