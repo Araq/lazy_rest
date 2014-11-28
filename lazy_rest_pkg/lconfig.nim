@@ -67,10 +67,11 @@ const
   ## page. See the `Lazy reST error handling <../docs/error_handling.html>`_
   ## document for more information.
 
-  lrc_split_item_toc* = "split.item_toc" ## \
+  lrc_render_split_item_toc* = "render.split.item.toc" ## \
   ## Key used to tweak the number of characters a table of content entry can
   ## have nefore being split. The splitting prevents the TOC from growing too
-  ## wide and obscuring the main text. The default value is 20.
+  ## wide and obscuring the main text. The default value is
+  ## `lrd_render_split_item_toc <#lrd_render_split_item_toc>`_.
 
   lrk_render_title* = "title" ## \
   ## Replaced by the title of the input file if anything was extracted.
@@ -182,9 +183,9 @@ const
   ## `Default value <lrstgen.html#defaultConfig>`_ for
   ## `lrc_render_local_time_format <#lrc_render_local_time_format>`_.
 
-  lrd_split_item_toc* = "20" ## \
-  ## `Default value <lrstgen.html#defaultConfig>`_ for `lrc_split_item_toc
-  ## <#lrc_split_item_toc>`_.
+  lrd_render_split_item_toc* = "20" ## \
+  ## `Default value <lrstgen.html#defaultConfig>`_ for
+  ## `lrc_render_split_item_toc <#lrc_render_split_item_toc>`_.
 
   lrd_render_failure_test* =
     "Why do people suffer through video content lesser than 4k?" ## \

@@ -122,7 +122,7 @@ proc defaultConfig*(): PStringTable =
 
   # If you need to modify these values, it might be worth updating the template
   # file in config/nimdoc.cfg.
-  result[lrc_split_item_toc] = lrd_split_item_toc
+  result[lrc_render_split_item_toc] = lrd_render_split_item_toc
   result[lrc_render_template] = "$" & lrk_render_content
   result[lrc_render_date_format] = lrd_render_date_format
   result[lrc_render_time_format] = lrd_render_time_format
@@ -206,7 +206,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   else:
     g.msgHandler = msgHandler
 
-  let s = g.config[lrc_split_item_toc]
+  let s = g.config[lrc_render_split_item_toc]
   if s != "": g.splitAfter = parseInt(s)
   for i in low(g.meta)..high(g.meta): g.meta[i] = ""
 
