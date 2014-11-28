@@ -11,20 +11,21 @@
 ## `reStructuredText`:idx: (see http://docutils.sourceforge.net/rst.html for
 ## information on this markup syntax).
 ##
-## You can generate HTML output through the convenience proc ``rstToHtml``,
-## which provided an input string with rst markup returns a string with the
-## generated HTML. The final output is meant to be embedded inside a full
-## document you provide yourself, so it won't contain the usual ``<header>`` or
-## ``<body>`` parts.
+## You can generate HTML output through the convenience `rstToHtml()
+## <#rstToHtml>`_ proc, which provided an input string with rst markup returns
+## a string with the generated HTML. The final output is meant to be embedded
+## inside a full document you provide yourself, so it won't contain the usual
+## ``<header>`` or ``<body>`` parts.
 ##
 ## You can also create a ``TRstGenerator`` structure and populate it with the
 ## other lower level methods to finally build complete documents. This requires
 ## many options and tweaking. `LaTeX documents
 ## <https://en.wikipedia.org/wiki/LaTeX>`_ are poorly supported.
 
-import strutils, os, hashes, strtabs, lazy_rest_pkg/lrstast,
-  lazy_rest_pkg/lrst, lhighlite, tables, sequtils, algorithm, parseutils,
-  external/badger_bits/bb_system
+import
+  strutils, os, hashes, strtabs, lazy_rest_pkg/lrstast, lazy_rest_pkg/lrst,
+  lhighlite, tables, sequtils, algorithm, parseutils,
+  external/badger_bits/bb_system, lazy_rest_pkg/lconfig
 
 const
   HtmlExt = "html"
@@ -42,9 +43,15 @@ type
   TMetaEnum* = enum
     metaNone, metaTitle, metaSubtitle, metaAuthor, metaVersion
 
+  TLayeredConf* = object of TObject ## \
+    ## Holds both a custom and default configurations.
+    ##
+    ## The user configuration can be nil, but the default can't be.
+    user, default: PStringTable
+
   TRstGenerator* = object of TObject
     target*: TOutputTarget
-    config*: PStringTable
+    config*: TLayeredConf
     splitAfter*: int          # split too long entries in the TOC
     tocPart*: seq[TTocEntry]
     hasToc*: bool
@@ -71,6 +78,17 @@ type
     lang: TSourceLanguage ## Type of highlighting, by default none.
 
 
+proc `[]`*(t: TLayeredConf, key: string): string =
+  ## Returns the key from the user configuration or the default configuration.
+  ##
+  ## If the key is not found, the empty string is returned.
+  assert t.default.not_nil
+  if t.user.not_nil and t.user.has_key(key):
+    result = t.user[key]
+  else:
+    result = t.default[key]
+
+
 proc init(p: var CodeBlockParams) =
   ## Default initialisation of CodeBlockParams to sane values.
   p.startLine = 1
@@ -83,18 +101,46 @@ template rstMessage(d: PDoc, line, col: int, msgKind: TMsgKind, arg: string) =
   let msg = d.msgHandler(d.filename, line, col, msgKind, arg)
   if msg.not_nil: raise new_exception(EParseError, msg)
 
+
+proc defaultConfig*(): PStringTable =
+  ## Returns a default configuration for embedded HTML generation.
+  ##
+  ## The returned ``PStringTable`` contains the paramters used by the HTML
+  ## engine to build the final output. For information on what these parameters
+  ## are and their purpose, please look up the file `config/nimdoc.cfg
+  ## <https://github.com/Araq/Nimrod/blob/devel/config/nimdoc.cfg>`_ bundled
+  ## with the Nimrod compiler.
+  ##
+  ## The only difference between the contents of that file and the values
+  ## provided by this proc is the `lrc_render_template
+  ## <lconfig.html#lrc_render_template>`_ variable. The `lrc_render_template
+  ## <lconfig.html#lrc_render_template>`_ variable of the configuration file
+  ## contains HTML to build standalone pages, while this proc returns just the
+  ## content for procs like `rstToHtml() <#rstToHtml>`_ to generate the bare
+  ## minimum HTML.
+  result = newStringTable(modeStyleInsensitive)
+
+  # If you need to modify these values, it might be worth updating the template
+  # file in config/nimdoc.cfg.
+  result[lrc_render_split_item_toc] = lrd_render_split_item_toc
+  result[lrc_render_template] = "$" & lrk_render_content
+  result[lrc_render_date_format] = lrd_render_date_format
+  result[lrc_render_time_format] = lrd_render_time_format
+  result[lrc_render_local_date_format] = lrd_render_local_date_format
+  result[lrc_render_local_time_format] = lrd_render_local_time_format
+
+
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
-    config: PStringTable, filename: string,
-    options: TRstParseOptions,
+    filename: string, options: TRstParseOptions,
+    user_config: PStringTable = nil,
     findFile: Find_file_handler = nil_find_file_handler,
     msgHandler: TMsgHandler = nil_msg_handler) =
   ## Initializes a ``TRstGenerator``.
   ##
   ## You need to call this before using a ``TRstGenerator`` with any other
-  ## procs in this module. Pass a non ``nil`` ``PStringTable`` value as
-  ## `config` with parameters used by the HTML output generator.  If you don't
-  ## know what to use, pass the results of the `defaultConfig()
-  ## <#defaultConfig>`_ proc.
+  ## procs in this module. You can pass a non ``nil`` ``PStringTable`` value as
+  ## `user_config` to override the default embedded parameters, which are
+  ## extracted internally from the `defaultConfig() <#defaultConfig>`_ proc.
   ##
   ## The `filename` parameter will be used for error reporting and creating
   ## index hyperlinks to the file, but you can pass an empty string here if you
@@ -133,7 +179,8 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ##     "filename", {}, nil, nil)
   assert(not filename.is_nil)
 
-  g.config = config
+  g.config.user = user_config
+  g.config.default = defaultConfig()
   g.target = target
   g.tocPart = @[]
   g.filename = filename
@@ -159,7 +206,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   else:
     g.msgHandler = msgHandler
 
-  let s = config["split.item.toc"]
+  let s = g.config[lrc_render_split_item_toc]
   if s != "": g.splitAfter = parseInt(s)
   for i in low(g.meta)..high(g.meta): g.meta[i] = ""
 
@@ -1156,87 +1203,23 @@ proc formatNamedVars*(frmt: string, varnames: openArray[string],
     if i-1 >= start: add(result, substr(frmt, start, i - 1))
 
 
-proc defaultConfig*(): PStringTable =
-  ## Returns a default configuration for embedded HTML generation.
-  ##
-  ## The returned ``PStringTable`` contains the paramters used by the HTML
-  ## engine to build the final output. For information on what these parameters
-  ## are and their purpose, please look up the file `config/nimdoc.cfg
-  ## <https://github.com/Araq/Nimrod/blob/devel/config/nimdoc.cfg>`_ bundled
-  ## with the Nimrod compiler.
-  ##
-  ## The only difference between the contents of that file and the values
-  ## provided by this proc is the ``doc.file`` variable. The ``doc.file``
-  ## variable of the configuration file contains HTML to build standalone
-  ## pages, while this proc returns just the content for procs like
-  ## `rstToHtml <#rstToHtml>`_ to generate the bare minimum HTML.
-  result = newStringTable(modeStyleInsensitive)
-
-  template setConfigVar(key, val: expr) =
-    result[key] = val
-
-  # If you need to modify these values, it might be worth updating the template
-  # file in config/nimdoc.cfg.
-  setConfigVar("split.item.toc", "20")
-  setConfigVar("doc.section", """
-<div class="section" id="$sectionID">
-<h1><a class="toc-backref" href="#$sectionTitleID">$sectionTitle</a></h1>
-<dl class="item">
-$content
-</dl></div>
-""")
-  setConfigVar("doc.section.toc", """
-<li>
-  <a class="reference" href="#$sectionID" id="$sectionTitleID">$sectionTitle</a>
-  <ul class="simple">
-    $content
-  </ul>
-</li>
-""")
-  setConfigVar("doc.item", """
-<dt id="$itemID"><a name="$itemSymOrIDEnc"></a><pre>$header</pre></dt>
-<dd>
-$desc
-</dd>
-""")
-  setConfigVar("doc.item.toc", """
-  <li><a class="reference" href="#$itemSymOrIDEnc"
-    title="$header_plain">$name</a></li>
-""")
-  setConfigVar("doc.toc", """
-<div class="navigation" id="navigation">
-<ul class="simple">
-$content
-</ul>
-</div>""")
-  setConfigVar("doc.body_toc", """
-$tableofcontents
-<div class="content" id="content">
-$moduledesc
-$content
-</div>
-""")
-  setConfigVar("doc.body_no_toc", "$moduledesc $content")
-  setConfigVar("doc.file", "$content")
-
 # ---------- forum ---------------------------------------------------------
 
 proc rstToHtml*(s: string, options: TRstParseOptions,
-                config: PStringTable): string =
+                user_config: PStringTable = nil): string =
   ## Converts an input rst string into embeddable HTML.
   ##
   ## This convenience proc parses any input string using rst markup (it doesn't
   ## have to be a full document!) and returns an embeddable piece of HTML. The
   ## proc is meant to be used in *online* environments without access to a
   ## meaningful filesystem, and therefore rst ``include`` like directives won't
-  ## work. For an explanation of the `config` parameter see the
+  ## work. For an explanation of the `user_config` parameter see the
   ## `initRstGenerator <#initRstGenerator>`_ proc. Example:
   ##
   ## .. code-block:: nimrod
   ##   import packages/docutils/rstgen, strtabs
   ##
-  ##   echo rstToHtml("*Hello* **world**!", {},
-  ##     newStringTable(modeStyleInsensitive))
+  ##   echo rstToHtml("*Hello* **world**!", {})
   ##   # --> <em>Hello</em> <strong>world</strong>!
   ##
   ## If you need to allow the rst ``include`` directive or tweak the generated
@@ -1245,14 +1228,12 @@ proc rstToHtml*(s: string, options: TRstParseOptions,
 
   const filen = "input"
   var d: TRstGenerator
-  initRstGenerator(d, outHtml, config, filen, options,
-    nil_find_file_handler, nil_msg_handler)
+  initRstGenerator(d, outHtml, filen, options,
+    user_config, nil_find_file_handler, nil_msg_handler)
   var dummyHasToc = false
   var rst = rstParse(s, filen, 0, 1, dummyHasToc, options)
   result = ""
   renderRstToOut(d, rst, result)
 
 
-when isMainModule:
-  echo rstToHtml("*Hello* **world**!", {},
-    newStringTable(modeStyleInsensitive))
+#when isMainModule: echo rstToHtml("*Hello* **world**!", {})

@@ -1,6 +1,7 @@
-import lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils,
-  parsecfg, subexes, strtabs, streams, times, cgi, logging,
-  external/badger_bits/bb_system
+import
+  lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils, parsecfg, subexes,
+  strtabs, streams, times, cgi, logging, external/badger_bits/bb_system,
+  lazy_rest_pkg/lconfig
 
 export Find_file_handler
 export TMsgClass
@@ -190,18 +191,18 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
 
 
 proc rst_string_to_html*(content, filename: string,
-    config: PStringTable = nil,
+    user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a content named filename into a string with HTML tags.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
   ##
-  ## You can pass nil as `config` if you want to use the default HTML rendering
-  ## templates embedded in the module. Or you can load a configuration file
-  ## with `parse_rst_options <#parse_rst_options>`_ or `load_config
-  ## <#load_config>`_.  The value for the `config` parameter is explained in
-  ## `lazy_rest/lrstgen.initRstGenerator()
+  ## You can pass nil as `user_config` if you want to use the default HTML
+  ## rendering templates embedded in the module. Or you can load a
+  ## configuration file with `parse_rst_options <#parse_rst_options>`_ or
+  ## `load_config <#load_config>`_.  The value for the `user_config` parameter
+  ## is explained in `lazy_rest/lrstgen.initRstGenerator()
   ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
   ##
   ## By default the `find_file` parameter will be the
@@ -213,7 +214,7 @@ proc rst_string_to_html*(content, filename: string,
   assert G.default_config.not_nil
   let
     parse_options = {roSupportRawDirective}
-    config = if config.not_nil: config else: G.default_config
+    config = if user_config.not_nil: user_config else: G.default_config
   var
     filename = filename
     GENERATOR: TRstGenerator
@@ -231,8 +232,8 @@ proc rst_string_to_html*(content, filename: string,
       info("Initiating global log for debugging")
     G.did_start_logger = true
 
-  GENERATOR.initRstGenerator(outHtml, config, filename, parse_options,
-    find_file, msg_handler)
+  GENERATOR.initRstGenerator(outHtml, filename, parse_options,
+    config, find_file, msg_handler)
 
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,
@@ -254,21 +255,26 @@ proc rst_string_to_html*(content, filename: string,
   let
     last_mod_local = last_mod.getLocalTime
     last_mod_gmt = last_mod.getGMTime
+    render_date_format = GENERATOR.config[lrc_render_date_format]
+    render_time_format = GENERATOR.config[lrc_render_time_format]
+    render_local_date_format = GENERATOR.config[lrc_render_local_date_format]
+    render_local_time_format = GENERATOR.config[lrc_render_local_time_format]
   #if title.len < 1: title = filename.split_path.tail
 
   # Now finish by adding header, CSS and stuff.
-  result = subex(config["doc.file"]) % ["title", title,
-    "date", last_mod_gmt.format("yyyy-MM-dd"),
-    "time", last_mod_gmt.format("HH:mm"),
-    "local_date", last_mod_local.format("yyyy-MM-dd"),
-    "local_time", last_mod_local.format("HH:mm"),
-    "fileTime", $(int(last_mod_local.timeInfoToTime) * 1000),
-    "prism_js", if GENERATOR.unknownLangs: prism_js else: "",
-    "prism_css", if GENERATOR.unknownLangs: prism_css else: "",
-    "content", MOD_DESC]
+  result = subex(GENERATOR.config[lrc_render_template]) % [
+    lrk_render_title, title,
+    lrk_render_date, last_mod_gmt.format(render_date_format),
+    lrk_render_time, last_mod_gmt.format(render_time_format),
+    lrk_render_local_date, last_mod_local.format(render_local_date_format),
+    lrk_render_local_time, last_mod_local.format(render_local_time_format),
+    lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
+    lrk_render_prism_js, if GENERATOR.unknownLangs: prism_js else: "",
+    lrk_render_prism_css, if GENERATOR.unknownLangs: prism_css else: "",
+    lrk_render_content, MOD_DESC]
 
 
-proc rst_file_to_html*(filename: string, config: PStringTable = nil,
+proc rst_file_to_html*(filename: string, user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a filename with rest content into a string with HTML tags.
@@ -284,7 +290,7 @@ proc rst_file_to_html*(filename: string, config: PStringTable = nil,
   rassert filename.not_nil, msg:
     raise new_exception(EInvalidValue, msg)
 
-  result = rst_string_to_html(readFile(filename), filename, config,
+  result = rst_string_to_html(readFile(filename), filename, user_config,
     find_file, msg_handler)
 
 
@@ -389,12 +395,13 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
   ## optional, the proc will figure what to do if they aren't present.
   ##
   ## The `config` parameter is only used to force special error testing. If the
-  ## config table contains the key ``lazy.rst.failure.test`` with the value
-  ## ``Why do people suffer through video content lesser than 4k?`` the
-  ## internal subex replacement will be forced to fail so as to test the
-  ## *static* version of the error HTML page. In general the subex replacement
-  ## will work, so you shouldn't worry too much about this. Unless you do, in
-  ## which case you should look at the output from the errors test suite.
+  ## config table contains the `lrc_render_failure_test
+  ## <lazy_rest_pkg/lconfig.html#lrc_render_failure_test>`_ key with the value
+  ## <lazy_rest_pkg/lconfig.html#lrd_render_failure_test>`_ the internal subex
+  ## replacement will be forced to fail so as to test the *static* version of
+  ## the error HTML page. In general the subex replacement will work, so you
+  ## shouldn't worry too much about this. Unless you do, in which case you
+  ## should look at the output from the errors test suite.
   result = ""
   var
     TIME_STR: array[4, string] # String representations, date, then time.
@@ -405,8 +412,8 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
   # Detect if we are forcing simulated error tests.
   var simulate_subex_failure = false
-  if config.not_nil and config["lazy.rst.failure.test"] ==
-      "Why do people suffer through video content lesser than 4k?":
+  if config.not_nil and
+      config[lrc_render_failure_test] == lrd_render_failure_test:
     simulate_subex_failure = true
 
   # Fixup title page as much as we can.
@@ -448,11 +455,13 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
     let html_template =
       if G.user_normal_error.is_nil: error_template else: G.user_normal_error
-    result = subex(html_template) % ["title", ERROR_TITLE,
-      "local_date", TIME_STR[2], "local_time", TIME_STR[3],
-      "fileTime", $(int(last_mod_local.timeInfoToTime) * 1000),
-      "version_str", version_str, "errors", ERRORS.build_error_table,
-      "content", CONTENT]
+    result = subex(html_template) % [
+      lrk_render_title, ERROR_TITLE,
+      lrk_render_local_date, TIME_STR[2], lrk_render_local_time, TIME_STR[3],
+      lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
+      lrk_render_version_str, version_str,
+      lrk_render_error_table, ERRORS.build_error_table,
+      lrk_render_content, CONTENT]
   except:
     ERRORS.append(get_current_exception())
 
@@ -468,7 +477,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
 
 proc safe_rst_string_to_html*(filename, data: string,
-    ERRORS: ptr seq[string] = nil, config: PStringTable = nil,
+    ERRORS: ptr seq[string] = nil, user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
   ## Wrapper over `rst_string_to_html <#rst_string_to_html>`_ to catch
@@ -485,7 +494,7 @@ proc safe_rst_string_to_html*(filename, data: string,
   ## report it to the user. Any problems found during rendering will be added
   ## to the existing list.
   ##
-  ## The value for the `config` parameter is explained in
+  ## The value for the `user_config` parameter is explained in
   ## `lazy_rest/lrstgen.initRstGenerator()
   ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
   ##
@@ -507,18 +516,19 @@ proc safe_rst_string_to_html*(filename, data: string,
   rassert data.not_nil, msg:
     append_error_to_list()
     ERRORS.append(new_exception(EInvalidValue, msg))
-    result = build_error_html(filename, data, ERRORS, config)
+    result = build_error_html(filename, data, ERRORS, user_config)
     return
 
   try:
-    result = rst_string_to_html(data, filename, config, find_file, msg_handler)
+    result = rst_string_to_html(data, filename,
+      user_config, find_file, msg_handler)
   except:
     append_error_to_list()
-    result = build_error_html(filename, data, ERRORS, config)
+    result = build_error_html(filename, data, ERRORS, user_config)
 
 
 proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
-    config: PStringTable = nil,
+    user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
   ## Wrapper over `rst_file_to_html <#rst_file_to_html>`_ to catch exceptions.
@@ -533,7 +543,7 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ## report it to the user. Any problems found during rendering will be added
   ## to the existing list.
   ##
-  ## The value for the `config` parameter is explained in
+  ## The value for the `user_config` parameter is explained in
   ## `lazy_rest/lrstgen.initRstGenerator()
   ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
   ##
@@ -554,7 +564,7 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ##   else:
   ##     filename.change_file_ext("html").write_file(html)
   try:
-    result = rst_file_to_html(filename, config, find_file, msg_handler)
+    result = rst_file_to_html(filename, user_config, find_file, msg_handler)
   except:
     append_error_to_list()
     var CONTENT: string
@@ -563,11 +573,11 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
         CONTENT = filename.read_file
     except:
       CONTENT = "Could not read " & filename & " for display!!!"
-    result = build_error_html(filename, CONTENT, ERRORS, config)
+    result = build_error_html(filename, CONTENT, ERRORS, user_config)
 
 
 proc nim_file_to_html*(filename: string, number_lines = true,
-    config: PStringTable = nil): string {.raises: [].} =
+    user_config: PStringTable = nil): string {.raises: [].} =
   ## Puts the contents of `filename` in a code block to render as rest.
   ##
   ## Returns a string with the rendered HTML. The `number_lines` parameter
@@ -589,7 +599,7 @@ proc nim_file_to_html*(filename: string, number_lines = true,
     SOURCE = title_symbols & "\n" & name & "\n" & title_symbols &
       (if number_lines: with_numbers else: without_numbers)
     SOURCE.add(readFile(filename).replace("\n", "\n  "))
-    result = rst_string_to_html(SOURCE, filename, config,
+    result = rst_string_to_html(SOURCE, filename, user_config,
       find_file = nil_find_file_handler)
   except E_Base:
     result = "<html><body><h1>Error for " & filename & "</h1></body></html>"
@@ -670,12 +680,12 @@ proc set_safe_error_rst*(input_rst: string):
     return
 
   # Success rendering, check to see if we have other required attributes.
-  const required_string = "$content"
+  const required_string = "$" & lrk_render_content
   let content_pos = html.find(required_string)
 
   if content_pos < 0:
-    ERRORS.append(new_exception(EInvalidValue,
-      "Did not find $content in final HTML, it is needed to split the page"))
+    ERRORS.append(new_exception(EInvalidValue, "Did not find " &
+      required_string & " in final HTML, it is needed to split the page"))
     return
 
   let

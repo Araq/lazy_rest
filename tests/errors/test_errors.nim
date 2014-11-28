@@ -1,4 +1,4 @@
-import lazy_rest, strutils, os, strtabs
+import lazy_rest, lazy_rest_pkg/lconfig, strutils, os, strtabs
 
 type Pair = tuple[src, dest: string]
 
@@ -14,7 +14,7 @@ proc test_safe_procs(file_prefix: string, config: PStringTable) =
   # First test without error control.
   for src in tests:
     let dest = file_prefix & src.change_file_ext("html")
-    dest.write_file(src.safe_rst_file_to_html(config = config))
+    dest.write_file(src.safe_rst_file_to_html(user_config = config))
     do_assert dest.exists_file
 
   # Now do some in memory checks.
@@ -30,7 +30,8 @@ proc test_safe_procs(file_prefix: string, config: PStringTable) =
   for src in tests:
     let dest = file_prefix & src.change_file_ext("html")
     errors = @[]
-    dest.write_file(src.safe_rst_file_to_html(errors.addr, config = config))
+    dest.write_file(src.safe_rst_file_to_html(errors.addr,
+      user_config = config))
     do_assert dest.exists_file
     do_assert errors.len > 0
     echo "Ignore this: ", errors[0]
@@ -78,8 +79,7 @@ proc build_template() =
 proc render_errors(prefix: string) =
   test_safe_procs(prefix & "normal_subex_errors_", nil)
   var config = newStringTable(modeStyleInsensitive)
-  config["lazy.rst.failure.test"] =
-    "Why do people suffer through video content lesser than 4k?"
+  config[lrc_render_failure_test] = lrd_render_failure_test
   test_safe_procs(prefix & "forced_subex_errors_", config)
 
 proc run_tests() =
