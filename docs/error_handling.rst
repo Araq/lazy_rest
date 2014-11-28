@@ -69,17 +69,20 @@ the user. Through the `set_normal_error_rst()
 <../lazy_rest.html#set_safe_error_rst>`_  procs you can set both the normal and
 static error pages to either point at your own online GitHub issue/support
 tracker, or maybe because you want to internationalize the help text. The
-normal error page allows `substitution expression (subexe) interpolations
-<http://nimrod-lang.org/subexes.html>`_ with the following *dollar* variables:
+normal error page (just like the normal `success page
+<../lazy_rest_pkg/lconfig.html#lrc_render_template>`_) allows `substitution
+expression (subexe) interpolations <http://nimrod-lang.org/subexes.html>`_ with
+the following *dollar* variables:
 
-* ``title``: replaced by the title of the input file if anything was extracted.
-* ``date``: input file last modification GMT date in ``yyyy-MM-dd`` format.
-* ``time``: input file last modification GMT time in ``HH:mm`` format.
-* ``local_date``: like ``date`` but using the current locale timezone.
-* ``local_time``: like ``time`` but using the current locale timezone.
-* ``fileTime``: last modification timestamp as Unix epoch but in milliseconds
-  instead of seconds.
-* ``content``: the actual |rst| input rendered as HTML.
+* `lrk_render_title <../lazy_rest_pkg/lconfig.html#lrk_render_title>`_.
+* `lrk_render_date <../lazy_rest_pkg/lconfig.html#lrk_render_date>`_.
+* `lrk_render_time <../lazy_rest_pkg/lconfig.html#lrk_render_time>`_.
+* `lrk_render_local_date
+  <../lazy_rest_pkg/lconfig.html#lrk_render_local_date>`_.
+* `lrk_render_local_time
+  <../lazy_rest_pkg/lconfig.html#lrk_render_local_time>`_.
+* `lrk_render_file_time <../lazy_rest_pkg/lconfig.html#lrk_render_file_time>`_.
+* `lrk_render_content <../lazy_rest_pkg/lconfig.html#lrk_render_content>`_.
 
 If any of these values can't be provided by the library (e.g. input file is
 missing, thus no date/time values can be extracted) the empty string will be
@@ -87,10 +90,8 @@ used instead. You don't need to include these in your error template, they are
 optional.  Rendered pages without errors also use the following additional
 subexes to embed the Prism JavaScript code:
 
-* ``prism_js``: replaced by the Prism JavaScript snippet when external
-  highlighting is used.
-* ``prism_css``: replaced by the Prism CSS code required to style code
-  highlighting.
+* `lrk_render_prism_js <../lazy_rest_pkg/lconfig.html#lrk_render_prism_js>`_.
+* `lrk_render_prism_css <../lazy_rest_pkg/lconfig.html#lrk_render_prism_css>`_.
 
 In any case, the file ``tests/errors/default_error_html_template.rst`` is not
 used directly by Lazy reST, some modifications are done, you can see the real

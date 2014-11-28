@@ -72,15 +72,83 @@ const
   ## have nefore being split. The splitting prevents the TOC from growing too
   ## wide and obscuring the main text. The default value is 20.
 
-  lrk_render_title* = "title"
-  lrk_render_date* = "date"
-  lrk_render_time* = "time"
-  lrk_render_local_date* = "local_date"
-  lrk_render_local_time* = "local_time"
-  lrk_render_file_time* = "fileTime"
-  lrk_render_prism_js* = "prism_js"
-  lrk_render_prism_css* = "prism_css"
-  lrk_render_content* = "content"
+  lrk_render_title* = "title" ## \
+  ## Replaced by the title of the input file if anything was extracted.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_date* = "date" ## \
+  ## Input file last modification GMT date in `lrd_render_date_format
+  ## <#lrd_render_date_format>`_ format.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_time* = "time" ## \
+  ## Input file last modification GMT time in `lrd_render_time_format
+  ## <#lrd_render_time_format>`_ format.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_local_date* = "local_date" ## \
+  ## Input file last modification local date in `lrd_render_local_date_format
+  ## <#lrd_render_local_date_format>`_ format.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_local_time* = "local_time" ## \
+  ## Input file last modification local time in `lrd_render_local_time_format
+  ## <#lrd_render_local_time_format>`_ format.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_file_time* = "fileTime" ## \
+  ## Last modification timestamp as Unix epoch but in milliseconds instead of
+  ## seconds.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_prism_js* = "prism_js" ## \
+  ## Replaced by the Prism JavaScript snippet when external highlighting is
+  ## used.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.
+  ## See the `Lazy reST error handling <../docs/error_handling.html>`_ document
+  ## for more information.
+
+  lrk_render_prism_css* = "prism_css" ## \
+  ## Replaced by the Prism CSS code required to style code highlighting.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
+
+  lrk_render_content* = "content" ## \
+  ## Replaced by the input reStructuredText rendered as HTML.
+  ##
+  ## This is a `subexe <http://nimrod-lang.org/subexes.html>`_ replacement key
+  ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
+  ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
+  ## more information.
 
   lrd_render_date_format* = "yyyy-MM-dd"
   lrd_render_time_format* = "HH:mm"

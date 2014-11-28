@@ -455,11 +455,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
 
     let html_template =
       if G.user_normal_error.is_nil: error_template else: G.user_normal_error
-    result = subex(html_template) % ["title", ERROR_TITLE,
-      "local_date", TIME_STR[2], "local_time", TIME_STR[3],
-      "fileTime", $(int(last_mod_local.timeInfoToTime) * 1000),
+    result = subex(html_template) % [
+      lrk_render_title, ERROR_TITLE,
+      lrk_render_local_date, TIME_STR[2], lrk_render_local_time, TIME_STR[3],
+      lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
       "version_str", version_str, "errors", ERRORS.build_error_table,
-      "content", CONTENT]
+      lrk_render_content, CONTENT]
   except:
     ERRORS.append(get_current_exception())
 
@@ -678,12 +679,12 @@ proc set_safe_error_rst*(input_rst: string):
     return
 
   # Success rendering, check to see if we have other required attributes.
-  const required_string = "$content"
+  const required_string = "$" & lrk_render_content
   let content_pos = html.find(required_string)
 
   if content_pos < 0:
-    ERRORS.append(new_exception(EInvalidValue,
-      "Did not find $content in final HTML, it is needed to split the page"))
+    ERRORS.append(new_exception(EInvalidValue, "Did not find " &
+      required_string & " in final HTML, it is needed to split the page"))
     return
 
   let
