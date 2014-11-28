@@ -32,6 +32,7 @@ proc special_test() =
     special_count = special_text.count_instances(expected_title)
   doAssert special_text.find(expected_string) > 0
   doAssert special_count == 4
+  write_file("special.html", special_text)
 
 
 proc empty_test() =
