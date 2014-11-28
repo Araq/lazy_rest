@@ -121,7 +121,7 @@ proc defaultConfig*(): PStringTable =
 
   # If you need to modify these values, it might be worth updating the template
   # file in config/nimdoc.cfg.
-  result["split.item.toc"] = "20"
+  result[lrc_split_item_toc] = "20"
   result[lrc_doc_file] = "$content"
 
 
@@ -201,7 +201,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   else:
     g.msgHandler = msgHandler
 
-  let s = g.config["split.item.toc"]
+  let s = g.config[lrc_split_item_toc]
   if s != "": g.splitAfter = parseInt(s)
   for i in low(g.meta)..high(g.meta): g.meta[i] = ""
 
