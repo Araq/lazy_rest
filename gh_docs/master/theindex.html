@@ -239,6 +239,10 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <body>
 <div class="document" id="documentId">
 <h1 class="title">Index</h1>
+<dt><span>`[]`</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Returns the key from the user configuration or the default configuration.…" href="lazy_rest_pkg/lrstgen.html#[],TLayeredConf,string">lrstgen : `[]`*(t: TLayeredConf; key: string): string</a></li>
+          </ul></dd>
 <dt><span>add</span></dt><ul class="simple"><dd>
 <li><a class="reference external" href="lazy_rest_pkg/lrstast.html#add,PRstNode,PRstNode">lrstast : add*(father, son: PRstNode)</a></li>
           </ul></dd>
@@ -283,9 +287,8 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
           </ul></dd>
 <dt><span>initRstGenerator</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Initializes a ``TRstGenerator``.…" href="lazy_rest_pkg/lrstgen.html#initRstGenerator,TRstGenerator,TOutputTarget,PStringTable,string,TRstParseOptions,Find_file_handler,TMsgHandler">lrstgen : initRstGenerator*(g: var TRstGenerator; target: TOutputTarget; 
-                  config: PStringTable; filename: string; 
-                  options: TRstParseOptions; 
+          title="Initializes a ``TRstGenerator``.…" href="lazy_rest_pkg/lrstgen.html#initRstGenerator,TRstGenerator,TOutputTarget,string,TRstParseOptions,PStringTable,Find_file_handler,TMsgHandler">lrstgen : initRstGenerator*(g: var TRstGenerator; target: TOutputTarget; filename: string; 
+                  options: TRstParseOptions; user_config: PStringTable = nil; 
                   findFile: Find_file_handler = nil_find_file_handler; 
                   msgHandler: TMsgHandler = nil_msg_handler)</a></li>
           </ul></dd>
@@ -302,6 +305,102 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <dt><span>lr_c_msg_handler</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="\…" href="lazy_rest_c_api.html#lr_c_msg_handler">lazy_rest_c_api : lr_c_msg_handler</a></li>
+          </ul></dd>
+<dt><span>lrc_render_date_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrc_render_date_format">lconfig : lrc_render_date_format</a></li>
+          </ul></dd>
+<dt><span>lrc_render_failure_test</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrc_render_failure_test">lconfig : lrc_render_failure_test</a></li>
+          </ul></dd>
+<dt><span>lrc_render_local_date_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrc_render_local_date_format">lconfig : lrc_render_local_date_format</a></li>
+          </ul></dd>
+<dt><span>lrc_render_local_time_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrc_render_local_time_format">lconfig : lrc_render_local_time_format</a></li>
+          </ul></dd>
+<dt><span>lrc_render_split_item_toc</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrc_render_split_item_toc">lconfig : lrc_render_split_item_toc</a></li>
+          </ul></dd>
+<dt><span>lrc_render_template</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrc_render_template">lconfig : lrc_render_template</a></li>
+          </ul></dd>
+<dt><span>lrc_render_time_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrc_render_time_format">lconfig : lrc_render_time_format</a></li>
+          </ul></dd>
+<dt><span>lrd_render_date_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrd_render_date_format">lconfig : lrd_render_date_format</a></li>
+          </ul></dd>
+<dt><span>lrd_render_failure_test</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrd_render_failure_test">lconfig : lrd_render_failure_test</a></li>
+          </ul></dd>
+<dt><span>lrd_render_local_date_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrd_render_local_date_format">lconfig : lrd_render_local_date_format</a></li>
+          </ul></dd>
+<dt><span>lrd_render_local_time_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrd_render_local_time_format">lconfig : lrd_render_local_time_format</a></li>
+          </ul></dd>
+<dt><span>lrd_render_split_item_toc</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrd_render_split_item_toc">lconfig : lrd_render_split_item_toc</a></li>
+          </ul></dd>
+<dt><span>lrd_render_time_format</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrd_render_time_format">lconfig : lrd_render_time_format</a></li>
+          </ul></dd>
+<dt><span>lrk_render_content</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_content">lconfig : lrk_render_content</a></li>
+          </ul></dd>
+<dt><span>lrk_render_date</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_date">lconfig : lrk_render_date</a></li>
+          </ul></dd>
+<dt><span>lrk_render_error_table</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_error_table">lconfig : lrk_render_error_table</a></li>
+          </ul></dd>
+<dt><span>lrk_render_file_time</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_file_time">lconfig : lrk_render_file_time</a></li>
+          </ul></dd>
+<dt><span>lrk_render_local_date</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_local_date">lconfig : lrk_render_local_date</a></li>
+          </ul></dd>
+<dt><span>lrk_render_local_time</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_local_time">lconfig : lrk_render_local_time</a></li>
+          </ul></dd>
+<dt><span>lrk_render_prism_css</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_prism_css">lconfig : lrk_render_prism_css</a></li>
+          </ul></dd>
+<dt><span>lrk_render_prism_js</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_prism_js">lconfig : lrk_render_prism_js</a></li>
+          </ul></dd>
+<dt><span>lrk_render_time</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_time">lconfig : lrk_render_time</a></li>
+          </ul></dd>
+<dt><span>lrk_render_title</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_title">lconfig : lrk_render_title</a></li>
+          </ul></dd>
+<dt><span>lrk_render_version_str</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lconfig.html#lrk_render_version_str">lconfig : lrk_render_version_str</a></li>
           </ul></dd>
 <dt><span>lr_nim_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
@@ -416,7 +515,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <dt><span>nim_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Puts the contents of `filename` in a code block to render as rest.…" href="lazy_rest.html#nim_file_to_html,string,PStringTable">lazy_rest : nim_file_to_html*(filename: string; number_lines = true; 
-                  config: PStringTable = nil): string</a></li>
+                  user_config: PStringTable = nil): string</a></li>
           </ul></dd>
 <dt><span>parse_rst_options</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
@@ -450,7 +549,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
           </ul></dd>
 <dt><span>rst_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts a filename with rest content into a string with HTML tags.…" href="lazy_rest.html#rst_file_to_html,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_file_to_html*(filename: string; config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+          title="Converts a filename with rest content into a string with HTML tags.…" href="lazy_rest.html#rst_file_to_html,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_file_to_html*(filename: string; user_config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
                   msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
           </ul></dd>
 <dt><span>rst_messages</span></dt><ul class="simple"><dd>
@@ -467,24 +566,24 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
           </ul></dd>
 <dt><span>rst_string_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts a content named filename into a string with HTML tags.…" href="lazy_rest.html#rst_string_to_html,string,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_string_to_html*(content, filename: string; config: PStringTable = nil; 
+          title="Converts a content named filename into a string with HTML tags.…" href="lazy_rest.html#rst_string_to_html,string,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_string_to_html*(content, filename: string; user_config: PStringTable = nil; 
     find_file: Find_file_handler = unrestricted_find_file_handler; 
                     msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
           </ul></dd>
 <dt><span>rstToHtml</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="Converts an input rst string into embeddable HTML.…" href="lazy_rest_pkg/lrstgen.html#rstToHtml,string,TRstParseOptions,PStringTable">lrstgen : rstToHtml*(s: string; options: TRstParseOptions; config: PStringTable): string</a></li>
+          title="Converts an input rst string into embeddable HTML.…" href="lazy_rest_pkg/lrstgen.html#rstToHtml,string,TRstParseOptions,PStringTable">lrstgen : rstToHtml*(s: string; options: TRstParseOptions; user_config: PStringTable = nil): string</a></li>
           </ul></dd>
 <dt><span>safe_rst_file_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wrapper over `rst_file_to_html &lt;#rst_file_to_html&gt;`_ to catch exceptions.…" href="lazy_rest.html#safe_rst_file_to_html,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler">lazy_rest : safe_rst_file_to_html*(filename: string; ERRORS: ptr seq[string] = nil; 
-                       config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                       user_config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
                        msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
           </ul></dd>
 <dt><span>safe_rst_string_to_html</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Wrapper over `rst_string_to_html &lt;#rst_string_to_html&gt;`_ to catch…" href="lazy_rest.html#safe_rst_string_to_html,string,string,ptr.seq[string],PStringTable,Find_file_handler,TMsgHandler">lazy_rest : safe_rst_string_to_html*(filename, data: string; ERRORS: ptr seq[string] = nil; 
-                         config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
+                         user_config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
                          msg_handler: TMsgHandler = stdout_msg_handler): string</a></li>
           </ul></dd>
 <dt><span>setIndexTerm</span></dt><ul class="simple"><dd>
@@ -506,6 +605,10 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <li><a class="reference external"
           title="Default handler to report warnings/errors.…" href="lazy_rest.html#stdout_msg_handler,string,int,int,TMsgKind,string">lazy_rest : stdout_msg_handler*(filename: string; line, col: int; msgkind: TMsgKind; 
                     arg: string): string</a></li>
+          </ul></dd>
+<dt><span>TLayeredConf</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="\…" href="lazy_rest_pkg/lrstgen.html#TLayeredConf">lrstgen : TLayeredConf</a></li>
           </ul></dd>
 <dt><span>TMetaEnum</span></dt><ul class="simple"><dd>
 <li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#TMetaEnum">lrstgen : TMetaEnum</a></li>
@@ -542,10 +645,10 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
           </ul></dd>
 <dt><span>TRstParseOption</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
-          title="options for the RST parser" href="lazy_rest_pkg/lrst.html#TRstParseOption">lrst : TRstParseOption</a></li>
+          title="Options for the internal RST parser \…" href="lazy_rest_pkg/lconfig.html#TRstParseOption">lconfig : TRstParseOption</a></li>
           </ul></dd>
 <dt><span>TRstParseOptions</span></dt><ul class="simple"><dd>
-<li><a class="reference external" href="lazy_rest_pkg/lrst.html#TRstParseOptions">lrst : TRstParseOptions</a></li>
+<li><a class="reference external" href="lazy_rest_pkg/lconfig.html#TRstParseOptions">lconfig : TRstParseOptions</a></li>
           </ul></dd>
 <dt><span>unrestricted_find_file_handler</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
@@ -568,7 +671,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
           title="Writes the current index buffer to the specified output file.…" href="lazy_rest_pkg/lrstgen.html#writeIndexFile,TRstGenerator,string">lrstgen : writeIndexFile*(g: var TRstGenerator; outfile: string)</a></li>
           </ul></dd>
 
-<small>Generated: 2014-11-13 17:56:52 UTC</small>
+<small>Generated: 2014-11-28 22:48:09 UTC</small>
 </div>
 </body>
 </html>
