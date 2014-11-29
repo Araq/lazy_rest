@@ -1,6 +1,6 @@
 import
-  lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils, parsecfg, subexes,
-  strtabs, streams, times, cgi, logging, external/badger_bits/bb_system,
+  lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils, subexes,
+  strtabs, times, cgi, logging, external/badger_bits/bb_system,
   lazy_rest_pkg/lconfig
 
 export Find_file_handler
@@ -33,11 +33,8 @@ proc tuple_to_version(x: expr): string {.compileTime.} =
   for name, value in x.fieldPairs: result.add("." & $value)
   if result.len > 0: result.delete(0, 0)
 
-proc load_config(mem_string: string): PStringTable
-
 
 const
-  rest_default_config = slurp("resources"/"embedded_nimdoc.cfg")
   error_template = slurp("resources"/"error_html.template") ##
   ## The default error template which uses the subexes module for string
   ## replacements.
@@ -65,8 +62,6 @@ const
 
 type
   Global_state = object
-    default_config: PStringTable ## HTML rendering configuration, never nil.
-    last_c_conversion: string ## Modified by the exported C API procs.
     did_start_logger: bool ## Internal debugging witness.
     user_normal_error: string ## \
     ## Not nil if the user called `set_normal_error_rst()
@@ -80,8 +75,6 @@ type
 
 
 var G: Global_state
-# Load default configuration.
-G.default_config = load_config(rest_default_config)
 
 
 proc stdout_msg_handler*(filename: string, line, col: int,
@@ -144,35 +137,6 @@ proc unrestricted_find_file_handler*(current_filename,
   #debug("\tReturning '" & result & "'")
 
 
-proc load_config(mem_string: string): PStringTable =
-  ## Parses the configuration and returns it as a PStringTable.
-  ##
-  ## If something goes wrong, will likely raise an exception or return nil.
-  var
-    f = newStringStream(mem_string)
-    temp = newStringTable(modeStyleInsensitive)
-  if f.is_nil: raise newException(EInvalidValue, "cannot stream string")
-
-  var p: TCfgParser
-  open(p, f, "static slurped config")
-  while true:
-    var e = next(p)
-    case e.kind
-    of cfgEof:
-      break
-    of cfgSectionStart:   ## a ``[section]`` has been parsed
-      discard
-    of cfgKeyValuePair:
-      temp[e.key] = e.value
-    of cfgOption:
-      warn("command: " & e.key & ": " & e.value)
-    of cfgError:
-      error(e.msg)
-      raise newException(EInvalidValue, e.msg)
-  close(p)
-  result = temp
-
-
 proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
   ## Parses the options, returns nil if something goes wrong.
   ##
@@ -184,7 +148,7 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
 
   try:
     # Select the correct configuration.
-    result = load_config(options)
+    result = load_rst_config(options)
   except EInvalidValue, E_Base:
     try: error("Returning nil as parsed options")
     except: discard
@@ -200,9 +164,9 @@ proc rst_string_to_html*(content, filename: string,
   ##
   ## You can pass nil as `user_config` if you want to use the default HTML
   ## rendering templates embedded in the module. Or you can load a
-  ## configuration file with `parse_rst_options <#parse_rst_options>`_ or
-  ## `load_config <#load_config>`_.  The value for the `user_config` parameter
-  ## is explained in `lazy_rest/lrstgen.initRstGenerator()
+  ## configuration file with `parse_rst_options <#parse_rst_options>`_.  The
+  ## value for the `user_config` parameter is explained in
+  ## `lazy_rest/lrstgen.initRstGenerator()
   ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
   ##
   ## By default the `find_file` parameter will be the
@@ -211,15 +175,10 @@ proc rst_string_to_html*(content, filename: string,
   ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc will be used
   ## instead.
   assert content.not_nil
-  assert G.default_config.not_nil
-  let
-    parse_options = {roSupportRawDirective}
-    config = if user_config.not_nil: user_config else: G.default_config
   var
     filename = filename
     GENERATOR: TRstGenerator
     HAS_TOC: bool
-  assert config.not_nil
   if filename.is_nil:
     filename = "(no filename)"
 
@@ -232,12 +191,12 @@ proc rst_string_to_html*(content, filename: string,
       info("Initiating global log for debugging")
     G.did_start_logger = true
 
-  GENERATOR.initRstGenerator(outHtml, filename, parse_options,
-    config, find_file, msg_handler)
+  GENERATOR.initRstGenerator(outHtml, filename,
+    user_config, find_file, msg_handler)
 
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,
-    parse_options, find_file, msg_handler)
+    GENERATOR.config, GENERATOR.findFile, GENERATOR.msgHandler)
   RESULT = newStringOfCap(30_000)
 
   # Render document into HTML chunk.
@@ -264,6 +223,7 @@ proc rst_string_to_html*(content, filename: string,
   # Now finish by adding header, CSS and stuff.
   result = subex(GENERATOR.config[lrc_render_template]) % [
     lrk_render_title, title,
+    lrk_render_version_str, version_str,
     lrk_render_date, last_mod_gmt.format(render_date_format),
     lrk_render_time, last_mod_gmt.format(render_time_format),
     lrk_render_local_date, last_mod_local.format(render_local_date_format),
@@ -457,9 +417,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       if G.user_normal_error.is_nil: error_template else: G.user_normal_error
     result = subex(html_template) % [
       lrk_render_title, ERROR_TITLE,
-      lrk_render_local_date, TIME_STR[2], lrk_render_local_time, TIME_STR[3],
-      lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
       lrk_render_version_str, version_str,
+      lrk_render_date, TIME_STR[0],
+      lrk_render_time, TIME_STR[1],
+      lrk_render_local_date, TIME_STR[2],
+      lrk_render_local_time, TIME_STR[3],
+      lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
       lrk_render_error_table, ERRORS.build_error_table,
       lrk_render_content, CONTENT]
   except:
@@ -611,7 +574,7 @@ proc nim_file_to_html*(filename: string, number_lines = true,
     result = """<html><body><h1>Out of memory!</h1></body></html>"""
 
 
-proc set_normal_error_rst*(input_rst: string):
+proc set_normal_error_rst*(input_rst: string, user_config: PStringTable = nil):
     seq[string] {.discardable, raises: [].} =
   ## Changes the default error page for ``safe_*`` function errors.
   ##
@@ -637,13 +600,15 @@ proc set_normal_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     G.user_normal_error = rst_string_to_html(input_rst,
-      "set_normal_error_rst.input_rst", find_file = nil_find_file_handler,
+      "set_normal_error_rst.input_rst",
+      user_config = user_config,
+      find_file = nil_find_file_handler,
       msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
 
 
-proc set_safe_error_rst*(input_rst: string):
+proc set_safe_error_rst*(input_rst: string, user_config: PStringTable = nil):
     seq[string] {.discardable, raises: [].} =
   ## Changes the safe error page for ``safe_*`` function errors.
   ##
@@ -674,6 +639,7 @@ proc set_safe_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     html = rst_string_to_html(input_rst, "set_normal_error_rst.input_rst",
+      user_config = user_config,
       find_file = nil_find_file_handler, msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
@@ -693,3 +659,6 @@ proc set_safe_error_rst*(input_rst: string):
     p2 = content_pos + required_string.len
   G.user_safe_error_start = html[0 .. p1]
   G.user_safe_error_end = html[p2 .. html.high]
+
+
+

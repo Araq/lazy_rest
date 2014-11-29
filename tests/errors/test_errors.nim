@@ -1,4 +1,5 @@
-import lazy_rest, lazy_rest_pkg/lconfig, strutils, os, strtabs
+import
+  lazy_rest, lazy_rest_pkg/lconfig, lazy_rest_pkg/lrstgen, strutils, os, strtabs
 
 type Pair = tuple[src, dest: string]
 
@@ -88,9 +89,12 @@ proc run_tests() =
   docstrings()
 
   # Set the error templates.
-  var errors = set_normal_error_rst(read_file("custom_default_error.rst"))
+  var raw_config = default_config()
+  raw_config["parser.enable.raw.directive"] = "true"
+  var errors = set_normal_error_rst(
+    read_file("custom_default_error.rst"), raw_config)
   doAssert errors.len < 1
-  errors = set_safe_error_rst(read_file("custom_safe_error.rst"))
+  errors = set_safe_error_rst(read_file("custom_safe_error.rst"), raw_config)
   doAssert errors.len < 1
   render_errors(out_dir/"custom_")
 

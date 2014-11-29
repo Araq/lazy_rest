@@ -30,6 +30,8 @@ import
 const
   HtmlExt = "html"
   IndexExt* = ".idx"
+  rest_default_config = slurp("resources"/"embedded_nimdoc.cfg")
+
 
 type
   TOutputTarget* = enum ## which document type to generate
@@ -43,12 +45,6 @@ type
   TMetaEnum* = enum
     metaNone, metaTitle, metaSubtitle, metaAuthor, metaVersion
 
-  TLayeredConf* = object of TObject ## \
-    ## Holds both a custom and default configurations.
-    ##
-    ## The user configuration can be nil, but the default can't be.
-    user, default: PStringTable
-
   TRstGenerator* = object of TObject
     target*: TOutputTarget
     config*: TLayeredConf
@@ -56,7 +52,6 @@ type
     tocPart*: seq[TTocEntry]
     hasToc*: bool
     theIndex: string # Contents of the index file to be dumped at the end.
-    options*: TRstParseOptions
     findFile*: Find_file_handler
     msgHandler*: TMsgHandler
     filename*: string
@@ -78,17 +73,6 @@ type
     lang: TSourceLanguage ## Type of highlighting, by default none.
 
 
-proc `[]`*(t: TLayeredConf, key: string): string =
-  ## Returns the key from the user configuration or the default configuration.
-  ##
-  ## If the key is not found, the empty string is returned.
-  assert t.default.not_nil
-  if t.user.not_nil and t.user.has_key(key):
-    result = t.user[key]
-  else:
-    result = t.default[key]
-
-
 proc init(p: var CodeBlockParams) =
   ## Default initialisation of CodeBlockParams to sane values.
   p.startLine = 1
@@ -102,37 +86,18 @@ template rstMessage(d: PDoc, line, col: int, msgKind: TMsgKind, arg: string) =
   if msg.not_nil: raise new_exception(EParseError, msg)
 
 
-proc defaultConfig*(): PStringTable =
-  ## Returns a default configuration for embedded HTML generation.
+proc default_config*(): PStringTable =
+  ## Returns a default configuration for stand alone file HTML generation.
   ##
   ## The returned ``PStringTable`` contains the paramters used by the HTML
-  ## engine to build the final output. For information on what these parameters
-  ## are and their purpose, please look up the file `config/nimdoc.cfg
-  ## <https://github.com/Araq/Nimrod/blob/devel/config/nimdoc.cfg>`_ bundled
-  ## with the Nimrod compiler.
-  ##
-  ## The only difference between the contents of that file and the values
-  ## provided by this proc is the `lrc_render_template
-  ## <lconfig.html#lrc_render_template>`_ variable. The `lrc_render_template
-  ## <lconfig.html#lrc_render_template>`_ variable of the configuration file
-  ## contains HTML to build standalone pages, while this proc returns just the
-  ## content for procs like `rstToHtml() <#rstToHtml>`_ to generate the bare
-  ## minimum HTML.
-  result = newStringTable(modeStyleInsensitive)
-
-  # If you need to modify these values, it might be worth updating the template
-  # file in config/nimdoc.cfg.
-  result[lrc_render_split_item_toc] = lrd_render_split_item_toc
-  result[lrc_render_template] = "$" & lrk_render_content
-  result[lrc_render_date_format] = lrd_render_date_format
-  result[lrc_render_time_format] = lrd_render_time_format
-  result[lrc_render_local_date_format] = lrd_render_local_date_format
-  result[lrc_render_local_time_format] = lrd_render_local_time_format
+  ## engine to build the final output. The default parameters come from the
+  ## embedded file `resources/embedded_nimdoc.cfg
+  ## <https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg>`_.
+  result = load_rst_config(rest_default_config)
 
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
-    filename: string, options: TRstParseOptions,
-    user_config: PStringTable = nil,
+    filename: string, user_config: PStringTable = nil,
     findFile: Find_file_handler = nil_find_file_handler,
     msgHandler: TMsgHandler = nil_msg_handler) =
   ## Initializes a ``TRstGenerator``.
@@ -140,7 +105,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ## You need to call this before using a ``TRstGenerator`` with any other
   ## procs in this module. You can pass a non ``nil`` ``PStringTable`` value as
   ## `user_config` to override the default embedded parameters, which are
-  ## extracted internally from the `defaultConfig() <#defaultConfig>`_ proc.
+  ## extracted internally from the `default_config() <#default_config>`_ proc.
   ##
   ## The `filename` parameter will be used for error reporting and creating
   ## index hyperlinks to the file, but you can pass an empty string here if you
@@ -149,9 +114,8 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ## filename``.  This default title can be overriden by the embedded rst, but
   ## it helps to prettify the generated index if no title is found.
   ##
-  ## The ``TRstParseOptions``, ``TFindFileHandler`` and ``TMsgHandler`` types
-  ## are defined in the the `lrst module <lrst.html>`_.
-  ## ``options`` selects the behaviour of the rst parser.
+  ## The ``TFindFileHandler`` and ``TMsgHandler`` types are defined in the the
+  ## `lrst module <lrst.html>`_.
   ##
   ## ``findFile`` is a proc used by the rst ``include`` directive among others.
   ## The purpose of this proc is to mangle or filter paths. It receives paths
@@ -175,18 +139,17 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ##
   ##   var gen: TRstGenerator
   ##
-  ##   gen.initRstGenerator(outHtml, defaultConfig(),
+  ##   gen.initRstGenerator(outHtml, default_config(),
   ##     "filename", {}, nil, nil)
   assert(not filename.is_nil)
 
   g.config.user = user_config
-  g.config.default = defaultConfig()
+  g.config.default = default_config()
   g.target = target
   g.tocPart = @[]
   g.filename = filename
   g.splitAfter = 20
   g.theIndex = ""
-  g.options = options
   #See below…
   #g.findFile = if findFile.is_nil: nil_find_file_handler else: findFile
   if findFile.is_nil:
@@ -1205,8 +1168,7 @@ proc formatNamedVars*(frmt: string, varnames: openArray[string],
 
 # ---------- forum ---------------------------------------------------------
 
-proc rstToHtml*(s: string, options: TRstParseOptions,
-                user_config: PStringTable = nil): string =
+proc rstToHtml*(s: string, user_config: PStringTable = nil): string =
   ## Converts an input rst string into embeddable HTML.
   ##
   ## This convenience proc parses any input string using rst markup (it doesn't
@@ -1228,10 +1190,11 @@ proc rstToHtml*(s: string, options: TRstParseOptions,
 
   const filen = "input"
   var d: TRstGenerator
-  initRstGenerator(d, outHtml, filen, options,
-    user_config, nil_find_file_handler, nil_msg_handler)
+  initRstGenerator(d, outHtml, filen, user_config, nil_find_file_handler,
+    nil_msg_handler)
   var dummyHasToc = false
-  var rst = rstParse(s, filen, 0, 1, dummyHasToc, options)
+  var rst = rstParse(s, filen, 0, 1, dummyHasToc,
+    d.config, d.findFile, d.msgHandler)
   result = ""
   renderRstToOut(d, rst, result)
 
