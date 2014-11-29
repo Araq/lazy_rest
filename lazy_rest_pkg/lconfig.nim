@@ -154,6 +154,9 @@ const
   ## used inside `lrc_render_template <#lrc_render_template>`_ content.
   ## See the `Lazy reST error handling <../docs/error_handling.html>`_ document
   ## for more information.
+  ##
+  ## This render key is only used by the success template, it won't do anything
+  ## in error pages.
 
   lrk_render_prism_css* = "prism_css" ## \
   ## Replaced by the Prism CSS code required to style code highlighting.
@@ -162,6 +165,9 @@ const
   ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
   ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
   ## more information.
+  ##
+  ## This render key is only used by the success template, it won't do anything
+  ## in error pages.
 
   lrk_render_content* = "content" ## \
   ## Replaced by the input reStructuredText rendered as HTML.
@@ -186,6 +192,9 @@ const
   ## used inside `lrc_render_template <#lrc_render_template>`_ content.  See
   ## the `Lazy reST error handling <../docs/error_handling.html>`_ document for
   ## more information.
+  ##
+  ## This render key is only used by the failure template, it won't do anything
+  ## in success pages since they were rendered without errrors.
 
   lrd_render_date_format* = "yyyy-MM-dd" ## \
   ## `Default value <lrstgen.html#default_config>`_ for `lrc_render_date_format

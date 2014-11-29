@@ -223,6 +223,7 @@ proc rst_string_to_html*(content, filename: string,
   # Now finish by adding header, CSS and stuff.
   result = subex(GENERATOR.config[lrc_render_template]) % [
     lrk_render_title, title,
+    lrk_render_version_str, version_str,
     lrk_render_date, last_mod_gmt.format(render_date_format),
     lrk_render_time, last_mod_gmt.format(render_time_format),
     lrk_render_local_date, last_mod_local.format(render_local_date_format),
@@ -416,9 +417,12 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       if G.user_normal_error.is_nil: error_template else: G.user_normal_error
     result = subex(html_template) % [
       lrk_render_title, ERROR_TITLE,
-      lrk_render_local_date, TIME_STR[2], lrk_render_local_time, TIME_STR[3],
-      lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
       lrk_render_version_str, version_str,
+      lrk_render_date, TIME_STR[0],
+      lrk_render_time, TIME_STR[1],
+      lrk_render_local_date, TIME_STR[2],
+      lrk_render_local_time, TIME_STR[3],
+      lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
       lrk_render_error_table, ERRORS.build_error_table,
       lrk_render_content, CONTENT]
   except:
