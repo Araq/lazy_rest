@@ -595,7 +595,7 @@ proc lr_nim_file_to_html*(filename: cstring, number_lines: cint,
   result = C.ret_nim_file_to_html.nil_cstring
 
 
-proc lr_set_normal_error_rst*(input_rst: cstring): cint
+proc lr_set_normal_error_rst*(input_rst: cstring, config: PStringTable): cint
     {.exportc, raises: [].} =
   ## Exports `set_normal_error_rst() <lazy_rest.html#set_normal_error_rst>`_
   ## for C.
@@ -607,8 +607,9 @@ proc lr_set_normal_error_rst*(input_rst: cstring): cint
   ##
   ## .. code-block:: c
   ##   lr_set_normal_error_rst(normal_error_rst);
+  override_config()
   let input_rst = input_rst.nil_string
-  C.ret_set_normal_error_rst = set_normal_error_rst(input_rst)
+  C.ret_set_normal_error_rst = set_normal_error_rst(input_rst, config)
   result = C.ret_set_normal_error_rst.len.cint
 
 
@@ -642,7 +643,7 @@ proc lr_set_normal_error_rst_error*(pos: cint): cstring
   result = C.ret_set_normal_error_rst[pos].nil_cstring
 
 
-proc lr_set_safe_error_rst*(input_rst: cstring): cint
+proc lr_set_safe_error_rst*(input_rst: cstring, config: PStringTable): cint
     {.exportc, raises: [].} =
   ## Exports `set_safe_error_rst() <lazy_rest.html#set_safe_error_rst>`_ for C.
   ##
@@ -653,8 +654,9 @@ proc lr_set_safe_error_rst*(input_rst: cstring): cint
   ##
   ## .. code-block:: c
   ##   lr_set_safe_error_rst(safe_error_rst);
+  override_config()
   let input_rst = input_rst.nil_string
-  C.ret_set_safe_error_rst = set_safe_error_rst(input_rst)
+  C.ret_set_safe_error_rst = set_safe_error_rst(input_rst, config)
   result = C.ret_set_safe_error_rst.len.cint
 
 

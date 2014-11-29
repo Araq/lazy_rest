@@ -12,8 +12,11 @@ const char* good_html_include_filename = "temp_include_good.html";
 const char* bad_html_include_filename = "temp_include_bad.html";
 const char* exception_message = "I was raised in a poor language";
 
-char valid_rst_string[] = "Embedded *rst* text";
-char bad_rst_string[] = "Asterisks and Obelix\n"
+char valid_rst_string[] =
+	"Embedded *rst* text";
+
+char bad_rst_string[] =
+	"Asterisks and Obelix\n"
 	"====================\n"
 	"\n"
 	"These asterisks* are bad for rst.\n"
@@ -22,6 +25,12 @@ char bad_rst_string[] = "Asterisks and Obelix\n"
 	"\n"
 	// The underscore will be replaced at runtime!
 	"Or was <B it _single quotes?";
+
+char rst_raw_options[] =
+	"# Enables raw directive for error templates.\n"
+	// The underscore will be replaced at runtime!
+	"parser.enable.raw.directive = _true_";
+
 
 // Helper to write a null terminated string to a specific path.
 void overwrite(const char* filename, const char* s)
@@ -90,6 +99,9 @@ void run_c_test(char* error_rst, char* special_options)
 	// codegen phase.
 	assert(strchr(bad_rst_string, '_'));
 	*strchr(bad_rst_string, '_') = 0x60;
+	// Same with rst_raw_options, do it twice.
+	*strchr(rst_raw_options, '_') = '"';
+	*strchr(rst_raw_options, '_') = '"';
 
 	// Generates files with rst content.
 	{
@@ -245,8 +257,11 @@ void run_c_test(char* error_rst, char* special_options)
 
 	// Test normal error rst.
 	{
-		if (lr_set_normal_error_rst(error_rst)) {
+		lr_set_global_rst_options(rst_raw_options);
+		if (lr_set_normal_error_rst(error_rst, 0)) {
 			// Handle error.
+			printf("Couldn't set error page: '%s'\n",
+				lr_set_normal_error_rst_error(0));
 			assert(0 && "lr_set_normal_error_rst");
 		} else {
 			assert(1);
@@ -257,7 +272,7 @@ void run_c_test(char* error_rst, char* special_options)
 			overwrite("temp_set_error_template_1.html", s);
 		}
 
-		int errors = lr_set_normal_error_rst(bad_rst_string);
+		int errors = lr_set_normal_error_rst(bad_rst_string, 0);
 		assert(errors);
 		if (errors) {
 			printf("5 Ignore the next error messages\n");
@@ -267,6 +282,7 @@ void run_c_test(char* error_rst, char* special_options)
 					lr_set_normal_error_rst_error(--errors));
 			}
 		}
+		lr_set_global_rst_options("");
 	}
 
 	// Test option override.
