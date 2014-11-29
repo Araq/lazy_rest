@@ -13,5 +13,8 @@ void recursive(void) {
 This would be a plain block:
 ```
 Hur hur hur
+void no_highlight(void) {
+    // Ugh
+}
 ```
 Awesome.
