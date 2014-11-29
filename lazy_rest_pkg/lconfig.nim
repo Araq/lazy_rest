@@ -13,8 +13,8 @@
 ## parametrized values.
 ##
 ## The constants with the ``lrd_`` prefix stand for lazy_rest default values,
-## and are usually returned by `lrstgen.defaultConfig()
-## <lrstgen.html#defaultConfig>`_.
+## and are usually returned by `lrstgen.default_config()
+## <lrstgen.html#default_config>`_.
 
 
 import
@@ -188,23 +188,23 @@ const
   ## more information.
 
   lrd_render_date_format* = "yyyy-MM-dd" ## \
-  ## `Default value <lrstgen.html#defaultConfig>`_ for `lrc_render_date_format
+  ## `Default value <lrstgen.html#default_config>`_ for `lrc_render_date_format
   ## <#lrc_render_date_format>`_.
 
   lrd_render_time_format* = "HH:mm" ## \
-  ## `Default value <lrstgen.html#defaultConfig>`_ for `lrc_render_time_format
+  ## `Default value <lrstgen.html#default_config>`_ for `lrc_render_time_format
   ## <#lrc_render_time_format>`_.
 
   lrd_render_local_date_format* = "yyyy-MM-dd" ## \
-  ## `Default value <lrstgen.html#defaultConfig>`_ for
+  ## `Default value <lrstgen.html#default_config>`_ for
   ## `lrc_render_local_date_format <#lrc_render_local_date_format>`_.
 
   lrd_render_local_time_format* = "HH:mm" ## \
-  ## `Default value <lrstgen.html#defaultConfig>`_ for
+  ## `Default value <lrstgen.html#default_config>`_ for
   ## `lrc_render_local_time_format <#lrc_render_local_time_format>`_.
 
   lrd_render_split_item_toc* = "20" ## \
-  ## `Default value <lrstgen.html#defaultConfig>`_ for
+  ## `Default value <lrstgen.html#default_config>`_ for
   ## `lrc_render_split_item_toc <#lrc_render_split_item_toc>`_.
 
   lrd_render_failure_test* =

@@ -30,6 +30,8 @@ import
 const
   HtmlExt = "html"
   IndexExt* = ".idx"
+  rest_default_config = slurp("resources"/"embedded_nimdoc.cfg")
+
 
 type
   TOutputTarget* = enum ## which document type to generate
@@ -84,14 +86,13 @@ template rstMessage(d: PDoc, line, col: int, msgKind: TMsgKind, arg: string) =
   if msg.not_nil: raise new_exception(EParseError, msg)
 
 
-const rest_default_config = slurp("resources"/"embedded_nimdoc.cfg")
-
-
 proc default_config*(): PStringTable =
   ## Returns a default configuration for stand alone file HTML generation.
   ##
   ## The returned ``PStringTable`` contains the paramters used by the HTML
-  ## engine to build the final output.
+  ## engine to build the final output. The default parameters come from the
+  ## embedded file `resources/embedded_nimdoc.cfg
+  ## <https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg>`_.
   result = load_rst_config(rest_default_config)
 
 
@@ -104,7 +105,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ## You need to call this before using a ``TRstGenerator`` with any other
   ## procs in this module. You can pass a non ``nil`` ``PStringTable`` value as
   ## `user_config` to override the default embedded parameters, which are
-  ## extracted internally from the `defaultConfig() <#defaultConfig>`_ proc.
+  ## extracted internally from the `default_config() <#default_config>`_ proc.
   ##
   ## The `filename` parameter will be used for error reporting and creating
   ## index hyperlinks to the file, but you can pass an empty string here if you
@@ -138,12 +139,12 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ##
   ##   var gen: TRstGenerator
   ##
-  ##   gen.initRstGenerator(outHtml, defaultConfig(),
+  ##   gen.initRstGenerator(outHtml, default_config(),
   ##     "filename", {}, nil, nil)
   assert(not filename.is_nil)
 
   g.config.user = user_config
-  g.config.default = defaultConfig()
+  g.config.default = default_config()
   g.target = target
   g.tocPart = @[]
   g.filename = filename
