@@ -84,32 +84,15 @@ template rstMessage(d: PDoc, line, col: int, msgKind: TMsgKind, arg: string) =
   if msg.not_nil: raise new_exception(EParseError, msg)
 
 
-proc defaultConfig*(): PStringTable =
-  ## Returns a default configuration for embedded HTML generation.
+const rest_default_config = slurp("resources"/"embedded_nimdoc.cfg")
+
+
+proc default_config*(): PStringTable =
+  ## Returns a default configuration for stand alone file HTML generation.
   ##
   ## The returned ``PStringTable`` contains the paramters used by the HTML
-  ## engine to build the final output. For information on what these parameters
-  ## are and their purpose, please look up the file `config/nimdoc.cfg
-  ## <https://github.com/Araq/Nimrod/blob/devel/config/nimdoc.cfg>`_ bundled
-  ## with the Nimrod compiler.
-  ##
-  ## The only difference between the contents of that file and the values
-  ## provided by this proc is the `lrc_render_template
-  ## <lconfig.html#lrc_render_template>`_ variable. The `lrc_render_template
-  ## <lconfig.html#lrc_render_template>`_ variable of the configuration file
-  ## contains HTML to build standalone pages, while this proc returns just the
-  ## content for procs like `rstToHtml() <#rstToHtml>`_ to generate the bare
-  ## minimum HTML.
-  result = newStringTable(modeStyleInsensitive)
-
-  # If you need to modify these values, it might be worth updating the template
-  # file in config/nimdoc.cfg.
-  result[lrc_render_split_item_toc] = lrd_render_split_item_toc
-  result[lrc_render_template] = "$" & lrk_render_content
-  result[lrc_render_date_format] = lrd_render_date_format
-  result[lrc_render_time_format] = lrd_render_time_format
-  result[lrc_render_local_date_format] = lrd_render_local_date_format
-  result[lrc_render_local_time_format] = lrd_render_local_time_format
+  ## engine to build the final output.
+  result = load_rst_config(rest_default_config)
 
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,

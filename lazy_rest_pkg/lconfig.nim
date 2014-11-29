@@ -18,7 +18,7 @@
 
 
 import
-  strtabs, external/badger_bits/bb_system
+  strtabs, external/badger_bits/bb_system, parsecfg, streams, logging
 
 
 export
@@ -266,4 +266,31 @@ proc new_rst_config*(): PStringTable =
   ##   config[lrc_render_split_item_toc] = "30"
   result = newStringTable(modeStyleInsensitive)
 
-  # If you need to modify these values, it might be worth updating the template
+
+proc load_rst_config*(mem_string: string): PStringTable =
+  ## Parses the configuration and returns it as a PStringTable.
+  ##
+  ## If something goes wrong, will likely raise an exception or return nil.
+  var
+    f = newStringStream(mem_string)
+    temp = newStringTable(modeStyleInsensitive)
+  if f.is_nil: raise newException(EInvalidValue, "cannot stream string")
+
+  var p: TCfgParser
+  open(p, f, "static slurped config")
+  while true:
+    var e = next(p)
+    case e.kind
+    of cfgEof:
+      break
+    of cfgSectionStart:   ## a ``[section]`` has been parsed
+      discard
+    of cfgKeyValuePair:
+      temp[e.key] = e.value
+    of cfgOption:
+      warn("command: " & e.key & ": " & e.value)
+    of cfgError:
+      error(e.msg)
+      raise newException(EInvalidValue, e.msg)
+  close(p)
+  result = temp
