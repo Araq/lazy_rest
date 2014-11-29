@@ -27,3 +27,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/17>`_.
 * `Modified config options to be additive
   <https://github.com/gradha/lazy_rest/issues/21>`_.
+* `Replaced TRstParseOption with config parameters
+  <https://github.com/gradha/lazy_rest/issues/23>`_.
