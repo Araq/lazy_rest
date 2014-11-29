@@ -4,7 +4,8 @@
 ## The constants with the ``lrc_`` prefix stand for lazy_rest configuration
 ## keys. These keys are used for the `PStringTable
 ## <http://nimrod-lang.org/strtabs.html#PStringTable>`_ types passed in the
-## API.
+## API. You can create these configuration objects with `new_rst_config()
+## <#new_rst_config>`_.
 ##
 ## The constants with the ``lrk_`` prefix stand for lazy_rest render key
 ## substitution. They are the strings that you can use inside your
@@ -18,6 +19,10 @@
 
 import
   strtabs, external/badger_bits/bb_system
+
+
+export
+  strtabs
 
 
 const
@@ -62,10 +67,31 @@ const
   ## wide and obscuring the main text. The default value is
   ## `lrd_render_split_item_toc <#lrd_render_split_item_toc>`_.
 
-  lrc_parser_skip_pounds* = "parser.skip.pounds"
-  lrc_parser_enable_smilies* = "parser.enable.smilies"
-  lrc_parser_enable_raw_directive* = "parser.enable.raw.directive"
-  lrc_parser_enable_fended_blocks* = "parser.enable.fenced.blocks"
+  lrc_parser_skip_pounds* = "parser.skip.pounds" ## \
+  ## Modifies the rst parser to skip lines starting with a hash (``#``).
+  ##
+  ## The value for this option has to be *true* according to the parsing of the
+  ## `is_true() proc <#is_true>`_ to be enabled.
+  lrc_parser_enable_smilies* = "parser.enable.smilies" ## \
+  ## Modifies the rst parser to enable smiley pattern replacement.
+  ##
+  ## Enabling this will transform several patterns (like ``:-D``) found in
+  ## plain text with image references.  The value for this option has to be
+  ## *true* according to the parsing of the `is_true() proc <#is_true>`_ to be
+  ## enabled.
+  lrc_parser_enable_raw_directive* = "parser.enable.raw.directive" ## \
+  ## Modifies the rst parser to enable the raw directive.
+  ##
+  ## By default the raw directive is skipped by the parser.  The value for this
+  ## option has to be *true* according to the parsing of the `is_true() proc
+  ## <#is_true>`_ to be enabled.
+  lrc_parser_enable_fended_blocks* = "parser.enable.fenced.blocks" ## \
+  ## Modifies the rst parser to enable GitHub markdown style fenced blocks.
+  ##
+  ## Fenced blocks consist of three backticks ``(`)`` and optionally a language
+  ## syntax option to initiate a source code block without indentation.  The
+  ## value for this option has to be *true* according to the parsing of the
+  ## `is_true() proc <#is_true>`_ to be enabled.
 
   lrk_render_title* = "title" ## \
   ## Replaced by the title of the input file if anything was extracted.
@@ -210,11 +236,34 @@ proc is_true*(t: TLayeredConf, key: string): bool =
   ## Returns ``true`` if `t` contains the value `key` and it is of true nature.
   ##
   ## This proc internally looks for the value associated with the `key`. On top
-  ## of that, the string value has to be ``1``, ``t``, ``true``, ``y`` or
-  ## ``yes``. Any other value will make this proc return ``false``.
+  ## of that, the string value has to be the literal ``1``, ``t``, ``true``,
+  ## ``y`` or ``yes``. Any other value will make this proc return ``false``.
   case t[key]
   of "1", "t", "true", "y", "yes":
     result = true
   else:
     discard
   return
+
+
+proc new_rst_config*(): PStringTable =
+  ## Convenience method to return a new empty ``PStringTable`` table.
+  ##
+  ## This essentially calls `strtabs.newStringTable()
+  ## <http://nimrod-lang.org/strtabs.html#newStringTable,TStringTableMode>`_
+  ## with the parameter `modeStyleInsensitive
+  ## <http://nimrod-lang.org/strtabs.html#TStringTableMode>`_.
+  ##
+  ## After creating this table you will want to fill it with ``lrc_``
+  ## configuration keys like `lrc_parser_skip_pounds
+  ## <#lrc_parser_skip_pounds>`_ or `lrc_render_date_format
+  ## <#lrc_render_date_format>`_. Example:
+  ##
+  ## .. code-block:: nimrod
+  ##
+  ##   import lazy_rest_pkg/lconfig
+  ##   var config = new_rst_config()
+  ##   config[lrc_render_split_item_toc] = "30"
+  result = newStringTable(modeStyleInsensitive)
+
+  # If you need to modify these values, it might be worth updating the template
