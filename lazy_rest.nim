@@ -197,7 +197,7 @@ proc rst_string_to_html*(content, filename: string,
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,
     GENERATOR.config, GENERATOR.findFile, GENERATOR.msgHandler)
-  RESULT = newStringOfCap(30_000)
+  result = newStringOfCap(30_000)
 
   # Render document into HTML chunk.
   var MOD_DESC = newStringOfCap(30_000)
@@ -273,7 +273,7 @@ proc add_pre_number_lines(content: string): string =
   while I < content.len - 1:
     result.add(content[I])
     case content[I]
-    of new_lines:
+    of NewLines:
       if content[I] == '\c' and content[I+1] == '\l': inc I
       LINE.inc
       result.add(align($LINE, width))
@@ -282,7 +282,7 @@ proc add_pre_number_lines(content: string): string =
     inc I
 
   # Last character.
-  if content[<content.len] in new_lines:
+  if content[<content.len] in NewLines:
     discard
   else:
     result.add(content[<content.len])
@@ -293,12 +293,12 @@ proc build_error_table(ERRORS: ptr seq[string]): string {.raises: [].} =
   ##
   ## If there is any problem with the `ERRORS` variable an empty string is
   ## returned.
-  RESULT = ""
+  result = ""
   if ERRORS.not_nil and ERRORS[].not_nil and ERRORS[].len > 0:
-    RESULT.add("<table CELLPADDING=\"5pt\" border=\"1\">")
+    result.add("<table CELLPADDING=\"5pt\" border=\"1\">")
     for line in ERRORS[]:
-      RESULT.add("<tr><td>" & line.xml_encode & "</td></tr>")
-    RESULT.add("</table>\n")
+      result.add("<tr><td>" & line.xml_encode & "</td></tr>")
+    result.add("</table>\n")
 
 
 proc append(ERRORS: ptr seq[string], e: ref E_Base)
