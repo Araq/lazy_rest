@@ -247,7 +247,7 @@ void run_c_test(char* error_rst, char* special_options)
 	{
 		if (lr_set_normal_error_rst(error_rst)) {
 			// Handle error.
-			assert(0);
+			assert(0 && "lr_set_normal_error_rst");
 		} else {
 			assert(1);
 			char* s = lr_safe_rst_file_to_html(

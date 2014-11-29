@@ -213,7 +213,6 @@ proc rst_string_to_html*(content, filename: string,
   assert content.not_nil
   assert G.default_config.not_nil
   let
-    parse_options = {roSupportRawDirective}
     config = if user_config.not_nil: user_config else: G.default_config
   var
     filename = filename
@@ -232,12 +231,11 @@ proc rst_string_to_html*(content, filename: string,
       info("Initiating global log for debugging")
     G.did_start_logger = true
 
-  GENERATOR.initRstGenerator(outHtml, filename, parse_options,
-    config, find_file, msg_handler)
+  GENERATOR.initRstGenerator(outHtml, filename, config, find_file, msg_handler)
 
   # Parse the result.
   var RST = rstParse(content, filename, 1, 1, HAS_TOC,
-    parse_options, find_file, msg_handler)
+    GENERATOR.config, GENERATOR.findFile, GENERATOR.msgHandler)
   RESULT = newStringOfCap(30_000)
 
   # Render document into HTML chunk.
@@ -611,7 +609,7 @@ proc nim_file_to_html*(filename: string, number_lines = true,
     result = """<html><body><h1>Out of memory!</h1></body></html>"""
 
 
-proc set_normal_error_rst*(input_rst: string):
+proc set_normal_error_rst*(input_rst: string, user_config: PStringTable = nil):
     seq[string] {.discardable, raises: [].} =
   ## Changes the default error page for ``safe_*`` function errors.
   ##
@@ -637,13 +635,15 @@ proc set_normal_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     G.user_normal_error = rst_string_to_html(input_rst,
-      "set_normal_error_rst.input_rst", find_file = nil_find_file_handler,
+      "set_normal_error_rst.input_rst",
+      user_config = user_config,
+      find_file = nil_find_file_handler,
       msg_handler = nil_msg_handler)
   except:
     append_error_to_list()
 
 
-proc set_safe_error_rst*(input_rst: string):
+proc set_safe_error_rst*(input_rst: string, user_config: PStringTable = nil):
     seq[string] {.discardable, raises: [].} =
   ## Changes the safe error page for ``safe_*`` function errors.
   ##
@@ -674,6 +674,7 @@ proc set_safe_error_rst*(input_rst: string):
     ERRORS = result.addr
   try:
     html = rst_string_to_html(input_rst, "set_normal_error_rst.input_rst",
+      user_config = user_config,
       find_file = nil_find_file_handler, msg_handler = nil_msg_handler)
   except:
     append_error_to_list()

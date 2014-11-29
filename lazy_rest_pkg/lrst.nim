@@ -292,6 +292,16 @@ type
     input: string ## Stores just the input string (from the input document, \
     ## command line switch, etc).
 
+  TRstParseOption = enum ## Options for the internal RST parser.
+    roSkipPounds, ## \
+    ## skip ``#`` at line beginning (documentation embedded in Nimrod comments)
+    roSupportSmilies, ## make the RST parser support smilies like ``:)``
+    roSupportRawDirective, ## \
+    ## support the ``raw`` directive (don't support it for sandboxing)
+    roSupportMarkdown ## support markdown triple quote fenced blocks
+
+  TRstParseOptions* = set[TRstParseOption]
+
   TSharedState {.final.} = object
     options: TRstParseOptions   # parsing options
     uLevel, oLevel: int         # counters for the section levels
@@ -1816,12 +1826,25 @@ proc resolveSubs(p: var TRstParser, n: PRstNode): PRstNode =
   else:
     for i in countup(0, len(n) - 1): n.sons[i] = resolveSubs(p, n.sons[i])
 
-proc rstParse*(text, filename: string,
-               line, column: int, hasToc: var bool,
-               options: TRstParseOptions,
-               findFile: Find_file_handler = nil_find_file_handler,
-               msgHandler: TMsgHandler = nil_msg_handler): PRstNode =
-  var p: TRstParser
+
+proc rstParse*(text, filename: string, line, column: int, hasToc: var bool,
+    config: TLayeredConf, findFile: Find_file_handler,
+    msgHandler: TMsgHandler): PRstNode =
+  assert findFile.not_nil
+  assert msgHandler.not_nil
+  var
+    p: TRstParser
+    options: TRstParseOptions = {}
+
+  # Transforms the layered config into bit flags for the parser.
+  for config_key, ebit in items([
+      (lrc_parser_skip_pounds, roSkipPounds),
+      (lrc_parser_enable_smilies, roSupportSmilies),
+      (lrc_parser_enable_raw_directive, roSupportRawDirective),
+      (lrc_parser_enable_fended_blocks, roSupportMarkdown)]):
+    if config.is_true(config_key):
+      options.incl(ebit)
+
   initParser(p, newSharedState(options, findFile, msgHandler))
   p.filename_stack.add(new_file_info(filename))
   p.line = line

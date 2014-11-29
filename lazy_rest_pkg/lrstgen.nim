@@ -43,12 +43,6 @@ type
   TMetaEnum* = enum
     metaNone, metaTitle, metaSubtitle, metaAuthor, metaVersion
 
-  TLayeredConf* = object of TObject ## \
-    ## Holds both a custom and default configurations.
-    ##
-    ## The user configuration can be nil, but the default can't be.
-    user, default: PStringTable
-
   TRstGenerator* = object of TObject
     target*: TOutputTarget
     config*: TLayeredConf
@@ -56,7 +50,6 @@ type
     tocPart*: seq[TTocEntry]
     hasToc*: bool
     theIndex: string # Contents of the index file to be dumped at the end.
-    options*: TRstParseOptions
     findFile*: Find_file_handler
     msgHandler*: TMsgHandler
     filename*: string
@@ -76,17 +69,6 @@ type
     startLine: int ## The starting line of the code block, by default 1.
     langStr: string ## Input string used to specify the language.
     lang: TSourceLanguage ## Type of highlighting, by default none.
-
-
-proc `[]`*(t: TLayeredConf, key: string): string =
-  ## Returns the key from the user configuration or the default configuration.
-  ##
-  ## If the key is not found, the empty string is returned.
-  assert t.default.not_nil
-  if t.user.not_nil and t.user.has_key(key):
-    result = t.user[key]
-  else:
-    result = t.default[key]
 
 
 proc init(p: var CodeBlockParams) =
@@ -131,8 +113,7 @@ proc defaultConfig*(): PStringTable =
 
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
-    filename: string, options: TRstParseOptions,
-    user_config: PStringTable = nil,
+    filename: string, user_config: PStringTable = nil,
     findFile: Find_file_handler = nil_find_file_handler,
     msgHandler: TMsgHandler = nil_msg_handler) =
   ## Initializes a ``TRstGenerator``.
@@ -149,9 +130,8 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ## filename``.  This default title can be overriden by the embedded rst, but
   ## it helps to prettify the generated index if no title is found.
   ##
-  ## The ``TRstParseOptions``, ``TFindFileHandler`` and ``TMsgHandler`` types
-  ## are defined in the the `lrst module <lrst.html>`_.
-  ## ``options`` selects the behaviour of the rst parser.
+  ## The ``TFindFileHandler`` and ``TMsgHandler`` types are defined in the the
+  ## `lrst module <lrst.html>`_.
   ##
   ## ``findFile`` is a proc used by the rst ``include`` directive among others.
   ## The purpose of this proc is to mangle or filter paths. It receives paths
@@ -186,7 +166,6 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   g.filename = filename
   g.splitAfter = 20
   g.theIndex = ""
-  g.options = options
   #See below…
   #g.findFile = if findFile.is_nil: nil_find_file_handler else: findFile
   if findFile.is_nil:
@@ -1205,8 +1184,7 @@ proc formatNamedVars*(frmt: string, varnames: openArray[string],
 
 # ---------- forum ---------------------------------------------------------
 
-proc rstToHtml*(s: string, options: TRstParseOptions,
-                user_config: PStringTable = nil): string =
+proc rstToHtml*(s: string, user_config: PStringTable = nil): string =
   ## Converts an input rst string into embeddable HTML.
   ##
   ## This convenience proc parses any input string using rst markup (it doesn't
@@ -1228,10 +1206,11 @@ proc rstToHtml*(s: string, options: TRstParseOptions,
 
   const filen = "input"
   var d: TRstGenerator
-  initRstGenerator(d, outHtml, filen, options,
-    user_config, nil_find_file_handler, nil_msg_handler)
+  initRstGenerator(d, outHtml, filen, user_config, nil_find_file_handler,
+    nil_msg_handler)
   var dummyHasToc = false
-  var rst = rstParse(s, filen, 0, 1, dummyHasToc, options)
+  var rst = rstParse(s, filen, 0, 1, dummyHasToc,
+    d.config, d.findFile, d.msgHandler)
   result = ""
   renderRstToOut(d, rst, result)
 

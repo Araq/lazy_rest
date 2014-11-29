@@ -16,20 +16,9 @@
 ## <lrstgen.html#defaultConfig>`_.
 
 
-type
-  TRstParseOption* = enum     ## Options for the internal RST parser \
-    ##
-    ## These options are used as quick lookup enums while processing RST files,
-    ## usually you will set values in the… TODO.
-    ##
-    roSkipPounds, ## \
-    ## skip ``#`` at line beginning (documentation embedded in Nimrod comments)
-    roSupportSmilies, ## make the RST parser support smilies like ``:)``
-    roSupportRawDirective, ## \
-    ## support the ``raw`` directive (don't support it for sandboxing)
-    roSupportMarkdown ## support markdown triple quote fenced blocks
+import
+  strtabs, external/badger_bits/bb_system
 
-  TRstParseOptions* = set[TRstParseOption]
 
 const
   lrc_render_template* = "render.template" ## \
@@ -72,6 +61,11 @@ const
   ## have nefore being split. The splitting prevents the TOC from growing too
   ## wide and obscuring the main text. The default value is
   ## `lrd_render_split_item_toc <#lrd_render_split_item_toc>`_.
+
+  lrc_parser_skip_pounds* = "parser.skip.pounds"
+  lrc_parser_enable_smilies* = "parser.enable.smilies"
+  lrc_parser_enable_raw_directive* = "parser.enable.raw.directive"
+  lrc_parser_enable_fended_blocks* = "parser.enable.fenced.blocks"
 
   lrk_render_title* = "title" ## \
   ## Replaced by the title of the input file if anything was extracted.
@@ -191,3 +185,36 @@ const
     "Why do people suffer through video content lesser than 4k?" ## \
     ## Special value to set for `lrc_render_failure_test
     ## <#lrc_render_failure_test>`_.
+
+
+type
+  TLayeredConf* = object of TObject ## \
+    ## Holds both a custom and default configurations.
+    ##
+    ## The user configuration can be nil, but the default can't be.
+    user*, default*: PStringTable
+
+
+proc `[]`*(t: TLayeredConf, key: string): string =
+  ## Returns the key from the user configuration or the default configuration.
+  ##
+  ## If the key is not found, the empty string is returned.
+  assert t.default.not_nil
+  if t.user.not_nil and t.user.has_key(key):
+    result = t.user[key]
+  else:
+    result = t.default[key]
+
+
+proc is_true*(t: TLayeredConf, key: string): bool =
+  ## Returns ``true`` if `t` contains the value `key` and it is of true nature.
+  ##
+  ## This proc internally looks for the value associated with the `key`. On top
+  ## of that, the string value has to be ``1``, ``t``, ``true``, ``y`` or
+  ## ``yes``. Any other value will make this proc return ``false``.
+  case t[key]
+  of "1", "t", "true", "y", "yes":
+    result = true
+  else:
+    discard
+  return
