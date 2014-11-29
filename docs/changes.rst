@@ -29,3 +29,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/21>`_.
 * `Replaced TRstParseOption with config parameters
   <https://github.com/gradha/lazy_rest/issues/23>`_.
+* `Checked 0.10 compatibility before release
+  <https://github.com/gradha/lazy_rest/issues/19>`_.
