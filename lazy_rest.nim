@@ -138,11 +138,11 @@ proc unrestricted_find_file_handler*(current_filename,
 
 
 proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
-  ## Parses the options, returns nil if something goes wrong.
+  ## Parses the options, returns ``nil`` if something goes wrong.
   ##
   ## You can safely pass the result of this proc to `rst_string_to_html()
   ## <#rst_string_to_html>`_ or any other proc asking for configuration options
-  ## since they will handle nil gracefully.
+  ## since they will handle ``nil`` gracefully.
   if options.is_nil or options.len < 1:
     return nil
 
@@ -162,7 +162,7 @@ proc rst_string_to_html*(content, filename: string,
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
   ##
-  ## You can pass nil as `user_config` if you want to use the default HTML
+  ## You can pass ``nil`` as `user_config` if you want to use the default HTML
   ## rendering templates embedded in the module. Or you can load a
   ## configuration file with `parse_rst_options <#parse_rst_options>`_.  The
   ## value for the `user_config` parameter is explained in
@@ -305,8 +305,8 @@ proc append(ERRORS: ptr seq[string], e: ref E_Base)
     {.raises: [].} =
   ## Helper to append the current exception to `ERRORS`.
   ##
-  ## `ERRORS` can be nil, in which case this doesn't do anything. The exception
-  ## will be added to the list as a basic text message.
+  ## `ERRORS` can be ``nil``, in which case this doesn't do anything. The
+  ## exception will be added to the list as a basic text message.
   assert ERRORS.not_nil, "`ERRORS` ptr should never be nil, bad programmer!"
   assert ERRORS[].not_nil, "`ERRORS[]` should never be nil, bad programmer!"
   assert e.not_nil, "`e` ref should never be nil, bad programmer!"
@@ -329,7 +329,7 @@ template append_error_to_list(): stmt =
   ## Template to be used in exception blocks of procs using errors pattern.
   ##
   ## The template will expand to create a default errors variable which shadows
-  ## the parameter. If the parameter has the default nil value, the local
+  ## the parameter. If the parameter has the default ``nil`` value, the local
   ## shadowed version will create local storage to be able to catch and process
   ## exceptions.
   ##
@@ -449,7 +449,7 @@ proc safe_rst_string_to_html*(filename, data: string,
   ## Returns always a valid HTML. If something bad happens, it tries to show
   ## the error for debugging but still returns valid HTML, though it may be
   ## quite different from what you expect. The `filename` parameter is only
-  ## used for error reporting, you can pass nil or the empty string.
+  ## used for error reporting, you can pass ``nil`` or the empty string.
   ##
   ## This proc always returns without raising any exceptions, but if you want
   ## to know about errors you can pass the address of an initialized sequence
@@ -539,39 +539,77 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
     result = build_error_html(filename, CONTENT, ERRORS, user_config)
 
 
-proc nim_file_to_html*(filename: string, number_lines = true,
+proc source_string_to_html*(content: string, filename: string = nil,
+    language: string = nil, number_lines = true,
     user_config: PStringTable = nil): string {.raises: [].} =
-  ## Puts the contents of `filename` in a code block to render as rest.
+  ## Embeds `content` into a code block for a `language` and renders it as HTML.
   ##
-  ## Returns a string with the rendered HTML. The `number_lines` parameter
-  ## controls if the rendered source will have a column to the left of the
-  ## source with line numbers. By default source lines will be numbered.
+  ## Returns a string with the source rendered in HTML with syntax highlighting
+  ## if possible. The `number_lines` parameter controls if the rendered source
+  ## will have a column to the left of the source with line numbers. By default
+  ## source lines will be numbered.
+  ##
+  ## The `content` parameter can't be ``nil``. However, `filename` can be
+  ## ``nil`` or the empty string, in which case no title will be generated in
+  ## the output HTML. If `language` is ``nil`` or the empty string, the
+  ## extension of `filename` will be used as the string for syntax
+  ## highlighting. If all of these fail, no syntax highlighting will be done
+  ## and you will get a simple monochrome literal block.
   ##
   ## This proc always works, since even empty code blocks should render (as
-  ## empty HTML), and there should be no content escaping problems. In the case
-  ## of failure, the error itself will be rendered in the final HTML.
-  const
-    with_numbers = "\n.. code-block:: nimrod\n   :number-lines:\n\n  "
-    without_numbers = "\n.. code-block:: nimrod\n  "
+  ## empty HTML), and there should be no content escaping problems. In case of
+  ## failure, the error itself will be rendered in the final HTML.
+  assert content.not_nil
+  let filename = if filename.not_nil: filename else: ""
+  var language = if language.is_nil: "" else: language
+  # If the language is empty, use the extension of the file.
+  if language.len < 1:
+    let ext = filename.split_file.ext.to_lower
+    # Provide automatic language detection for embedded syntax highlight langs.
+    if ext.len > 1:
+      case ext
+      of ".nim": language = "nimrod"
+      of ".cpp", ".cxx": language = "c++"
+      of ".cs": language = "c#"
+      else: language = ext[1.. <ext.len]
+  let
+    with_numbers = "\n.. code-block:: " & language & "\n   :number-lines:\n\n  "
+    without_numbers = "\n.. code-block:: " & language & "\n  "
   try:
-    let
+    var
+      SOURCE = newStringOfCap(content.len + 2000)
       name = filename.splitFile.name
-      title_symbols = repeatChar(name.len, '=')
-      length = 1000 + int(filename.getFileSize)
-    var SOURCE = newStringOfCap(length)
-    SOURCE = title_symbols & "\n" & name & "\n" & title_symbols &
-      (if number_lines: with_numbers else: without_numbers)
-    SOURCE.add(readFile(filename).replace("\n", "\n  "))
+    if name.len > 0:
+      let title_symbols = repeatChar(name.len, '=')
+      SOURCE.add(title_symbols & "\n" & name & "\n" & title_symbols)
+    SOURCE.add(if number_lines: with_numbers else: without_numbers)
+    SOURCE.add(content.replace("\n", "\n  "))
     result = rst_string_to_html(SOURCE, filename, user_config,
       find_file = nil_find_file_handler)
   except E_Base:
     result = "<html><body><h1>Error for " & filename & "</h1></body></html>"
   except EOS:
     result = "<html><body><h1>OS error for " & filename & "</h1></body></html>"
-  except EIO:
-    result = "<html><body><h1>I/O error for " & filename & "</h1></body></html>"
   except EOutOfMemory:
     result = """<html><body><h1>Out of memory!</h1></body></html>"""
+
+
+proc source_file_to_html*(filename: string,
+    language: string = nil, number_lines = true,
+    user_config: PStringTable = nil): string {.raises: [].} =
+  ## Renders the contents of `filename` as syntax highlighted source code.
+  ##
+  ## This is a small wrapper around the `source_string_to_html()
+  ## <#source_string_to_html>`_ proc.
+  assert filename.not_nil and filename.len > 0
+  try:
+    let content = filename.read_file
+    result = content.source_string_to_html(filename,
+      language, number_lines, user_config);
+  except EIO:
+    result = "<html><body><h1>I/O error for " & filename & "</h1></body></html>"
+  except E_Base:
+    result = "<html><body><h1>Error for " & filename & "</h1></body></html>"
 
 
 proc set_normal_error_rst*(input_rst: string, user_config: PStringTable = nil):

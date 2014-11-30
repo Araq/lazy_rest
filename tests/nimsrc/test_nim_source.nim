@@ -8,8 +8,8 @@ proc test() =
       with_numbers = "numbers_" & filename
       without_numbers = "plain_" & filename
 
-    with_numbers.write_file(path.nim_file_to_html(number_lines = true))
-    without_numbers.write_file(path.nim_file_to_html(number_lines = false))
+    with_numbers.write_file(path.source_file_to_html(number_lines = true))
+    without_numbers.write_file(path.source_file_to_html(number_lines = false))
     count.inc
 
   echo "Did render ", count, " nim files."
