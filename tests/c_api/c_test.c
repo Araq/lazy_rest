@@ -43,6 +43,25 @@ void overwrite(const char* filename, const char* s)
 	fclose(file);
 }
 
+// Returns the contents of filename as a string you need to free.
+char* read_file(const char* filename)
+{
+	char* ret = 0;
+	FILE* f = fopen(filename, "r");
+	if (!f) return 0;
+	if (fseek(f, 0, SEEK_END)) goto fail;
+	const long len = ftell(f);
+	if (len < 1) goto fail;
+	if (fseek(f, 0, SEEK_SET)) goto fail;
+	ret = malloc(len + 1);
+	if (!ret) goto fail;
+	fread(ret, len, 1, f);
+	ret[len] = 0;
+fail:
+	fclose(f);
+	return ret;
+}
+
 // Message callback to deal with errors, very verbose and never fails.
 char* verbose_message_callback(char* filename,
 	int line, int col, char kind, char* desc)
@@ -249,10 +268,21 @@ void run_c_test(char* error_rst, char* special_options)
 
 	// Tests the nim file conversion.
 	{
-		char* s = lr_nim_file_to_html("test_c_api.nim", 1, 0);
-		overwrite("temp_nim_file_1.html", s);
-		s = lr_nim_file_to_html("test_c_api.nim", 0, 0);
-		overwrite("temp_nim_file_2.html", s);
+		// First generate line numbers.
+		char* s1 = lr_source_file_to_html("test_c_api.nim", 0, 1, 0);
+		overwrite("temp_source_file_1.html", s1);
+		char* input = read_file("test_c_api.nim");
+		assert(input);
+		// Repeat with memory only version.
+		char* s2 = lr_source_string_to_html(input, "test_c_api.nim",
+			"nimrod", 1, 0);
+		assert(s2 && 0 == strcmp(s1, s2));
+		// Now again but without line numbers.
+		s1 = lr_source_file_to_html("test_c_api.nim", 0, 0, 0);
+		overwrite("temp_source_file_2.html", s1);
+		s2 = lr_source_string_to_html(input, "test_c_api.nim", 0, 0, 0);
+		assert(s2 && 0 == strcmp(s1, s2));
+		free(input);
 	}
 
 	// Test normal error rst.
