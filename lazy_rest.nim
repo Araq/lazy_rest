@@ -114,7 +114,7 @@ proc unrestricted_find_file_handler*(current_filename,
   ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc where appropriate.
   ## Example:
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block::
   ##
   ##   if trusted_source:
   ##     buf = safe_rst_file_to_html(filename,
@@ -463,7 +463,7 @@ proc safe_rst_string_to_html*(filename, data: string,
   ##
   ## Usage example:
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block::
   ##
   ##   echo safe_rst_string_to_html(nil, rst)
   ##   # --> dumps HTML saying something bad happened.
@@ -512,7 +512,7 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ##
   ## Usage example:
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block::
   ##
   ##   import os
   ##

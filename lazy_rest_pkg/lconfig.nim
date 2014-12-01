@@ -268,7 +268,7 @@ proc new_rst_config*(): PStringTable =
   ## <#lrc_parser_skip_pounds>`_ or `lrc_render_date_format
   ## <#lrc_render_date_format>`_. Example:
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block::
   ##
   ##   import lazy_rest_pkg/lconfig
   ##   var config = new_rst_config()
