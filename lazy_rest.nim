@@ -145,7 +145,7 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
     except: discard
 
 
-proc rst_string_to_html*(content, filename: string,
+proc rst_string_to_html*(content: string, filename: string = nil,
     user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
