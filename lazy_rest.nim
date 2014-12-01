@@ -573,8 +573,8 @@ proc source_string_to_html*(content: string, filename: string = nil,
       of ".cs": language = "c#"
       else: language = ext[1.. <ext.len]
   let
-    with_numbers = "\n.. code-block:: " & language & "\n   :number-lines:\n\n  "
-    without_numbers = "\n.. code-block:: " & language & "\n  "
+    with_numbers = "\n.. code:: " & language & "\n   :number-lines:\n\n  "
+    without_numbers = "\n.. code:: " & language & "\n  "
   try:
     var
       SOURCE = newStringOfCap(content.len + 2000)
