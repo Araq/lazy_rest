@@ -578,7 +578,7 @@ proc source_string_to_html*(content: string, filename: string = nil,
   try:
     var
       SOURCE = newStringOfCap(content.len + 2000)
-      name = filename.splitFile.name
+      name = filename.extract_filename
     if name.len > 0:
       let title_symbols = repeatChar(name.len, '=')
       SOURCE.add(title_symbols & "\n" & name & "\n" & title_symbols)
