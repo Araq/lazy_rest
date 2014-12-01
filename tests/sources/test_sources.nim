@@ -27,9 +27,15 @@ proc render_misc_files() =
     let
       with_numbers = out_dir/"source_" & ext & "_numbers.html"
       without_numbers = out_dir/"source_" & ext & "_plain.html"
+      mem_numbers = out_dir/"mem_" & ext & "_numbers.html"
+      mem_no_numbers = out_dir/"mem_" & ext & "_plain.html"
 
     with_numbers.write_file(path.source_file_to_html(number_lines = true))
     without_numbers.write_file(path.source_file_to_html(number_lines = false))
+    let content = path.read_file
+    mem_numbers.write_file(content.source_string_to_html(number_lines = true))
+    mem_no_numbers.write_file(
+      content.source_string_to_html(number_lines = false))
     count.inc
 
   echo "Did render ", count, " misc files."
