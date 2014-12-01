@@ -70,7 +70,8 @@ type
     error_rst_string_to_html: ref E_Base
     errors_safe_rst_file_to_html: seq[string]
     errors_safe_rst_string_to_html: seq[string]
-    ret_nim_file_to_html: string
+    ret_source_string_to_html: string
+    ret_source_file_to_html: string
     ret_parse_rst_options: PStringTable
     ret_rst_file_to_html: string
     ret_rst_string_to_html: string
@@ -576,23 +577,48 @@ proc lr_safe_rst_file_to_html_error*(pos: cint): cstring
   result = C.errors_safe_rst_file_to_html[pos].nil_cstring
 
 
-proc lr_nim_file_to_html*(filename: cstring, number_lines: cint,
-    config: PStringTable): cstring {.exportc, raises: [].} =
-  ## Wraps `nim_file_to_html() <lazy_rest.html#nim_file_to_html>`_ for C.
+proc lr_source_string_to_html*(content, filename, language: cstring,
+    number_lines: cint, config: PStringTable): cstring {.exportc, raises: [].} =
+  ## Wraps `source_string_to_html() <lazy_rest.html#source_string_to_html>`_
+  ## for C.
   ##
   ## The Nimrod boolean parameter is replaced by an ``int`` (non zero ==
   ## ``true``). The memory of the returned ``cstring`` will be kept until the
   ## next call to this function, you may need to copy it somewhere. Example:
   ##
   ## .. code-block:: c
-  ##   char *s = lr_nim_file_to_html("file.nim", 1, 0);
+  ##   char *s = lr_source_string_to_html(buf, "file.nim", 0, 1, 0);
+  ##   // Do here something useful with `s`.
+  override_config()
+  let
+    content = content.nil_string
+    filename = filename.nil_string
+    language = language.nil_string
+    number_lines = if number_lines != 0: true else: false
+  C.ret_source_string_to_html = source_string_to_html(content, filename,
+    language, number_lines, config)
+  result = C.ret_source_string_to_html.nil_cstring
+
+
+proc lr_source_file_to_html*(filename: cstring, language: cstring,
+    number_lines: cint, config: PStringTable): cstring {.exportc, raises: [].} =
+  ## Wraps `source_file_to_html() <lazy_rest.html#source_file_to_html>`_ for C.
+  ##
+  ## The Nimrod boolean parameter is replaced by an ``int`` (non zero ==
+  ## ``true``). The memory of the returned ``cstring`` will be kept until the
+  ## next call to this function, you may need to copy it somewhere. Example:
+  ##
+  ## .. code-block:: c
+  ##   char *s = lr_source_file_to_html("file.nim", 0, 1, 0);
   ##   // Do here something useful with `s`.
   override_config()
   let
     filename = filename.nil_string
+    language = language.nil_string
     number_lines = if number_lines != 0: true else: false
-  C.ret_nim_file_to_html = nim_file_to_html(filename, number_lines, config)
-  result = C.ret_nim_file_to_html.nil_cstring
+  C.ret_source_file_to_html = source_file_to_html(filename,
+    language, number_lines, config)
+  result = C.ret_source_file_to_html.nil_cstring
 
 
 proc lr_set_normal_error_rst*(input_rst: cstring, config: PStringTable): cint

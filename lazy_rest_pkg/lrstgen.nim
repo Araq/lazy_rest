@@ -133,7 +133,7 @@ proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,
   ##
   ## Example:
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block::
   ##
   ##   import packages/docutils/rstgen
   ##
@@ -273,7 +273,7 @@ proc renderRstToOut*(d: var TRstGenerator, n: PRstNode, result: var string)
   ## `initRstGenerator <#initRstGenerator>`_ and parse a rst file with
   ## ``rstParse`` from the `lrst module <lrst.html>`_. Example:
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block::
   ##
   ##   # ...configure gen and rst vars...
   ##   var generatedHTML = ""
@@ -858,13 +858,14 @@ proc buildLinesHTMLTable(params: CodeBlockParams, code: string):
   var codeLines = 1 + code.strip.countLines
   assert codeLines > 0
   result.beginTable = """<table><tbody><tr><td
-valign="top" class="blob-line-nums"><pre>"""
+valign="top" class="blob-line-nums"><pre class="language-unknown">"""
   var line = params.startLine
   while codeLines > 0:
     result.beginTable.add($line & "\n")
     line.inc
     codeLines.dec
-  result.beginTable.add("""</pre></td><td valign="top"><pre>""")
+  result.beginTable.add("""</pre></td><td valign="top"><pre
+  class="language-unknown">""")
   result.endTable = "</pre></td></tr></tbody></table>"
 
 proc renderCodeBlock(d: PDoc, n: PRstNode, result: var string) =
@@ -1178,7 +1179,7 @@ proc rstToHtml*(s: string, user_config: PStringTable = nil): string =
   ## work. For an explanation of the `user_config` parameter see the
   ## `initRstGenerator <#initRstGenerator>`_ proc. Example:
   ##
-  ## .. code-block:: nimrod
+  ## .. code-block::
   ##   import packages/docutils/rstgen, strtabs
   ##
   ##   echo rstToHtml("*Hello* **world**!", {})

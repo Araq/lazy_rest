@@ -1,3 +1,5 @@
+// Source copied form the c_api test.
+
 #include <stdio.h>
 #include <assert.h>
 

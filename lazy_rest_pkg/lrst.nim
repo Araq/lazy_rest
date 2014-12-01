@@ -335,7 +335,6 @@ proc new_file_info(input_path: string): File_info =
   ## The full path won't be calculated at this time, that will be done by the
   ## full() proc.
   assert input_path.not_nil
-  assert input_path.len > 0
   result.input = input_path
 
 
