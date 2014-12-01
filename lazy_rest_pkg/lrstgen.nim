@@ -93,7 +93,7 @@ proc default_config*(): PStringTable =
   ## engine to build the final output. The default parameters come from the
   ## embedded file `resources/embedded_nimdoc.cfg
   ## <https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg>`_.
-  result = load_rst_config(rest_default_config)
+  result = parse_rst_options(rest_default_config)
 
 
 proc initRstGenerator*(g: var TRstGenerator, target: TOutputTarget,

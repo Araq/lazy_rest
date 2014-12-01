@@ -2,19 +2,16 @@
 Lazy reST readme
 ================
 
-Lazy reST is a `Nimrod <http://nimrod-lang.org>`_ module providing a slightly
+Lazy reST is a `Nimrod <http://nimrod-lang.org>`_ module providing a spin-off
 higher level API over `Nimrod's rstgen module
-<http://nimrod-lang.org/rstgen.html>`_ with some extras. The actual rstgen
-module and friends are duplicated here, which allows to use the stable Nimrod
-compiler version with the latest features. Some additional features are
-provided with regards to Nimrod's standard library version, like embedding of
-`Prism <http://prismjs.com>`_ for code block syntax highlighting.
+<http://nimrod-lang.org/rstgen.html>`_. The main reasons for this spin-off are:
 
-Unlike Nimrod's standard library, this module doesn't aim to support LaTeX
-generation at all. The included LaTeX bits are inherited and not maintained.
-Which doesn't mean patches aren't welcome, but you may have more success
-sending them `upstream to Nimrod <https://github.com/Araq/Nimrod>`_ instead of
-here.
+* Incompatible, but easier and safer to use API.
+* Explicit C API support for embedding.
+* Embeds `Prism <http://prismjs.com>`_ for code syntax highlighting of more
+  languages.
+* Drops explicit support for `LaTeX <http://latex-project.org>`_.
+* All the latest features supported on the latest stable Nimrod compiler.
 
 
 Changes

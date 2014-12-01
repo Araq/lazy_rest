@@ -21,10 +21,6 @@ import
   strtabs, external/badger_bits/bb_system, parsecfg, streams, logging
 
 
-export
-  strtabs
-
-
 const
   lrc_render_template* = "render.template" ## \
   ## Key used to access the PStringTable storing the skeleton of the HTML rest
@@ -276,8 +272,8 @@ proc new_rst_config*(): PStringTable =
   result = newStringTable(modeStyleInsensitive)
 
 
-proc load_rst_config*(mem_string: string): PStringTable =
-  ## Parses the configuration and returns it as a PStringTable.
+proc load_rst_config(mem_string: string): PStringTable =
+  ## Parses the configuration string and returns it as a PStringTable.
   ##
   ## If something goes wrong, will likely raise an exception or return nil.
   var
@@ -303,3 +299,24 @@ proc load_rst_config*(mem_string: string): PStringTable =
       raise newException(EInvalidValue, e.msg)
   close(p)
   result = temp
+
+
+proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
+  ## Parses the options string, returns ``nil`` if something goes wrong.
+  ##
+  ## You can safely pass the result of this proc to `rst_string_to_html()
+  ## <../lazy_rest.html#rst_string_to_html>`_ or any other proc asking for
+  ## configuration options since they will handle ``nil`` gracefully. Usually
+  ## you will pass the contents of a file like `resources/embedded_nimdoc.cfg
+  ## <https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg>`_
+  ## to configure the options for the parsing and rendering phases of the rst
+  ## transformation.
+  if options.is_nil or options.len < 1:
+    return nil
+
+  try:
+    # Select the correct configuration.
+    result = load_rst_config(options)
+  except EInvalidValue, E_Base:
+    try: error("Returning nil as parsed options")
+    except: discard

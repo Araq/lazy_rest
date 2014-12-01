@@ -33,3 +33,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/19>`_.
 * `Generalised nim_file_to_html proc
   <https://github.com/gradha/lazy_rest/issues/22>`_.
+* `Cleaned up usage documentation and source code
+  <https://github.com/gradha/lazy_rest/issues/28>`_.

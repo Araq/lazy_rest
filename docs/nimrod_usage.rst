@@ -76,9 +76,6 @@ module <http://nimrod-lang.org/highlite.html>`_, then `Prism
 <http://prismjs.com>`_ will be embedded in an attempt to prettify the code
 block.
 
-The `code directive and line numbering option
-<https://github.com/Araq/Nimrod/pull/1383>`_ is already supported.
-
 The footer of the generated files includes JavaScript code which updates a
 relative timer to the last modification time of the rendered file, which might
 be easier to parse than the default full date.

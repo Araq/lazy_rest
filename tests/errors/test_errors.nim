@@ -1,5 +1,5 @@
 import
-  lazy_rest, lazy_rest_pkg/lconfig, lazy_rest_pkg/lrstgen, strutils, os, strtabs
+  lazy_rest, strutils, os, strtabs
 
 type Pair = tuple[src, dest: string]
 
@@ -21,8 +21,8 @@ proc test_safe_procs(file_prefix: string, config: PStringTable) =
   # Now do some in memory checks.
   discard safe_rst_file_to_html(nil)
   discard safe_rst_file_to_html("")
-  discard safe_rst_string_to_html(nil, "Or was it `single quotes?")
-  discard safe_rst_string_to_html("<", "Or was < it `single quotes?")
+  discard safe_rst_string_to_html("Or was it `single quotes?")
+  discard safe_rst_string_to_html("Or was < it `single quotes?", "<")
   try: discard safe_rst_string_to_html(nil, nil)
   except EAssertionFailed: discard
 
@@ -47,18 +47,18 @@ proc test_safe_procs(file_prefix: string, config: PStringTable) =
   do_assert errors.len > 0
   echo "Ignore this: ", errors[0]
   errors = @[]
-  discard safe_rst_string_to_html(nil, "Or was it `single quotes?")
+  discard safe_rst_string_to_html("Or was it `single quotes?")
   do_assert errors.len < 1
-  discard safe_rst_string_to_html("<", "Or was < it `single quotes?")
+  discard safe_rst_string_to_html("Or was < it `single quotes?", "<")
   do_assert errors.len < 1
 
 
 proc docstrings() =
   ## Stuff demostrated in the embedded documentation.
   const rst = "hello `world"
-  discard safe_rst_string_to_html(nil, rst)
+  discard rst.safe_rst_string_to_html
   var errors: seq[string] = @[]
-  let html = safe_rst_string_to_html(nil, rst, errors.addr)
+  let html = safe_rst_string_to_html(rst, nil, errors.addr)
   if errors.len > 0: discard
   else: discard
 
@@ -89,7 +89,7 @@ proc run_tests() =
   docstrings()
 
   # Set the error templates.
-  var raw_config = default_config()
+  var raw_config = new_rst_config()
   raw_config["parser.enable.raw.directive"] = "true"
   var errors = set_normal_error_rst(
     read_file("custom_default_error.rst"), raw_config)
