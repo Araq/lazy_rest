@@ -571,7 +571,14 @@ proc source_string_to_html*(content: string, filename: string = nil,
   ##
   ## This proc always works, since even empty code blocks should render (as
   ## empty HTML), and there should be no content escaping problems. In case of
-  ## failure, the error itself will be rendered in the final HTML.
+  ## failure, the error itself will be rendered in the final HTML. Example:
+  ##
+  ## .. code-block:: c
+  ##
+  ##   let c_source = """#include <stdio.h>
+  ##     int main(void) { printf("Hello test!\n"); }"""
+  ##   write_file("hello.html",
+  ##     c_source.source_string_to_html("hello.c"))
   assert content.not_nil
   let filename = if filename.not_nil: filename else: ""
   var language = if language.is_nil: "" else: language
@@ -613,7 +620,12 @@ proc source_file_to_html*(filename: string,
   ## Renders the contents of `filename` as syntax highlighted source code.
   ##
   ## This is a small wrapper around the `source_string_to_html()
-  ## <#source_string_to_html>`_ proc.
+  ## <#source_string_to_html>`_ proc. Example:
+  ##
+  ## .. code-block:: c
+  ##
+  ##   let filename = "hello.c"
+  ##   write_file("hello.html", filename.source_file_to_html)
   assert filename.not_nil and filename.len > 0
   try:
     let content = filename.read_file
@@ -638,7 +650,8 @@ proc set_normal_error_rst*(input_rst: string, user_config: PStringTable = nil):
   ##
   ## See the document `Lazy reST error handling <docs/error_handling.rst>`_ for
   ## more information on what your ``input_rst`` variable can contain. The only
-  ## requirement is that it is valid reStructuredText.
+  ## requirement is that it is valid reStructuredText. A practical example can
+  ## be seen in the ``tests/errors`` test suite provided with the package.
   ##
   ## Returns an empty string on success or a list of error messages indicating
   ## problems with ``input_rst``.
@@ -675,7 +688,8 @@ proc set_safe_error_rst*(input_rst: string, user_config: PStringTable = nil):
   ## more information on what your ``input_rst`` variable needs to contain.
   ## Unlike `set_normal_error_rst() <#set_normal_error_rst>`_ your
   ## ``input_rst`` is required to produce a ``$content`` string somewhere to be
-  ## a valid replacement for the embedded default.
+  ## a valid replacement for the embedded default. A practical example can be
+  ## seen in the ``tests/errors`` test suite provided with the package.
   ##
   ## Returns an empty string on success or a list of error messages indicating
   ## problems with ``input_rst``.
