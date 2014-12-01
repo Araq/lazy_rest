@@ -1,5 +1,5 @@
 import
-  lazy_rest, strutils, lazy_rest_pkg/lconfig, os
+  lazy_rest, strutils, os
 
 
 const

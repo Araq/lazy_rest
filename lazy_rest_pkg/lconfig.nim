@@ -21,10 +21,6 @@ import
   strtabs, external/badger_bits/bb_system, parsecfg, streams, logging
 
 
-export
-  strtabs
-
-
 const
   lrc_render_template* = "render.template" ## \
   ## Key used to access the PStringTable storing the skeleton of the HTML rest

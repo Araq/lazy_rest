@@ -3,15 +3,6 @@ import
   strtabs, times, cgi, logging, external/badger_bits/bb_system,
   lazy_rest_pkg/lconfig
 
-export Find_file_handler
-export TMsgClass
-export TMsgHandler
-export TMsgKind
-export nil_find_file_handler
-export nil_msg_handler
-export rst_messages
-export whichMsgClass
-
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
 ##
@@ -699,4 +690,13 @@ proc set_safe_error_rst*(input_rst: string, user_config: PStringTable = nil):
   G.user_safe_error_end = html[p2 .. html.high]
 
 
-
+export Find_file_handler
+export TMsgClass
+export TMsgHandler
+export TMsgKind
+export lconfig
+export nil_find_file_handler
+export nil_msg_handler
+export rst_messages
+export strtabs
+export whichMsgClass
