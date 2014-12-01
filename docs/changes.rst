@@ -31,3 +31,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/23>`_.
 * `Checked 0.10 compatibility before release
   <https://github.com/gradha/lazy_rest/issues/19>`_.
+* `Generalised nim_file_to_html proc
+  <https://github.com/gradha/lazy_rest/issues/22>`_.
