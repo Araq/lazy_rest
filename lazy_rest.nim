@@ -133,7 +133,11 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
   ##
   ## You can safely pass the result of this proc to `rst_string_to_html()
   ## <#rst_string_to_html>`_ or any other proc asking for configuration options
-  ## since they will handle ``nil`` gracefully.
+  ## since they will handle ``nil`` gracefully. Usually you will pass the
+  ## contents of a file like `resources/embedded_nimdoc.cfg
+  ## <https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg>`_
+  ## to configure the options for the parsing and rendering phases of the rst
+  ## transformation.
   if options.is_nil or options.len < 1:
     return nil
 
@@ -149,7 +153,7 @@ proc rst_string_to_html*(content: string, filename: string = nil,
     user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
-  ## Converts a content named filename into a string with HTML tags.
+  ## Converts the `content` string named `filename` into HTML.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
   ## The `filename` parameter is optional and used mostly for error reporting.
@@ -172,7 +176,7 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   ## <#stdout_msg_handler>`_ which on top of reporting warnings to stdout also
   ## throws exceptions on parsing errors. By supplying a custom handler you can
   ## for example ignore all errors completely and still render more or less
-  ## good HTML.
+  ## readable HTML.
   ##
   ## Usage example:
   ##
@@ -248,7 +252,7 @@ proc rst_string_to_html*(content: string, filename: string = nil,
 proc rst_file_to_html*(filename: string, user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
-  ## Converts a filename with rest content into a string with HTML tags.
+  ## Converts `filename` with reStructuredText content into HTML.
   ##
   ## This is just a small wrapper around `rst_string_to_html()
   ## <#rst_string_to_html>`_ which loads the file content. Example:
@@ -448,27 +452,26 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
         CONTENT & safe_error_end
 
 
-proc safe_rst_string_to_html*(filename, data: string,
+proc safe_rst_string_to_html*(filename, content: string,
     ERRORS: ptr seq[string] = nil, user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
-  ## Wrapper over `rst_string_to_html <#rst_string_to_html>`_ to catch
-  ## exceptions.
+  ## Converts safely the `content` string named `filename` into HTML.
   ##
-  ## Returns always a valid HTML. If something bad happens, it tries to show
-  ## the error for debugging but still returns valid HTML, though it may be
-  ## quite different from what you expect. The `filename` parameter is only
-  ## used for error reporting, you can pass ``nil`` or the empty string.
+  ## This is a wrapper over `rst_string_to_html <#rst_string_to_html>`_ to
+  ## catch exceptions, so it always returns valid HTML for display.  If
+  ## something bad happens, it tries to show the error for debugging but still
+  ## returns valid HTML, though it may be quite different from what you expect.
   ##
   ## This proc always returns without raising any exceptions, but if you want
-  ## to know about errors you can pass the address of an initialized sequence
-  ## of string as the `ERRORS` parameter to figure out why something fails and
-  ## report it to the user. Any problems found during rendering will be added
-  ## to the existing list.
+  ## to know about the found errors you can pass the address of an initialized
+  ## sequence of string as the `ERRORS` parameter to figure out why something
+  ## fails and report it to the user. Any problems found during rendering will
+  ## be added to the existing list.
   ##
-  ## The value for the `user_config` parameter is explained in
-  ## `lazy_rest/lrstgen.initRstGenerator()
-  ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
+  ## To customize the error page you can use `set_normal_error_rst()
+  ## <#set_normal_error_rst>`_ or `set_safe_error_rst()
+  ## <#set_safe_error_rst>`_.
   ##
   ## Usage example:
   ##
@@ -479,35 +482,36 @@ proc safe_rst_string_to_html*(filename, data: string,
   ##   var ERRORS: seq[string] = @[]
   ##   let html = safe_rst_string_to_html(name, rst, ERRORS.addr)
   ##   if ERRORS.len > 0:
-  ##     # We got HTML, but it it won't be nice.
+  ##     # We got HTML, but it won't be nice.
   ##     for error in ERRORS: echo error
   ##     ...
   ##   else:
   ##     # Yay, use `html` without worries.
-  const msg = "data parameter can't be nil"
-  rassert data.not_nil, msg:
+  const msg = "content parameter can't be nil"
+  rassert content.not_nil, msg:
     append_error_to_list()
     ERRORS.append(new_exception(EInvalidValue, msg))
-    result = build_error_html(filename, data, ERRORS, user_config)
+    result = build_error_html(filename, content, ERRORS, user_config)
     return
 
   try:
-    result = rst_string_to_html(data, filename,
+    result = rst_string_to_html(content, filename,
       user_config, find_file, msg_handler)
   except:
     append_error_to_list()
-    result = build_error_html(filename, data, ERRORS, user_config)
+    result = build_error_html(filename, content, ERRORS, user_config)
 
 
 proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
     user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
-  ## Wrapper over `rst_file_to_html <#rst_file_to_html>`_ to catch exceptions.
+  ## Converts safely `filename` with reStructuredText content into HTML.
   ##
-  ## Returns always a valid HTML. If something bad happens, it tries to show
-  ## the error for debugging but still returns valid HTML, though it may be
-  ## quite different from what you expect.
+  ## This is a wrapper over `rst_file_to_html() <#rst_file_to_html>`_ to catch
+  ## exceptions, so it always returns valid HTML for display. If something bad
+  ## happens, it tries to show the error for debugging but still returns valid
+  ## HTML, though it may be quite different from what you expect.
   ##
   ## This proc always returns without raising any exceptions, but if you want
   ## to know about errors you can pass the address of an initialized sequence
@@ -515,9 +519,9 @@ proc safe_rst_file_to_html*(filename: string, ERRORS: ptr seq[string] = nil,
   ## report it to the user. Any problems found during rendering will be added
   ## to the existing list.
   ##
-  ## The value for the `user_config` parameter is explained in
-  ## `lazy_rest/lrstgen.initRstGenerator()
-  ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
+  ## To customize the error page you can use `set_normal_error_rst()
+  ## <#set_normal_error_rst>`_ or `set_safe_error_rst()
+  ## <#set_safe_error_rst>`_.
   ##
   ## Usage example:
   ##
