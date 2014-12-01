@@ -128,27 +128,6 @@ proc unrestricted_find_file_handler*(current_filename,
   #debug("\tReturning '" & result & "'")
 
 
-proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
-  ## Parses the options, returns ``nil`` if something goes wrong.
-  ##
-  ## You can safely pass the result of this proc to `rst_string_to_html()
-  ## <#rst_string_to_html>`_ or any other proc asking for configuration options
-  ## since they will handle ``nil`` gracefully. Usually you will pass the
-  ## contents of a file like `resources/embedded_nimdoc.cfg
-  ## <https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg>`_
-  ## to configure the options for the parsing and rendering phases of the rst
-  ## transformation.
-  if options.is_nil or options.len < 1:
-    return nil
-
-  try:
-    # Select the correct configuration.
-    result = load_rst_config(options)
-  except EInvalidValue, E_Base:
-    try: error("Returning nil as parsed options")
-    except: discard
-
-
 proc rst_string_to_html*(content: string, filename: string = nil,
     user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
@@ -160,11 +139,12 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   ##
   ## You can pass ``nil`` as `user_config` if you want to use the default HTML
   ## standalone file rendering templates embedded in the module. Alternatively
-  ## you can you can load your own configuration file with `parse_rst_options()
-  ## <#parse_rst_options>`_ or create one on the fly with
-  ## `lconfig.new_rst_config() <lazy_rest_pkg/lconfig.html#new_rst_config>`_,
-  ## then setting ``lrc_*`` `configuration values
-  ## <lazy_rest_pkg/lconfig.html>`_.
+  ## you can you can load your own configuration file with
+  ## `lconfig.parse_rst_options()
+  ## <lazy_rest_pkg/lconfig.html#parse_rst_options>`_ or create one on the fly
+  ## with `lconfig.new_rst_config()
+  ## <lazy_rest_pkg/lconfig.html#new_rst_config>`_, then setting ``lrc_*``
+  ## `configuration values <lazy_rest_pkg/lconfig.html>`_.
   ##
   ## By default the `find_file` parameter will be the
   ## `unrestricted_find_file_handler() <#unrestricted_find_file_handler>`_
