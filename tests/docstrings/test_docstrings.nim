@@ -25,10 +25,10 @@ proc docstring_safe_rst_string_to_html() =
   let
     rst = "*Hello* **world**!"
     name = "something.rst"
-  #echo safe_rst_string_to_html(nil, rst)
-  # --> dumps HTML saying something bad happened.
+  echo rst.safe_rst_string_to_html
+  # --> dumps success or HTML saying something bad happened.
   var ERRORS: seq[string] = @[]
-  let html = safe_rst_string_to_html(name, rst, ERRORS.addr)
+  let html = safe_rst_string_to_html(rst, name, ERRORS.addr)
   if ERRORS.len > 0:
     # We got HTML, but it won't be nice.
     for error in ERRORS: echo error

@@ -187,13 +187,13 @@ void run_c_test(char* error_rst, char* special_options)
 	// Test the safe string conversions.
 	{
 		char* s = lr_safe_rst_string_to_html(
-			"<filename>", valid_rst_string, 0, 0);
+			valid_rst_string, "<filename>", 0, 0);
 		overwrite("temp_safe_string_1.html", s);
 		assert(s);
 		assert(strstr(s, "<title>"));
 		int errors = 1;
 		s = lr_safe_rst_string_to_html(
-			"<filename>", valid_rst_string, &errors, 0);
+			valid_rst_string, "<filename>", &errors, 0);
 		assert(0 == errors);
 		overwrite("temp_safe_string_2.html", s);
 		if (s) {
@@ -205,13 +205,13 @@ void run_c_test(char* error_rst, char* special_options)
 
 	{
 		char* s = lr_safe_rst_string_to_html(
-			"<filename>", bad_rst_string, 0, 0);
+			bad_rst_string, "<filename>", 0, 0);
 		assert(s);
 		assert(strstr(s, "<title>"));
 		overwrite("temp_safe_string_3.html", s);
 		int errors = 0;
 		s = lr_safe_rst_string_to_html(
-			"<filename>", bad_rst_string, &errors, 0);
+			bad_rst_string, "<filename>", &errors, 0);
 		assert(errors > 0);
 		overwrite("temp_safe_string_4.html", s);
 		if (errors) {

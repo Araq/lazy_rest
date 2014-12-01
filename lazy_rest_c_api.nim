@@ -439,7 +439,7 @@ proc lr_rst_file_to_html_error*(): cstring {.exportc, raises: [].} =
     result = C.error_rst_file_to_html.msg.nil_cstring
 
 
-proc lr_safe_rst_string_to_html*(filename, data: cstring,
+proc lr_safe_rst_string_to_html*(data, filename: cstring,
     ERRORS: ptr cint, config: PStringTable):
     cstring {.exportc, raises: [].} =
   ## Wraps `safe_rst_string_to_html()
@@ -456,7 +456,7 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
   ##
   ## .. code-block:: c
   ##   char *s = lr_safe_rst_string_to_html(
-  ##      "<filename>", valid_rst_string, 0, 0);
+  ##      valid_rst_string, "<filename>", 0, 0);
   ##   assert(s);
   ##   // Do here something with `s`.
   override_config()
@@ -465,7 +465,7 @@ proc lr_safe_rst_string_to_html*(filename, data: cstring,
     data = data.nil_string
   C.errors_safe_rst_string_to_html = @[]
 
-  C.ret_safe_rst_string_to_html = safe_rst_string_to_html(filename, data,
+  C.ret_safe_rst_string_to_html = data.safe_rst_string_to_html(filename,
     C.errors_safe_rst_string_to_html.addr, config,
     global_find_file_handler(), global_msg_handler())
 

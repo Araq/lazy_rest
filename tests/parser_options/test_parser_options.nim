@@ -24,15 +24,15 @@ proc process(filename: string) =
 
   # First generate the normal HTML, which may produce errors.
   echo dest_default
-  let default_html = safe_rst_string_to_html(filename,
-    content, user_config = config)
+  let default_html = content.safe_rst_string_to_html(filename,
+    user_config = config)
   dest_default.write_file(default_html)
 
   # Now generate a default config with the option set to true.
   config[config_option] = "t"
   echo dest_tweaked
-  let tweaked_html = safe_rst_string_to_html(filename,
-    content, user_config = config)
+  let tweaked_html = content.safe_rst_string_to_html(filename,
+    user_config = config)
   dest_tweaked.write_file(tweaked_html)
 
   # The output HTML should be different in all cases.

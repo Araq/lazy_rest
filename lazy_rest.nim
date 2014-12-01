@@ -432,7 +432,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
         CONTENT & safe_error_end
 
 
-proc safe_rst_string_to_html*(filename, content: string,
+proc safe_rst_string_to_html*(content: string, filename: string = nil,
     ERRORS: ptr seq[string] = nil, user_config: PStringTable = nil,
     find_file: Find_file_handler = unrestricted_find_file_handler,
     msg_handler: TMsgHandler = stdout_msg_handler): string {.raises: [].} =
@@ -457,10 +457,10 @@ proc safe_rst_string_to_html*(filename, content: string,
   ##
   ## .. code-block::
   ##
-  ##   echo safe_rst_string_to_html(nil, rst)
-  ##   # --> dumps HTML saying something bad happened.
+  ##   echo rst_input.safe_rst_string_to_html
+  ##   # --> dumps success or HTML saying something bad happened.
   ##   var ERRORS: seq[string] = @[]
-  ##   let html = safe_rst_string_to_html(name, rst, ERRORS.addr)
+  ##   let html = safe_rst_string_to_html(rst_input, name, ERRORS.addr)
   ##   if ERRORS.len > 0:
   ##     # We got HTML, but it won't be nice.
   ##     for error in ERRORS: echo error
