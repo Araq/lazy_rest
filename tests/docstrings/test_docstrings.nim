@@ -1,4 +1,5 @@
-import lazy_rest
+import
+  lazy_rest, os, strutils
 
 
 proc docstring_rst_string_to_html() =
@@ -13,8 +14,16 @@ proc docstring_rst_string_to_html() =
   # --> "<em>Hello</em> <strong>world</strong>!"
 
 
+proc docstring_rst_file_to_html() =
+  # Modify the configuration template to render embeddable HTML.
+  let filename = ".."/"code_blocks"/"anon.rst"
+  let html = filename.rst_file_to_html
+  assert html.find("<p>Let's see how") > 0
+
+
 proc test() =
   docstring_rst_string_to_html()
+  docstring_rst_file_to_html()
 
 
 when isMainModule:

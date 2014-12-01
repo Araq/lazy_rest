@@ -152,19 +152,39 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   ## Converts a content named filename into a string with HTML tags.
   ##
   ## If there is any problem with the parsing, an exception could be thrown.
+  ## The `filename` parameter is optional and used mostly for error reporting.
   ##
   ## You can pass ``nil`` as `user_config` if you want to use the default HTML
-  ## rendering templates embedded in the module. Or you can load a
-  ## configuration file with `parse_rst_options <#parse_rst_options>`_.  The
-  ## value for the `user_config` parameter is explained in
-  ## `lazy_rest/lrstgen.initRstGenerator()
-  ## <lazy_rest_pkg/lrstgen.html#initRstGenerator>`_.
+  ## standalone file rendering templates embedded in the module. Alternatively
+  ## you can you can load your own configuration file with `parse_rst_options()
+  ## <#parse_rst_options>`_ or create one on the fly with
+  ## `lconfig.new_rst_config() <lazy_rest_pkg/lconfig.html#new_rst_config>`_,
+  ## then setting ``lrc_*`` `configuration values
+  ## <lazy_rest_pkg/lconfig.html>`_.
   ##
   ## By default the `find_file` parameter will be the
   ## `unrestricted_find_file_handler() <#unrestricted_find_file_handler>`_
   ## proc. If you pass ``nil`` the `lrst.nil_find_file_handler()
   ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc will be used
-  ## instead.
+  ## instead. Example:
+  ##
+  ## The default `msg_handler` proc is `stdout_msg_handler()
+  ## <#stdout_msg_handler>`_ which on top of reporting warnings to stdout also
+  ## throws exceptions on parsing errors. By supplying a custom handler you can
+  ## for example ignore all errors completely and still render more or less
+  ## good HTML.
+  ##
+  ## Usage example:
+  ##
+  ## .. code-block::
+  ##   # Modify the configuration template to render embeddable HTML.
+  ##   var config = new_rst_config()
+  ##   config[lrc_render_template] = "$" & lrk_render_content
+  ##   let
+  ##     input_rst = "*Hello* **world**!"
+  ##     html = input_rst.rst_string_to_html(user_config = config)
+  ##   echo html
+  ##   # --> "<em>Hello</em> <strong>world</strong>!"
   assert content.not_nil
   var
     filename = filename
@@ -230,13 +250,11 @@ proc rst_file_to_html*(filename: string, user_config: PStringTable = nil,
     msg_handler: TMsgHandler = stdout_msg_handler): string =
   ## Converts a filename with rest content into a string with HTML tags.
   ##
-  ## If there is any problem with the parsing, an exception could be thrown.
+  ## This is just a small wrapper around `rst_string_to_html()
+  ## <#rst_string_to_html>`_ which loads the file content. Example:
   ##
-  ## By default the `find_file` parameter will be the
-  ## `unrestricted_find_file_handler() <#unrestricted_find_file_handler>`_
-  ## proc. If you pass ``nil`` the `lrst.nil_find_file_handler()
-  ## <lazy_rest_pkg/lrst.html#nil_find_file_handler>`_ proc will be used
-  ## instead.
+  ## .. code-block::
+  ##   let html = filename.rst_file_to_html
   const msg = "filename parameter can't be nil!"
   rassert filename.not_nil, msg:
     raise new_exception(EInvalidValue, msg)
