@@ -35,3 +35,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/22>`_.
 * `Cleaned up usage documentation and source code
   <https://github.com/gradha/lazy_rest/issues/28>`_.
+* `Disabled developer logging to file
+  <https://github.com/gradha/lazy_rest/issues/27>`_.

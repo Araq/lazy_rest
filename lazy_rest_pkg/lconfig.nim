@@ -17,8 +17,12 @@
 ## <lrstgen.html#default_config>`_.
 
 
+when defined(lazy_rest_devel_log):
+  import logging
+
+
 import
-  strtabs, external/badger_bits/bb_system, parsecfg, streams, logging
+  strtabs, external/badger_bits/bb_system, parsecfg, streams
 
 
 const
@@ -293,9 +297,15 @@ proc load_rst_config(mem_string: string): PStringTable =
     of cfgKeyValuePair:
       temp[e.key] = e.value
     of cfgOption:
-      warn("command: " & e.key & ": " & e.value)
+      when defined(lazy_rest_devel_log):
+        warn("command: " & e.key & ": " & e.value)
+      else:
+        discard
     of cfgError:
-      error(e.msg)
+      when defined(lazy_rest_devel_log):
+        error(e.msg)
+      else:
+        discard
       raise newException(EInvalidValue, e.msg)
   close(p)
   result = temp
@@ -318,5 +328,9 @@ proc parse_rst_options*(options: string): PStringTable {.raises: [].} =
     # Select the correct configuration.
     result = load_rst_config(options)
   except EInvalidValue, E_Base:
-    try: error("Returning nil as parsed options")
+    try:
+      when defined(lazy_rest_devel_log):
+        error("Returning nil as parsed options")
+      else:
+        discard
     except: discard

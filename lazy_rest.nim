@@ -1,7 +1,10 @@
 import
   lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils, subexes,
-  strtabs, times, cgi, logging, external/badger_bits/bb_system,
+  strtabs, times, cgi, external/badger_bits/bb_system,
   lazy_rest_pkg/lconfig
+
+when defined(lazy_rest_devel_log):
+  import logging
 
 ## Main API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.
@@ -177,14 +180,15 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   if filename.is_nil:
     filename = "(no filename)"
 
-  # Was the debug logger started?
-  if not G.did_start_logger:
-    when not defined(release):
-      var F = newFileLogger("/tmp/rester.log", fmtStr = verboseFmtStr)
-      handlers.add(newConsoleLogger())
-      handlers.add(F)
-      info("Initiating global log for debugging")
-    G.did_start_logger = true
+  when defined(lazy_rest_devel_log):
+    # Was the debug logger started?
+    if not G.did_start_logger:
+      when not defined(release):
+        var F = newFileLogger("/tmp/lazy_rest.log", fmtStr = verboseFmtStr)
+        handlers.add(newConsoleLogger())
+        handlers.add(F)
+        info("Initiating global log for debugging")
+      G.did_start_logger = true
 
   GENERATOR.initRstGenerator(outHtml, filename,
     user_config, find_file, msg_handler)
