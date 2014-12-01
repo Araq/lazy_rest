@@ -568,7 +568,7 @@ proc source_string_to_html*(content: string, filename: string = nil,
     # Provide automatic language detection for embedded syntax highlight langs.
     if ext.len > 1:
       case ext
-      of ".nim": language = "nimrod"
+      of ".nim": language = "nim"
       of ".cpp", ".cxx": language = "c++"
       of ".cs": language = "c#"
       else: language = ext[1.. <ext.len]
