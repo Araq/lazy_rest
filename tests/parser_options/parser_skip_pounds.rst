@@ -10,3 +10,20 @@ This rst file has some embedded pounds signs (#) which will be discarded.
 # parser option is true
 
 So, did that work?
+
+#This one won't be indented as
+#a block visually because we
+#are not leaving any space between
+#the hash and the body
+
+##   How about
+##   a second double
+##   pounded skip block?
+
+These won't be ignored
+
+### Triple hashes with pound skipping
+### will work like a single column
+### of hashes does in the normal
+### parsing mode, since the first two
+### are discarded but the third remains
