@@ -37,3 +37,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/28>`_.
 * `Disabled developer logging to file
   <https://github.com/gradha/lazy_rest/issues/27>`_.
+* `Implemented lazy_rest_badger command line example program
+  <https://github.com/gradha/lazy_rest/issues/20>`_.

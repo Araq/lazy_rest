@@ -2,6 +2,10 @@
 name          = "lazy_rest"
 version       = "0.1.0"
 author        = "Grzegorz Adam Hankiewicz"
-description   = """Simple reST HTML generation with some extras."""
+description   = """Simple rst (reStructuredText) HTML generation from Nimrod or C with some extras"""
 license       = "MIT"
 SkipDirs = "tests"
+bin = "lazy_rest_badger.exe"
+
+[Deps]
+Requires: "nake >= 1.2,argument_parser >= 0.2"
