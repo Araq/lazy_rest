@@ -21,6 +21,9 @@ const
   param_output = @["-o", "--output"]
   help_output = "When a single file is the input, sets its output filename."
 
+  param_safe = @["-s", "--safe"]
+  help_safe = "Always generate a 'safe' HTML output, even if input is bad."
+
   param_raw_directive = @["-R", "--parser-raw-directive"]
   help_raw_directive = "Allows raw directives to be processed."
 
@@ -47,6 +50,8 @@ type
     parse_enable_smilies: bool
     parse_fenced_blocks: bool
     parse_skip_pounds: bool
+    rst_options: PStringTable ## The loaded options.
+    run_safe: bool ## Set to yes if the user wants always HTML output.
 
 
 var G: Global
@@ -101,6 +106,8 @@ proc process_commandline() =
     help_text = help_dir))
   PARAMS.add(new_parameter_specification(PK_STRING, names = param_output,
     help_text = help_output))
+  PARAMS.add(new_parameter_specification(names = param_safe,
+    help_text = help_safe))
   PARAMS.add(new_parameter_specification(PK_STRING, names = param_option_file,
     help_text = help_option_file))
   PARAMS.add(new_parameter_specification(names = param_raw_directive,
@@ -159,6 +166,8 @@ proc process_commandline() =
     G.output_filename = filename
 
   # Detect aditional parsing options.
+  if result.options.has_key(param_safe[0]):
+    G.run_safe = true
   if result.options.has_key(param_raw_directive[0]):
     G.parse_raw_directive = true
   if result.options.has_key(param_enable_smilies[0]):
@@ -169,7 +178,63 @@ proc process_commandline() =
     G.parse_skip_pounds = true
 
 
+proc process_options() =
+  ## Loads the user specified options and sets some other values if needed.
+  ##
+  ## The final options are stored in G.rst_options.
+  G.rst_options = G.parse_option_file.parse_rst_options
+  if G.rst_options.is_nil:
+    G.rst_options = new_rst_config()
+  if G.parse_raw_directive: G.rst_options[lrc_parser_enable_raw_directive] = "t"
+  if G.parse_enable_smilies: G.rst_options[lrc_parser_enable_smilies] = "t"
+  if G.parse_fenced_blocks: G.rst_options[lrc_parser_enable_fended_blocks] = "t"
+  if G.parse_skip_pounds: G.rst_options[lrc_parser_skip_pounds] = "t"
+
+
+proc process_rst(content, filename: string): string =
+  ## Returns nil if the rst processing failed.
+  ##
+  ## Pass the content and the filename. Failing will never happen if run_safe
+  ## is ``true``.
+  if G.run_safe:
+    result = content.safe_rst_string_to_html(filename,
+      user_config = G.rst_options)
+  else:
+    try:
+      result = content.rst_string_to_html(filename, user_config = G.rst_options)
+    except:
+      discard
+
+
 proc main() =
   process_commandline()
+  process_options()
+  if is_stdin():
+    var content = ""
+    for line in stdin.lines: content.add(line & "\n")
+    let html = content.process_rst(nil)
+
+    if html.is_nil:
+      quit "Error processing STDIN"
+    else:
+      stdout.write(html)
+  else:
+    var errors = 0
+    for path in G.input_files:
+      let
+        content = path.read_file
+        dest = path.change_file_ext("html")
+        html = content.process_rst(path)
+
+      if html.is_nil:
+        errors.inc
+        echo path, "… error."
+      else:
+        echo dest, " ok."
+        dest.write_file(html)
+
+    if errors > 0:
+      quit "Failed to process " & $errors & " files."
+
 
 when isMainModule: main()
