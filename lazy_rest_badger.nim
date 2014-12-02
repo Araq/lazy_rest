@@ -85,6 +85,7 @@ proc is_stdin(): bool =
 template abort(msg: string) =
   ## Aborts the command line parsing with a message.
   PARAMS.echo_help
+  echo "\nMore detailed help can be found online at http://gradha.github.io/lazy_rest/gh_docs/master/docs/lazy_rest_badger_usage.html.\n"
   quit msg
 
 
