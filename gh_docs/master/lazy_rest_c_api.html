@@ -289,7 +289,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
   <li><a class="reference" href="#lr_rst_file_to_html_error,"
     title="lr_rst_file_to_html_error*(): cstring"><wbr />lr_<wbr />rst_<wbr />file_<wbr />to_<wbr />html_<wbr />error</a></li>
   <li><a class="reference" href="#lr_safe_rst_string_to_html,cstring,cstring,ptr.cint,PStringTable"
-    title="lr_safe_rst_string_to_html*(filename, data: cstring; ERRORS: ptr cint; 
+    title="lr_safe_rst_string_to_html*(data, filename: cstring; ERRORS: ptr cint; 
                             config: PStringTable): cstring"><wbr />lr_<wbr />safe_<wbr />rst_<wbr />string_<wbr />to_<wbr />html</a></li>
   <li><a class="reference" href="#lr_safe_rst_string_to_html_error,cint"
     title="lr_safe_rst_string_to_html_error*(pos: cint): cstring"><wbr />lr_<wbr />safe_<wbr />rst_<wbr />string_<wbr />to_<wbr />html_<wbr />error</a></li>
@@ -298,14 +298,18 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
                           config: PStringTable): cstring"><wbr />lr_<wbr />safe_<wbr />rst_<wbr />file_<wbr />to_<wbr />html</a></li>
   <li><a class="reference" href="#lr_safe_rst_file_to_html_error,cint"
     title="lr_safe_rst_file_to_html_error*(pos: cint): cstring"><wbr />lr_<wbr />safe_<wbr />rst_<wbr />file_<wbr />to_<wbr />html_<wbr />error</a></li>
-  <li><a class="reference" href="#lr_nim_file_to_html,cstring,cint,PStringTable"
-    title="lr_nim_file_to_html*(filename: cstring; number_lines: cint; config: PStringTable): cstring"><wbr />lr_<wbr />nim_<wbr />file_<wbr />to_<wbr />html</a></li>
-  <li><a class="reference" href="#lr_set_normal_error_rst,cstring"
-    title="lr_set_normal_error_rst*(input_rst: cstring): cint"><wbr />lr_<wbr />set_<wbr />normal_<wbr />error_<wbr />rst</a></li>
+  <li><a class="reference" href="#lr_source_string_to_html,cstring,cstring,cstring,cint,PStringTable"
+    title="lr_source_string_to_html*(content, filename, language: cstring; 
+                          number_lines: cint; config: PStringTable): cstring"><wbr />lr_<wbr />source_<wbr />string_<wbr />to_<wbr />html</a></li>
+  <li><a class="reference" href="#lr_source_file_to_html,cstring,cstring,cint,PStringTable"
+    title="lr_source_file_to_html*(filename: cstring; language: cstring; 
+                        number_lines: cint; config: PStringTable): cstring"><wbr />lr_<wbr />source_<wbr />file_<wbr />to_<wbr />html</a></li>
+  <li><a class="reference" href="#lr_set_normal_error_rst,cstring,PStringTable"
+    title="lr_set_normal_error_rst*(input_rst: cstring; config: PStringTable): cint"><wbr />lr_<wbr />set_<wbr />normal_<wbr />error_<wbr />rst</a></li>
   <li><a class="reference" href="#lr_set_normal_error_rst_error,cint"
     title="lr_set_normal_error_rst_error*(pos: cint): cstring"><wbr />lr_<wbr />set_<wbr />normal_<wbr />error_<wbr />rst_<wbr />error</a></li>
-  <li><a class="reference" href="#lr_set_safe_error_rst,cstring"
-    title="lr_set_safe_error_rst*(input_rst: cstring): cint"><wbr />lr_<wbr />set_<wbr />safe_<wbr />error_<wbr />rst</a></li>
+  <li><a class="reference" href="#lr_set_safe_error_rst,cstring,PStringTable"
+    title="lr_set_safe_error_rst*(input_rst: cstring; config: PStringTable): cint"><wbr />lr_<wbr />set_<wbr />safe_<wbr />error_<wbr />rst</a></li>
   <li><a class="reference" href="#lr_set_safe_error_rst_error,cint"
     title="lr_set_safe_error_rst_error*(pos: cint): cstring"><wbr />lr_<wbr />set_<wbr />safe_<wbr />error_<wbr />rst_<wbr />error</a></li>
 
@@ -496,7 +500,7 @@ Defines a C callback for resolving file paths.</p>
 <span class="Punctuation">}</span></pre>
 
 </dd>
-<dt id="lr_safe_rst_string_to_html"><a name="lr_safe_rst_string_to_html,cstring,cstring,ptr.cint,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_safe_rst_string_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">,</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">ERRORS</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">cint</span><span class="Other">;</span> 
+<dt id="lr_safe_rst_string_to_html"><a name="lr_safe_rst_string_to_html,cstring,cstring,ptr.cint,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_safe_rst_string_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">data</span><span class="Other">,</span> <span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">ERRORS</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">cint</span><span class="Other">;</span> 
                                  <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cstring</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">,</span> 
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
@@ -504,7 +508,7 @@ Defines a C callback for resolving file paths.</p>
 <p>Returns always a valid <tt class="docutils literal"><span class="pre">cstring</span></tt> with HTML. The memory of the returned <tt class="docutils literal"><span class="pre">cstring</span></tt> will be kept until the next call to this function, you may need to copy it somewhere.</p>
 <p>If <cite>ERRORS</cite> is not <tt class="docutils literal"><span class="pre">null</span></tt>, it will store the number of errors found during the processing of the file. If this number is greater than zero, you can use <a class="reference external" href="#lr_safe_rst_string_to_html_error">lr_safe_rst_string_to_html_error()</a> to retrieve their text. Example:</p>
 <pre><span class="Keyword">char</span> <span class="Operator">*</span><span class="Identifier">s</span> <span class="Operator">=</span> <span class="Identifier">lr_safe_rst_string_to_html</span><span class="Punctuation">(</span>
-   <span class="StringLit">&quot;&lt;filename&gt;&quot;</span><span class="Punctuation">,</span> <span class="Identifier">valid_rst_string</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">)</span><span class="Punctuation">;</span>
+   <span class="Identifier">valid_rst_string</span><span class="Punctuation">,</span> <span class="StringLit">&quot;&lt;filename&gt;&quot;</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">)</span><span class="Punctuation">;</span>
 <span class="Identifier">assert</span><span class="Punctuation">(</span><span class="Identifier">s</span><span class="Punctuation">)</span><span class="Punctuation">;</span>
 <span class="Comment">// Do here something with `s`.</span></pre>
 
@@ -560,16 +564,28 @@ Defines a C callback for resolving file paths.</p>
 <span class="Comment">// Still, do here something with `s`.</span></pre>
 
 </dd>
-<dt id="lr_nim_file_to_html"><a name="lr_nim_file_to_html,cstring,cint,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_nim_file_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">number_lines</span><span class="Other">:</span> <span class="Identifier">cint</span><span class="Other">;</span> 
-                          <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cstring</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dt id="lr_source_string_to_html"><a name="lr_source_string_to_html,cstring,cstring,cstring,cint,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_source_string_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">content</span><span class="Other">,</span> <span class="Identifier">filename</span><span class="Other">,</span> <span class="Identifier">language</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> 
+                               <span class="Identifier">number_lines</span><span class="Other">:</span> <span class="Identifier">cint</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cstring</span> <span class="Other">{.</span>
+    <span class="Identifier">exportc</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
-<p>Wraps <a class="reference external" href="lazy_rest.html#nim_file_to_html">nim_file_to_html()</a> for C.</p>
+<p>Wraps <a class="reference external" href="lazy_rest.html#source_string_to_html">source_string_to_html()</a> for C.</p>
 <p>The Nimrod boolean parameter is replaced by an <tt class="docutils literal"><span class="pre">int</span></tt> (non zero == <tt class="docutils literal"><span class="pre">true</span></tt>). The memory of the returned <tt class="docutils literal"><span class="pre">cstring</span></tt> will be kept until the next call to this function, you may need to copy it somewhere. Example:</p>
-<pre><span class="Keyword">char</span> <span class="Operator">*</span><span class="Identifier">s</span> <span class="Operator">=</span> <span class="Identifier">lr_nim_file_to_html</span><span class="Punctuation">(</span><span class="StringLit">&quot;file.nim&quot;</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">)</span><span class="Punctuation">;</span>
+<pre><span class="Keyword">char</span> <span class="Operator">*</span><span class="Identifier">s</span> <span class="Operator">=</span> <span class="Identifier">lr_source_string_to_html</span><span class="Punctuation">(</span><span class="Identifier">buf</span><span class="Punctuation">,</span> <span class="StringLit">&quot;file.nim&quot;</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">)</span><span class="Punctuation">;</span>
 <span class="Comment">// Do here something useful with `s`.</span></pre>
 
 </dd>
-<dt id="lr_set_normal_error_rst"><a name="lr_set_normal_error_rst,cstring"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_normal_error_rst</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">input_rst</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cint</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dt id="lr_source_file_to_html"><a name="lr_source_file_to_html,cstring,cstring,cint,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_source_file_to_html</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">language</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> 
+                             <span class="Identifier">number_lines</span><span class="Other">:</span> <span class="Identifier">cint</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cstring</span> <span class="Other">{.</span>
+    <span class="Identifier">exportc</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Wraps <a class="reference external" href="lazy_rest.html#source_file_to_html">source_file_to_html()</a> for C.</p>
+<p>The Nimrod boolean parameter is replaced by an <tt class="docutils literal"><span class="pre">int</span></tt> (non zero == <tt class="docutils literal"><span class="pre">true</span></tt>). The memory of the returned <tt class="docutils literal"><span class="pre">cstring</span></tt> will be kept until the next call to this function, you may need to copy it somewhere. Example:</p>
+<pre><span class="Keyword">char</span> <span class="Operator">*</span><span class="Identifier">s</span> <span class="Operator">=</span> <span class="Identifier">lr_source_file_to_html</span><span class="Punctuation">(</span><span class="StringLit">&quot;file.nim&quot;</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">)</span><span class="Punctuation">;</span>
+<span class="Comment">// Do here something useful with `s`.</span></pre>
+
+</dd>
+<dt id="lr_set_normal_error_rst"><a name="lr_set_normal_error_rst,cstring,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_normal_error_rst</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">input_rst</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cint</span> <span class="Other">{.</span>
+    <span class="Identifier">exportc</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
 <p>Exports <a class="reference external" href="lazy_rest.html#set_normal_error_rst">set_normal_error_rst()</a> for C.</p>
 <p>The C API returns the number of errors instead of the list of error messages. If you got a zero, this means success. Otherwise you can use <a class="reference external" href="#lr_set_normal_error_rst_error">lr_set_normal_error_rst_error()</a> in a loop to retrieve the individual error messages. Example:</p>
@@ -591,7 +607,8 @@ Defines a C callback for resolving file paths.</p>
 <span class="Punctuation">}</span></pre>
 
 </dd>
-<dt id="lr_set_safe_error_rst"><a name="lr_set_safe_error_rst,cstring"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_safe_error_rst</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">input_rst</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cint</span> <span class="Other">{.</span><span class="Identifier">exportc</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dt id="lr_set_safe_error_rst"><a name="lr_set_safe_error_rst,cstring,PStringTable"></a><pre><span class="Keyword">proc</span> <span class="Identifier">lr_set_safe_error_rst</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">input_rst</span><span class="Other">:</span> <span class="Identifier">cstring</span><span class="Other">;</span> <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">PStringTable</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">cint</span> <span class="Other">{.</span>
+    <span class="Identifier">exportc</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
 <dd>
 <p>Exports <a class="reference external" href="lazy_rest.html#set_safe_error_rst">set_safe_error_rst()</a> for C.</p>
 <p>The C API returns the number of errors instead of the list of error messages. If you got a zero, this means success. Otherwise you can use <a class="reference external" href="#lr_set_safe_error_rst_error">lr_set_safe_error_rst_error()</a> in a loop to retrieve the individual error messages. Example:</p>
@@ -618,7 +635,7 @@ Defines a C callback for resolving file paths.</p>
 
 </div>
 
-<small>Generated: 2014-11-28 22:48:08 UTC</small>
+<small>Generated: 2014-12-02 23:54:10 UTC</small>
 </div>
 </body>
 </html>

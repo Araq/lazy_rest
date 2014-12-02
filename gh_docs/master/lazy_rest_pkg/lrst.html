@@ -266,6 +266,8 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
                      arg: string): string"><wbr />TMsg<wbr />Handler</a></li>
   <li><a class="reference" href="#Find_file_handler"
     title="Find_file_handler* = proc (current_filename, target_filename: string): string"><wbr />Find_<wbr />file_<wbr />handler</a></li>
+  <li><a class="reference" href="#TRstParseOptions"
+    title="TRstParseOptions* = set[TRstParseOption]"><wbr />TRst<wbr />Parse<wbr />Options</a></li>
 
   </ul>
 </li>
@@ -274,16 +276,16 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
   <ul class="simple">
       <li><a class="reference" href="#rst_messages"
     title="rst_messages*: array[TMsgKind, string] = [
-    meCannotOpenFile: &quot;cannot open \'$1\'&quot;, meExpected: &quot;\'$1\' expected&quot;, 
+    meCannotOpenFile: &quot;cannot open \&#x27;$1\&#x27;&quot;, meExpected: &quot;\&#x27;$1\&#x27; expected&quot;, 
     meGridTableNotImplemented: &quot;grid table is not implemented&quot;, 
     meNewSectionExpected: &quot;new section expected&quot;, 
     meGeneralParseError: &quot;general parse error&quot;, 
-    meInvalidDirective: &quot;invalid directive: \'$1\'&quot;, 
-    meRecursiveInclude: &quot;can\'t open \'$1\' due to recursion&quot;, 
-    mwRedefinitionOfLabel: &quot;redefinition of label \'$1\'&quot;, 
-    mwUnknownSubstitution: &quot;unknown substitution \'$1\'&quot;, 
-    mwUnsupportedLanguage: &quot;language \'$1\' not supported&quot;, 
-    mwUnsupportedField: &quot;field \'$1\' not supported&quot;]"><wbr />rst_<wbr />messages</a></li>
+    meInvalidDirective: &quot;invalid directive: \&#x27;$1\&#x27;&quot;, 
+    meRecursiveInclude: &quot;can\&#x27;t open \&#x27;$1\&#x27; due to recursion&quot;, 
+    mwRedefinitionOfLabel: &quot;redefinition of label \&#x27;$1\&#x27;&quot;, 
+    mwUnknownSubstitution: &quot;unknown substitution \&#x27;$1\&#x27;&quot;, 
+    mwUnsupportedLanguage: &quot;language \&#x27;$1\&#x27; not supported&quot;, 
+    mwUnsupportedField: &quot;field \&#x27;$1\&#x27; not supported&quot;]"><wbr />rst_<wbr />messages</a></li>
 
   </ul>
 </li>
@@ -307,11 +309,10 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
     title="nil_find_file_handler*(current_filename, target_filename: string): string"><wbr />nil_<wbr />find_<wbr />file_<wbr />handler</a></li>
   <li><a class="reference" href="#getFieldValue,PRstNode"
     title="getFieldValue*(n: PRstNode): string"><wbr />get<wbr />Field<wbr />Value</a></li>
-  <li><a class="reference" href="#rstParse,string,string,int,int,bool,TRstParseOptions,Find_file_handler,TMsgHandler"
+  <li><a class="reference" href="#rstParse,string,string,int,int,bool,TLayeredConf,Find_file_handler,TMsgHandler"
     title="rstParse*(text, filename: string; line, column: int; hasToc: var bool; 
-          options: TRstParseOptions; 
-          findFile: Find_file_handler = nil_find_file_handler; 
-          msgHandler: TMsgHandler = nil_msg_handler): PRstNode"><wbr />rst<wbr />Parse</a></li>
+          config: TLayeredConf; findFile: Find_file_handler; 
+          msgHandler: TMsgHandler): PRstNode"><wbr />rst<wbr />Parse</a></li>
 
   </ul>
 </li>
@@ -367,6 +368,11 @@ Callback to resolve file paths.</p>
 <p>The <cite>current_filename</cite> parameter is the path to the current file being processed (it could change through several include directives, and will always be absolute).</p>
 <p>The <cite>target_filename</cite> parameter is the string as found in include directives in rst documents which requires resolving. Note that the <cite>target_filename</cite> parameter might be an absolute path.</p>
 <p>The callback should return the path to the final file. If the file can't be resolved for whatever reason (e.g final path falls out of sandboxed environment), it should return the empty string or <tt class="docutils literal"><span class="pre">nil</span></tt>. The callback is not allowed to raise any exceptions.</p>
+
+
+</dd>
+<dt id="TRstParseOptions"><a name="TRstParseOptions"></a><pre><span class="Identifier">TRstParseOptions</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Identifier">set</span><span class="Other">[</span><span class="Identifier">TRstParseOption</span><span class="Other">]</span></pre></dt>
+<dd>
 
 
 </dd>
@@ -446,10 +452,9 @@ Callback to resolve file paths.</p>
 
 
 </dd>
-<dt id="rstParse"><a name="rstParse,string,string,int,int,bool,TRstParseOptions,Find_file_handler,TMsgHandler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">rstParse</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">text</span><span class="Other">,</span> <span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">line</span><span class="Other">,</span> <span class="Identifier">column</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">hasToc</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">bool</span><span class="Other">;</span> 
-               <span class="Identifier">options</span><span class="Other">:</span> <span class="Identifier">TRstParseOptions</span><span class="Other">;</span> 
-               <span class="Identifier">findFile</span><span class="Other">:</span> <span class="Identifier">Find_file_handler</span> <span class="Other">=</span> <span class="Identifier">nil_find_file_handler</span><span class="Other">;</span> 
-               <span class="Identifier">msgHandler</span><span class="Other">:</span> <span class="Identifier">TMsgHandler</span> <span class="Other">=</span> <span class="Identifier">nil_msg_handler</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PRstNode</span></pre></dt>
+<dt id="rstParse"><a name="rstParse,string,string,int,int,bool,TLayeredConf,Find_file_handler,TMsgHandler"></a><pre><span class="Keyword">proc</span> <span class="Identifier">rstParse</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">text</span><span class="Other">,</span> <span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">line</span><span class="Other">,</span> <span class="Identifier">column</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">hasToc</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">bool</span><span class="Other">;</span> 
+               <span class="Identifier">config</span><span class="Other">:</span> <span class="Identifier">TLayeredConf</span><span class="Other">;</span> <span class="Identifier">findFile</span><span class="Other">:</span> <span class="Identifier">Find_file_handler</span><span class="Other">;</span> 
+               <span class="Identifier">msgHandler</span><span class="Other">:</span> <span class="Identifier">TMsgHandler</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PRstNode</span></pre></dt>
 <dd>
 
 
@@ -459,7 +464,7 @@ Callback to resolve file paths.</p>
 
 </div>
 
-<small>Generated: 2014-11-28 22:48:08 UTC</small>
+<small>Generated: 2014-12-02 23:54:10 UTC</small>
 </div>
 </body>
 </html>

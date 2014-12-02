@@ -239,8 +239,14 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <body>
 <div class="document" id="documentId">
 <h1 class="title">Lazy reST readme</h1>
-<p>Lazy reST is a <a class="reference external" href="http://nimrod-lang.org">Nimrod</a> module providing a slightly higher level API over <a class="reference external" href="http://nimrod-lang.org/rstgen.html">Nimrod's rstgen module</a> with some extras. The actual rstgen module and friends are duplicated here, which allows to use the stable Nimrod compiler version with the latest features. Some additional features are provided with regards to Nimrod's standard library version, like embedding of <a class="reference external" href="http://prismjs.com">Prism</a> for code block syntax highlighting.</p>
-<p>Unlike Nimrod's standard library, this module doesn't aim to support LaTeX generation at all. The included LaTeX bits are inherited and not maintained. Which doesn't mean patches aren't welcome, but you may have more success sending them <a class="reference external" href="https://github.com/Araq/Nimrod">upstream to Nimrod</a> instead of here.</p>
+<p>Lazy reST is a <a class="reference external" href="http://nimrod-lang.org">Nimrod</a> module providing a spin-off higher level API over <a class="reference external" href="http://nimrod-lang.org/rstgen.html">Nimrod's rstgen module</a>. The main reasons for this spin-off are:</p>
+<ul class="simple"><li>Incompatible, but easier and safer to use API.</li>
+<li>Explicit C API support for embedding.</li>
+<li>Embeds <a class="reference external" href="http://prismjs.com">Prism</a> for code syntax highlighting of more languages.</li>
+<li>Drops explicit support for <a class="reference external" href="http://latex-project.org">LaTeX</a>.</li>
+<li>All the latest features supported on the latest stable Nimrod compiler.</li>
+</ul>
+<p>On top of the library code, the <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> program shows how to use the library and provides a simple practical rst to html command line tool.</p>
 
 <h1 id="changes">Changes</h1><p>This is development version 0.1.0. For a list of changes see the <a class="reference external" href="docs/changes.html">docs/changes.rst</a> file.</p>
 
@@ -249,6 +255,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <h1 id="usage">Usage</h1><p>If you are a Nimrod programmer read the <a class="reference external" href="docs/nimrod_usage.rst">Nimrod usage guide</a> which includes installation steps. C programmers can read the <a class="reference external" href="docs/c_usage.html">C usage guide</a> which unfortunately requires you to read the Nimrod version too anyway.</p>
 <p>Information on how errors are handled is available in the separate <a class="reference external" href="docs/error_handling.html">Lazy reST error handling</a> document.</p>
 <p>All documentation should be available online at <a class="reference external" href="http://gradha.github.io/lazy_rest/">http://gradha.github.io/lazy_rest/</a>.</p>
+<p>The <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> binary has its own manual in <a class="reference external" href="docs/lazy_rest_badger_usage.html">docs/lazy_rest_badger_usage.rst</a>, but running the program with the <tt class="docutils literal"><span class="pre">--help</span></tt> switch should show enough help to get you going.</p>
 
 <h1 id="git-branches">Git branches</h1><p>This project uses the <a class="reference external" href="https://github.com/nvie/gitflow">git-flow branching model</a> with reversed defaults. Stable releases are tracked in the <tt class="docutils literal"><span class="pre">stable</span></tt> branch. Development happens in the default <tt class="docutils literal"><span class="pre">master</span></tt> branch.</p>
 
@@ -256,7 +263,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 
 
 
-<small>Generated: 2014-11-28 22:48:08 UTC</small>
+<small>Generated: 2014-12-02 23:54:10 UTC</small>
 </div>
 </body>
 </html>

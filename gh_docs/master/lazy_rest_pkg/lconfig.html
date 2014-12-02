@@ -242,18 +242,17 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <div class="navigation" id="navigation">
 <ul class="simple">
 <li>
+  <a class="reference" href="#6" id="56">Imports</a>
+  <ul class="simple">
+    
+  </ul>
+</li>
+<li>
   <a class="reference" href="#7" id="57">Types</a>
   <ul class="simple">
-      <li><a class="reference" href="#TRstParseOption"
-    title="TRstParseOption* = enum 
-  roSkipPounds,               ## \
-                              ## skip ``#`` at line beginning (documentation embedded in Nimrod comments)
-  roSupportSmilies,           ## make the RST parser support smilies like ``:)``
-  roSupportRawDirective,      ## \
-                              ## support the ``raw`` directive (don't support it for sandboxing)
-  roSupportMarkdown           ## support markdown triple quote fenced blocks"><wbr />TRst<wbr />Parse<wbr />Option</a></li>
-  <li><a class="reference" href="#TRstParseOptions"
-    title="TRstParseOptions* = set[TRstParseOption]"><wbr />TRst<wbr />Parse<wbr />Options</a></li>
+      <li><a class="reference" href="#TLayeredConf"
+    title="TLayeredConf* = object of TObject
+  user*, default*: PStringTable"><wbr />TLayered<wbr />Conf</a></li>
 
   </ul>
 </li>
@@ -274,6 +273,14 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
     title="lrc_render_failure_test* = &quot;render.failure.test&quot;"><wbr />lrc_<wbr />render_<wbr />failure_<wbr />test</a></li>
   <li><a class="reference" href="#lrc_render_split_item_toc"
     title="lrc_render_split_item_toc* = &quot;render.split.item.toc&quot;"><wbr />lrc_<wbr />render_<wbr />split_<wbr />item_<wbr />toc</a></li>
+  <li><a class="reference" href="#lrc_parser_skip_pounds"
+    title="lrc_parser_skip_pounds* = &quot;parser.skip.pounds&quot;"><wbr />lrc_<wbr />parser_<wbr />skip_<wbr />pounds</a></li>
+  <li><a class="reference" href="#lrc_parser_enable_smilies"
+    title="lrc_parser_enable_smilies* = &quot;parser.enable.smilies&quot;"><wbr />lrc_<wbr />parser_<wbr />enable_<wbr />smilies</a></li>
+  <li><a class="reference" href="#lrc_parser_enable_raw_directive"
+    title="lrc_parser_enable_raw_directive* = &quot;parser.enable.raw.directive&quot;"><wbr />lrc_<wbr />parser_<wbr />enable_<wbr />raw_<wbr />directive</a></li>
+  <li><a class="reference" href="#lrc_parser_enable_fended_blocks"
+    title="lrc_parser_enable_fended_blocks* = &quot;parser.enable.fenced.blocks&quot;"><wbr />lrc_<wbr />parser_<wbr />enable_<wbr />fended_<wbr />blocks</a></li>
   <li><a class="reference" href="#lrk_render_title"
     title="lrk_render_title* = &quot;title&quot;"><wbr />lrk_<wbr />render_<wbr />title</a></li>
   <li><a class="reference" href="#lrk_render_date"
@@ -311,32 +318,44 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 
   </ul>
 </li>
+<li>
+  <a class="reference" href="#12" id="62">Procs</a>
+  <ul class="simple">
+      <li><a class="reference" href="#[],TLayeredConf,string"
+    title="`[]`*(t: TLayeredConf; key: string): string">`<wbr />[]`</a></li>
+  <li><a class="reference" href="#is_true,TLayeredConf,string"
+    title="is_true*(t: TLayeredConf; key: string): bool"><wbr />is_<wbr />true</a></li>
+  <li><a class="reference" href="#new_rst_config,"
+    title="new_rst_config*(): PStringTable"><wbr />new_<wbr />rst_<wbr />config</a></li>
+  <li><a class="reference" href="#parse_rst_options,string"
+    title="parse_rst_options*(options: string): PStringTable"><wbr />parse_<wbr />rst_<wbr />options</a></li>
+
+  </ul>
+</li>
 
 </ul>
 </div>
 <div class="content" id="content">
 <p><a class="reference external" href="https://github.com/gradha/lazy_rest">lazy_rest</a> submodule containing configuration constants used elsewhere.</p>
-<p>The constants with the <tt class="docutils literal"><span class="pre">lrc_</span></tt> prefix stand for lazy_rest configuration keys. These keys are used for the <a class="reference external" href="http://nimrod-lang.org/strtabs.html#PStringTable">PStringTable</a> types passed in the API.</p>
+<p>The constants with the <tt class="docutils literal"><span class="pre">lrc_</span></tt> prefix stand for lazy_rest configuration keys. These keys are used for the <a class="reference external" href="http://nimrod-lang.org/strtabs.html#PStringTable">PStringTable</a> types passed in the API. You can create these configuration objects with <a class="reference external" href="#new_rst_config">new_rst_config()</a>.</p>
 <p>The constants with the <tt class="docutils literal"><span class="pre">lrk_</span></tt> prefix stand for lazy_rest render key substitution. They are the strings that you can use inside your <a class="reference external" href="#lrc_render_template">lrc_render_template</a> to specify different parametrized values.</p>
-<p>The constants with the <tt class="docutils literal"><span class="pre">lrd_</span></tt> prefix stand for lazy_rest default values, and are usually returned by <a class="reference external" href="lrstgen.html#defaultConfig">lrstgen.defaultConfig()</a>.</p>
+<p>The constants with the <tt class="docutils literal"><span class="pre">lrd_</span></tt> prefix stand for lazy_rest default values, and are usually returned by <a class="reference external" href="lrstgen.html#default_config">lrstgen.default_config()</a>.</p>
 
+<div class="section" id="6">
+<h1><a class="toc-backref" href="#56">Imports</a></h1>
+<dl class="item">
+<a class="reference external" href="logging.html">logging</a>, <a class="reference external" href="strtabs.html">strtabs</a>, <a class="reference external" href="external/badger_bits/bb_system.html">external/badger_bits/bb_system</a>, <a class="reference external" href="parsecfg.html">parsecfg</a>, <a class="reference external" href="streams.html">streams</a>
+</dl></div>
 <div class="section" id="7">
 <h1><a class="toc-backref" href="#57">Types</a></h1>
 <dl class="item">
-<dt id="TRstParseOption"><a name="TRstParseOption"></a><pre><span class="Identifier">TRstParseOption</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">enum</span> 
-  <span class="Identifier">roSkipPounds</span><span class="Other">,</span>               <span class="Comment">## \</span>
-                              <span class="Comment">## skip ``#`` at line beginning (documentation embedded in Nimrod comments)</span>
-  <span class="Identifier">roSupportSmilies</span><span class="Other">,</span>           <span class="Comment">## make the RST parser support smilies like ``:)``</span>
-  <span class="Identifier">roSupportRawDirective</span><span class="Other">,</span>      <span class="Comment">## \</span>
-                              <span class="Comment">## support the ``raw`` directive (don't support it for sandboxing)</span>
-  <span class="Identifier">roSupportMarkdown</span>           <span class="Comment">## support markdown triple quote fenced blocks</span></pre></dt>
+<dt id="TLayeredConf"><a name="TLayeredConf"></a><pre><span class="Identifier">TLayeredConf</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <span class="Identifier">TObject</span>
+  <span class="Identifier">user</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">default</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">PStringTable</span>
+</pre></dt>
 <dd>
-Options for the internal RST parser 
- These options are used as quick lookup enums while processing RST files, usually you will set values in the… TODO. 
-
-</dd>
-<dt id="TRstParseOptions"><a name="TRstParseOptions"></a><pre><span class="Identifier">TRstParseOptions</span><span class="Operator">*</span> <span class="Other">=</span> <span class="Identifier">set</span><span class="Other">[</span><span class="Identifier">TRstParseOption</span><span class="Other">]</span></pre></dt>
-<dd>
+<p>
+Holds both a custom and default configurations.</p>
+<p>The user configuration can be nil, but the default can't be.</p>
 
 
 </dd>
@@ -387,6 +406,39 @@ Special key used in lazy_rest unit testing to simulate serious errors.</p>
 <dd>
 
 Key used to tweak the number of characters a table of content entry can have nefore being split. The splitting prevents the TOC from growing too wide and obscuring the main text. The default value is <a class="reference external" href="#lrd_render_split_item_toc">lrd_render_split_item_toc</a>.
+
+</dd>
+<dt id="lrc_parser_skip_pounds"><a name="lrc_parser_skip_pounds"></a><pre><span class="Identifier">lrc_parser_skip_pounds</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;parser.skip.pounds&quot;</span></pre></dt>
+<dd>
+<p>
+Modifies the rst parser to skip initial hash symbols (<tt class="docutils literal"><span class="pre">#</span></tt>).</p>
+<p>The value for this option has to be <em>true</em> according to the parsing of the <a class="reference external" href="#is_true">is_true() proc</a> to be enabled. When activated, lines starting with a single or double hash (<tt class="docutils literal"><span class="pre">#</span></tt> or <tt class="docutils literal"><span class="pre">##</span></tt>) will be treated as if the hash was not present. Note that the rest of the line <strong>won't</strong> be ignored. This means that your typical Nimrod comment block will be rendered as an indented text, because the hash pound will be ignored, and usually you separate the text from the hashes with a space, which will then be interpreted as rst indentation.</p>
+<p>To see the effect of this option look at the <a class="reference external" href="https://github.com/gradha/lazy_rest/blob/master/tests/parser_options/parser_skip_pounds.rst">tests/parser_options/parser_skip_pounds.rst</a> file and the output files generated by the test in that directory.</p>
+
+
+</dd>
+<dt id="lrc_parser_enable_smilies"><a name="lrc_parser_enable_smilies"></a><pre><span class="Identifier">lrc_parser_enable_smilies</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;parser.enable.smilies&quot;</span></pre></dt>
+<dd>
+<p>
+Modifies the rst parser to enable smiley pattern replacement.</p>
+<p>Enabling this will transform several patterns (like <tt class="docutils literal"><span class="pre">:-D</span></tt>) found in plain text with image references.  The value for this option has to be <em>true</em> according to the parsing of the <a class="reference external" href="#is_true">is_true() proc</a> to be enabled.</p>
+
+
+</dd>
+<dt id="lrc_parser_enable_raw_directive"><a name="lrc_parser_enable_raw_directive"></a><pre><span class="Identifier">lrc_parser_enable_raw_directive</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;parser.enable.raw.directive&quot;</span></pre></dt>
+<dd>
+<p>
+Modifies the rst parser to enable the raw directive.</p>
+<p>By default the raw directive is skipped by the parser.  The value for this option has to be <em>true</em> according to the parsing of the <a class="reference external" href="#is_true">is_true() proc</a> to be enabled.</p>
+
+
+</dd>
+<dt id="lrc_parser_enable_fended_blocks"><a name="lrc_parser_enable_fended_blocks"></a><pre><span class="Identifier">lrc_parser_enable_fended_blocks</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;parser.enable.fenced.blocks&quot;</span></pre></dt>
+<dd>
+<p>
+Modifies the rst parser to enable GitHub markdown style fenced blocks.</p>
+<p>Fenced blocks consist of three backticks <tt class="docutils literal"><span class="pre">(`)</span></tt> and optionally a language syntax option to initiate a source code block without indentation.  The value for this option has to be <em>true</em> according to the parsing of the <a class="reference external" href="#is_true">is_true() proc</a> to be enabled.</p>
+
 
 </dd>
 <dt id="lrk_render_title"><a name="lrk_render_title"></a><pre><span class="Identifier">lrk_render_title</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;title&quot;</span></pre></dt>
@@ -442,6 +494,7 @@ Last modification timestamp as Unix epoch but in milliseconds instead of seconds
 <p>
 Replaced by the Prism JavaScript snippet when external highlighting is used.</p>
 <p>This is a <a class="reference external" href="http://nimrod-lang.org/subexes.html">subexe</a> replacement key used inside <a class="reference external" href="#lrc_render_template">lrc_render_template</a> content. See the <a class="reference external" href="../docs/error_handling.html">Lazy reST error handling</a> document for more information.</p>
+<p>This render key is only used by the success template, it won't do anything in error pages.</p>
 
 
 </dd>
@@ -450,6 +503,7 @@ Replaced by the Prism JavaScript snippet when external highlighting is used.</p>
 <p>
 Replaced by the Prism CSS code required to style code highlighting.</p>
 <p>This is a <a class="reference external" href="http://nimrod-lang.org/subexes.html">subexe</a> replacement key used inside <a class="reference external" href="#lrc_render_template">lrc_render_template</a> content.  See the <a class="reference external" href="../docs/error_handling.html">Lazy reST error handling</a> document for more information.</p>
+<p>This render key is only used by the success template, it won't do anything in error pages.</p>
 
 
 </dd>
@@ -474,37 +528,38 @@ Replaced by the current version string number.</p>
 <p>
 Replaced by an HTML table with the list of accumulated errors.</p>
 <p>This is a <a class="reference external" href="http://nimrod-lang.org/subexes.html">subexe</a> replacement key used inside <a class="reference external" href="#lrc_render_template">lrc_render_template</a> content.  See the <a class="reference external" href="../docs/error_handling.html">Lazy reST error handling</a> document for more information.</p>
+<p>This render key is only used by the failure template, it won't do anything in success pages since they were rendered without errrors.</p>
 
 
 </dd>
 <dt id="lrd_render_date_format"><a name="lrd_render_date_format"></a><pre><span class="Identifier">lrd_render_date_format</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;yyyy-MM-dd&quot;</span></pre></dt>
 <dd>
 
-<a class="reference external" href="lrstgen.html#defaultConfig">Default value</a> for <a class="reference external" href="#lrc_render_date_format">lrc_render_date_format</a>.
+<a class="reference external" href="lrstgen.html#default_config">Default value</a> for <a class="reference external" href="#lrc_render_date_format">lrc_render_date_format</a>.
 
 </dd>
 <dt id="lrd_render_time_format"><a name="lrd_render_time_format"></a><pre><span class="Identifier">lrd_render_time_format</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;HH:mm&quot;</span></pre></dt>
 <dd>
 
-<a class="reference external" href="lrstgen.html#defaultConfig">Default value</a> for <a class="reference external" href="#lrc_render_time_format">lrc_render_time_format</a>.
+<a class="reference external" href="lrstgen.html#default_config">Default value</a> for <a class="reference external" href="#lrc_render_time_format">lrc_render_time_format</a>.
 
 </dd>
 <dt id="lrd_render_local_date_format"><a name="lrd_render_local_date_format"></a><pre><span class="Identifier">lrd_render_local_date_format</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;yyyy-MM-dd&quot;</span></pre></dt>
 <dd>
 
-<a class="reference external" href="lrstgen.html#defaultConfig">Default value</a> for <a class="reference external" href="#lrc_render_local_date_format">lrc_render_local_date_format</a>.
+<a class="reference external" href="lrstgen.html#default_config">Default value</a> for <a class="reference external" href="#lrc_render_local_date_format">lrc_render_local_date_format</a>.
 
 </dd>
 <dt id="lrd_render_local_time_format"><a name="lrd_render_local_time_format"></a><pre><span class="Identifier">lrd_render_local_time_format</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;HH:mm&quot;</span></pre></dt>
 <dd>
 
-<a class="reference external" href="lrstgen.html#defaultConfig">Default value</a> for <a class="reference external" href="#lrc_render_local_time_format">lrc_render_local_time_format</a>.
+<a class="reference external" href="lrstgen.html#default_config">Default value</a> for <a class="reference external" href="#lrc_render_local_time_format">lrc_render_local_time_format</a>.
 
 </dd>
 <dt id="lrd_render_split_item_toc"><a name="lrd_render_split_item_toc"></a><pre><span class="Identifier">lrd_render_split_item_toc</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;20&quot;</span></pre></dt>
 <dd>
 
-<a class="reference external" href="lrstgen.html#defaultConfig">Default value</a> for <a class="reference external" href="#lrc_render_split_item_toc">lrc_render_split_item_toc</a>.
+<a class="reference external" href="lrstgen.html#default_config">Default value</a> for <a class="reference external" href="#lrc_render_split_item_toc">lrc_render_split_item_toc</a>.
 
 </dd>
 <dt id="lrd_render_failure_test"><a name="lrd_render_failure_test"></a><pre><span class="Identifier">lrd_render_failure_test</span><span class="Operator">*</span> <span class="Other">=</span> <span class="StringLit">&quot;Why do people suffer through video content lesser than 4k?&quot;</span></pre></dt>
@@ -515,10 +570,46 @@ Special value to set for <a class="reference external" href="#lrc_render_failure
 </dd>
 
 </dl></div>
+<div class="section" id="12">
+<h1><a class="toc-backref" href="#62">Procs</a></h1>
+<dl class="item">
+<dt id="[]"><a name="[],TLayeredConf,string"></a><pre><span class="Keyword">proc</span> <span class="Other">`</span><span class="Operator">[]</span><span class="Other">`</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <span class="Identifier">TLayeredConf</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
+<dd>
+<p>Returns the key from the user configuration or the default configuration.</p>
+<p>If the key is not found, the empty string is returned.</p>
+
+
+</dd>
+<dt id="is_true"><a name="is_true,TLayeredConf,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">is_true</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <span class="Identifier">TLayeredConf</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+<dd>
+<p>Returns <tt class="docutils literal"><span class="pre">true</span></tt> if <cite>t</cite> contains the value <cite>key</cite> and it is of true nature.</p>
+<p>This proc internally looks for the value associated with the <cite>key</cite>. On top of that, the string value has to be the literal <tt class="docutils literal"><span class="pre">1</span></tt>, <tt class="docutils literal"><span class="pre">t</span></tt>, <tt class="docutils literal"><span class="pre">true</span></tt>, <tt class="docutils literal"><span class="pre">y</span></tt> or <tt class="docutils literal"><span class="pre">yes</span></tt>. Any other value will make this proc return <tt class="docutils literal"><span class="pre">false</span></tt>.</p>
+
+
+</dd>
+<dt id="new_rst_config"><a name="new_rst_config,"></a><pre><span class="Keyword">proc</span> <span class="Identifier">new_rst_config</span><span class="Operator">*</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PStringTable</span></pre></dt>
+<dd>
+<p>Convenience method to return a new empty <tt class="docutils literal"><span class="pre">PStringTable</span></tt> table.</p>
+<p>This essentially calls <a class="reference external" href="http://nimrod-lang.org/strtabs.html#newStringTable,TStringTableMode">strtabs.newStringTable()</a> with the parameter <a class="reference external" href="http://nimrod-lang.org/strtabs.html#TStringTableMode">modeStyleInsensitive</a>.</p>
+<p>After creating this table you will want to fill it with <tt class="docutils literal"><span class="pre">lrc_</span></tt> configuration keys like <a class="reference external" href="#lrc_parser_skip_pounds">lrc_parser_skip_pounds</a> or <a class="reference external" href="#lrc_render_date_format">lrc_render_date_format</a>. Example:</p>
+<pre><span class="Keyword">import</span> <span class="Identifier">lazy_rest_pkg</span><span class="Operator">/</span><span class="Identifier">lconfig</span>
+<span class="Keyword">var</span> <span class="Identifier">config</span> <span class="Operator">=</span> <span class="Identifier">new_rst_config</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+<span class="Identifier">config</span><span class="Punctuation">[</span><span class="Identifier">lrc_render_split_item_toc</span><span class="Punctuation">]</span> <span class="Operator">=</span> <span class="StringLit">&quot;30&quot;</span></pre>
+
+</dd>
+<dt id="parse_rst_options"><a name="parse_rst_options,string"></a><pre><span class="Keyword">proc</span> <span class="Identifier">parse_rst_options</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">options</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PStringTable</span> <span class="Other">{.</span><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">.}</span></pre></dt>
+<dd>
+<p>Parses the options string, returns <tt class="docutils literal"><span class="pre">nil</span></tt> if something goes wrong.</p>
+<p>You can safely pass the result of this proc to <a class="reference external" href="../lazy_rest.html#rst_string_to_html">rst_string_to_html()</a> or any other proc asking for configuration options since they will handle <tt class="docutils literal"><span class="pre">nil</span></tt> gracefully. Usually you will pass the contents of a file like <a class="reference external" href="https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg">resources/embedded_nimdoc.cfg</a> to configure the options for the parsing and rendering phases of the rst transformation.</p>
+
+
+</dd>
+
+</dl></div>
 
 </div>
 
-<small>Generated: 2014-11-28 22:48:08 UTC</small>
+<small>Generated: 2014-12-02 23:54:10 UTC</small>
 </div>
 </body>
 </html>

@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Lazy reST changes log</title>
+<title>Lazy reST badger usage guide</title>
 <style type="text/css">
 
 span.DecNumber {color: blue}
@@ -238,25 +238,50 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 </head>
 <body>
 <div class="document" id="documentId">
-<h1 class="title">Lazy reST changes log</h1>
-<p>This is the changes log for <a class="reference external" href="https://github.com/gradha/lazy_rest">Lazy reSt</a>. See the <a class="reference external" href="../README.html">README</a>.</p>
+<h1 class="title">Lazy reST badger usage guide</h1>
+<p>This is the usage guide for the <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> tool of <a class="reference external" href="https://github.com/gradha/lazy_rest">Lazy reSt</a>. See the <a class="reference external" href="../README.html">README</a>. This tool demonstrates usage of the <tt class="docutils literal"><span class="pre">lazy_rest</span></tt> module and provides a convenient and easy to install program which transforms  reStructuredText files into HTML. You can get this program compiling it yourself from source or downloading binaries from GitHub.</p>
 
-<h1 id="v0-1-0">v0.1.0, ????-??-??</h1><ul class="simple"><li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/1">Imported useful bits from quicklook-rest-with-nimrod</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/5">Prepared code for parallel generation of documents</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/8">Added .nim rendering tests with line numbering</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/4">Changed safe_* procs to return info when something went wrong</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/15">Added API to customize safe error message</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/12">Extracted and documented C API</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/11">Avoids hanging on infinite recursive include directives</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/17">Added customisation of file include and message procs</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/21">Modified config options to be additive</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/23">Replaced TRstParseOption with config parameters</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/19">Checked 0.10 compatibility before release</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/22">Generalised nim_file_to_html proc</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/28">Cleaned up usage documentation and source code</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/27">Disabled developer logging to file</a>.</li>
-<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/20">Implemented lazy_rest_badger command line example program</a>.</li>
-</ul>
+<h1 id="installation">Installation</h1>
+<h2 id="source">Source</h2><p>If you want to install from source you can just follow the installation instructions of <a class="reference external" href="nimrod_usage.html">Nimrod usage guide</a>. They involve installing a nimble package, which will automatically set up the <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> binary along with the package.</p>
+
+<h2 id="binaries">Binaries</h2><p>Precompiled binaries for some platforms are provided through <a class="reference external" href="https://github.com/gradha/lazy_rest/releases">GitHub releases</a>. The binaries are statically linked, so you can in theory put them anywhere on your system and have them work fine.</p>
+
+<h1 id="usage">Usage</h1><p>Lazy rest badger runs on files you specify explicitly on the command line or recursively through a specific directory. It can also run in <em>filter</em> mode reading input from standard input and piping results to standard output.</p>
+
+<h2 id="switches">Switches</h2><p>Typical usage can be figured out using the <tt class="docutils literal"><span class="pre">--help</span></tt> switch. These are the available switches:</p>
+<table frame="void"><tr><th align="left">-h, --help</th><td align="left">Displays command line help and exits.</td>
+</tr>
+<tr><th align="left">-v, --version</th><td align="left">Displays the current version and exists.</td>
+</tr>
+<tr><th align="left">-e, --extensions STRING</th><td align="left">Colon separated list of extensions to process, 'rst' by default. If you store  reStructuredText content in files with <tt class="docutils literal"><span class="pre">.txt</span></tt> extension, or both, you could for instance pass the string <tt class="docutils literal"><span class="pre">txt:rst</span></tt> so that both kinds of files are scanned.</td>
+</tr>
+<tr><th align="left">-r, --recursive-dir STRING</th><td align="left">Specifies a directory to be processed recursively.  This directory will be searched for files ending in the extensions specified by <tt class="docutils literal"><span class="pre">--extensions</span></tt>.</td>
+</tr>
+<tr><th align="left">-o, --output STRING</th><td align="left">When a single file is the input, sets its output filename.  If you don't specify this option the generated filename will be the same as the source but with the extension changed to <tt class="docutils literal"><span class="pre">.html</span></tt>. Files are always overwritten without remorse.</td>
+</tr>
+<tr><th align="left">-s, --safe</th><td align="left">Always generate a <em>safe</em> HTML output, even if input is bad. By default <em>unsafe</em> rendering is used, which means that any error during parsing will throw an exception and execution will stop. However in safe mode you still get some HTML which attempts to display the contents of the  reStructuredText file being rendered along with some information about the error.</td>
+</tr>
+<tr><th align="left">-O, --parser-option-file STRING</th><td align="left">Specifies a file from which to read lazy_rest options. Option files can contain many different parser and render tweaks (some of which are accessed as switches), but you will most likely use this to customize the output HTML template. For an example of option file go look at <a class="reference external" href="https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg">https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg</a>. The <a class="reference external" href="error_handling.html">Lazy reST error handling</a> has some information on the replacement keys you can use in the template (both the success and failure versions).</td>
+</tr>
+<tr><th align="left">-R, --parser-raw-directive</th><td align="left">Allows raw directives to be processed. By default these are ignored since they allow you to bypass all HTML escaping safeties.</td>
+</tr>
+<tr><th align="left">-S, --parser-enable-smilies</th><td align="left">Transforms text smilies into images. Enabling this will transform several patterns (like <tt class="docutils literal"><span class="pre">:-D</span></tt>) found in plain text with image references.</td>
+</tr>
+<tr><th align="left">-F, --parser-fenced-blocks</th><td align="left">Allows triple quote fenced blocks, typical of GitHub.  Fenced blocks consist of three backticks <tt class="docutils literal"><span class="pre">(`)</span></tt> and optionally a language syntax option to initiate a source code block without indentation.</td>
+</tr>
+<tr><th align="left">-P, --parser-skip-pounds</th><td align="left">Ignores the initial pound symbol of input lines.  When activated, lines starting with a single or double hash (<tt class="docutils literal"><span class="pre">#</span></tt> or <tt class="docutils literal"><span class="pre">##</span></tt>) will be treated as if the hash was not present. Note that the rest of the line <strong>won't</strong> be ignored.  This means that your typical Nimrod comment block will be rendered as an indented text, because the hash pound will be ignored, and usually you separate the text from the hashes with a space, which will then be interpreted as rst indentation.</td>
+</tr>
+</table>
+<h2 id="examples">Examples</h2><p>You want to convert all the files with the <tt class="docutils literal"><span class="pre">.txt</span></tt> extension in the current subdirectory and don't want to recurse. These files use the  reStructuredText raw directive and you want to allow it:<pre>
+$ lazy_rest_badger *.txt -R</pre>
+</p>
+<p>You want to convert all the files in a specific directory with the <tt class="docutils literal"><span class="pre">.text</span></tt> extension recursively but not those with the extension <tt class="docutils literal"><span class="pre">.rst</span></tt>. The files may contain errors, but you would prefer if all the files generated some HTML output at least:<pre>
+$ lazy_rest_badger -r ../some/path/ -e text --safe</pre>
+</p>
+<p>You have a program generating  reStructuredText output and you would like to pipe it through <tt class="docutils literal"><span class="pre">lazy_rest_badger</span></tt>, then redirect it somewhere else:<pre>
+$ foo | lazy_rest_badger STDIN | bar &gt; result.html</pre>
+</p>
+<p>Remember that in all cases <tt class="docutils literal"><span class="pre">lazy_rest_badger</span></tt> will overwrite the destination file. </p>
 
 
 
