@@ -126,10 +126,34 @@ proc run_tests() =
     echo "All tests run without errors."
 
 
+proc web() =
+  echo "Changing branches to render gh-pages…"
+  let ourselves = read_file("nakefile")
+  dire_shell "git checkout gh-pages"
+  dire_shell "rm -R `git ls-files -o`"
+  dire_shell "rm -Rf gh_docs"
+  dire_shell "gh_nimrod_doc_pages -c ."
+  write_file("nakefile", ourselves)
+  dire_shell "chmod 775 nakefile"
+  echo "All commands run, now check the output and commit to git."
+  shell "open index.html"
+  echo "Wen you are done come back with './nakefile postweb'."
+
+
+proc postweb() =
+  echo "Forcing changes back to master."
+  dire_shell "git checkout -f @{-1}"
+  echo "Updating submodules just in case."
+  dire_shell "git submodule update"
+
+
 task "check_doc", "Validates rst format with python.": validate_doc()
 task "clean", "Removes temporal files, mostly.": clean()
 task "doc", "Generates HTML docs.": doc()
 task "i", "Uses babel to force install package locally.": install_babel()
 task "test", "Runs local generation tests.": run_tests()
+task "web", "Renders gh-pages, don't use unless you are gradha.": web()
+task "postweb", "Gradha uses this like portals, don't touch!": postweb()
+
 when defined(macosx):
   task "doco", "Like 'doc' but also calls 'open' on generated HTML.": doco()
