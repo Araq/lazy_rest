@@ -5,8 +5,11 @@ type
     ## Indicates something failed, with error output if `errors` is not nil.
     errors*: string
 
+
 const
   name = "lazy_rest"
+  badger = "lazy_rest_bager.nim"
+
 
 template glob(pattern: string): expr =
   ## Shortcut to simplify getting lists of files.
@@ -98,6 +101,7 @@ proc install_babel() =
 
 proc run_tests() =
   var failed: seq[string] = @[]
+  # Run the test suite.
   for test_file in walk_files("tests/*/test*nim"):
     let (dir, name, ext) = test_file.split_file
     with_dir test_file.parent_dir:
@@ -106,6 +110,15 @@ proc run_tests() =
         test_shell("nimrod c -r", name)
       except Failed_test:
         failed.add(test_file)
+
+  # Add compilation of the badger binary.
+  try:
+    echo "Testing ", badger
+    test_shell("nimrod c -r lazy_rest_badger.nim -v")
+  except Failed_test:
+    failed.add(badger)
+
+  # Show results
   if failed.len > 0:
     echo "Uh oh, " & $failed.len & " tests failed running"
     for f in failed: echo "\t" & f
