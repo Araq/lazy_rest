@@ -3,6 +3,7 @@
 *.exe
 *.swp
 .DS_Store
+.vagrant/
 nimcache/
 
 # Full paths.
