@@ -3,6 +3,7 @@
 *.exe
 *.swp
 .DS_Store
+.sybil_systems
 .vagrant/
 nimcache/
 
@@ -44,3 +45,5 @@ nimcache/
 /tests/sources/output/
 /tests/threads/?manual*.html
 /tests/threads/nimrod_doc
+/vagrant_linux/??bit/lazy_rest/
+/vagrant_linux/??bit/lazy_rest/

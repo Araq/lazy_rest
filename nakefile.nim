@@ -147,13 +147,42 @@ proc postweb() =
   dire_shell "git submodule update"
 
 
-task "check_doc", "Validates rst format with python.": validate_doc()
+proc copy_vagrant(target_dir: string) =
+  ## Copies enough source files to `target_dir` to build a binary.
+  ##
+  ## This is done through an external python script which calls git submodule
+  ## foreach and git archive.
+  target_dir.remove_dir
+
+  var files: seq[string] = @[]
+  for pattern in ["*.nim", "lazy_rest_pkg"/"*.nim", "*cfg", "*.nimble",
+      "resources"/"*", "external"/"badger_bits"/"*.nim"]:
+    files.add(glob(pattern))
+  for path in files:
+    let
+      dest = target_dir/path
+      dir = dest.split_file.dir
+    dir.create_dir
+    echo "Creating ", dest
+    path.copy_file_with_permissions(dest)
+
+
+proc vagrant() =
+  ## Takes care of running vagrant, copying files and packaging linux binaries.
+  copy_vagrant("vagrant_linux"/"32bit"/"lazy_rest/")
+  copy_vagrant("vagrant_linux"/"64bit"/"lazy_rest/")
+
+
 task "clean", "Removes temporal files, mostly.": clean()
 task "doc", "Generates HTML docs.": doc()
 task "i", "Uses babel to force install package locally.": install_babel()
 task "test", "Runs local generation tests.": run_tests()
-task "web", "Renders gh-pages, don't use unless you are gradha.": web()
-task "postweb", "Gradha uses this like portals, don't touch!": postweb()
+
+if exists_file(".sybil_systems"):
+  task "web", "Renders gh-pages, don't use unless you are gradha.": web()
+  task "check_doc", "Validates rst format with python.": validate_doc()
+  task "postweb", "Gradha uses this like portals, don't touch!": postweb()
+  task "vagrant", "Runs vagrant to build linux binaries": vagrant()
 
 when defined(macosx):
   task "doco", "Like 'doc' but also calls 'open' on generated HTML.": doco()
