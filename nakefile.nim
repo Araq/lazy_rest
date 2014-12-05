@@ -33,7 +33,7 @@ iterator all_html_files(files: seq[string]): tuple[src, dest: string] =
 
 
 proc test_shell(cmd: varargs[string, `$`]): bool {.discardable.} =
-  ## Like direShell() but doesn't quit, rather raises an exception.
+  ## Like dire_shell() but doesn't quit, rather raises an exception.
   let
     full_command = cmd.join(" ")
     (output, exit) = full_command.exec_cmd_ex
@@ -169,8 +169,17 @@ proc copy_vagrant(target_dir: string) =
 
 proc vagrant() =
   ## Takes care of running vagrant, copying files and packaging linux binaries.
-  copy_vagrant("vagrant_linux"/"32bit"/"lazy_rest/")
-  copy_vagrant("vagrant_linux"/"64bit"/"lazy_rest/")
+  for variant in ["32bit", "64bit"]:
+    let dir = "vagrant_linux"/variant/"lazy_rest/"
+    copy_vagrant dir
+    with_dir dir:
+      dire_shell "vagrant up"
+      dire_shell("vagrant ssh -c '" &
+        "cd /vagrant/lazy_rest && " &
+        "nimrod c -d:release lazy_rest_badger.nim &&" &
+        "strip lazy_rest_badger.exe" &
+        "'")
+      dire_shell "vagrant halt"
 
 
 task "clean", "Removes temporal files, mostly.": clean()

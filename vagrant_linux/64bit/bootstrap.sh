@@ -43,8 +43,8 @@ if [ ! -d nimble ]; then
 	echo "Installing Nimble from git…"
 	rm -Rf tmp &&
 	git clone https://github.com/gradha/nimble.git tmp &&
-	cd tmp && git checkout pr_patches_irregular_git_clone_behaviour &&
-	nimrod c -r src/nimble install &&
+	cd tmp && git checkout vagrant_tests &&
+	nimrod c -r src/nimble install -y &&
 	cd .. && mv tmp nimble
 else
 	echo "Nimble already installed and compiled"
@@ -56,5 +56,24 @@ su -l vagrant << EOF
 
 nimrod -v
 nimble -v
+
+EOF
+
+su -l vagrant << EOF
+
+echo '#!/bin/sh
+
+for package in argument_parser nake; do
+	echo "Testing \${package}"
+	PKG_PATH=\`nimble path \${package}\`
+	if [ ! -d "\$PKG_PATH" ]; then
+		echo "Installing nimble package \${package}…"
+		nimble install -y \${package}
+	else
+		echo "Nimble package \${package} already installed"
+	fi
+done
+' > install_nimble_packages.sh
+sh install_nimble_packages.sh
 
 EOF
