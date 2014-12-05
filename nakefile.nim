@@ -1,4 +1,6 @@
-import nake, os, times, osproc, md5, lazy_rest, sequtils, json, posix, strutils
+import
+  nake, os, times, osproc, md5, lazy_rest, sequtils, json, posix, strutils,
+  external/badger_bits/bb_system
 
 type
   Failed_test = object of EAssertionFailed ## \
@@ -7,8 +9,13 @@ type
 
 
 const
-  name = "lazy_rest"
+  pkg_name = "lazy_rest"
+  badger_name = "lazy_rest_badger"
+  src_name = pkg_name & "-" & lazy_rest.version_str & "-source"
+  bin_name = pkg_name & "-" & lazy_rest.version_str & "-binary"
   badger = "lazy_rest_bager.nim"
+  zip_exe = "zip"
+  dist_dir = "dist"
 
 
 template glob(pattern: string): expr =
@@ -17,7 +24,7 @@ template glob(pattern: string): expr =
 
 let
   rst_files = concat(glob("*.rst"), glob("docs/*rst"))
-  nim_files = concat(@[name & ".nim", "lazy_rest_c_api.nim"],
+  nim_files = concat(@[pkg_name & ".nim", "lazy_rest_c_api.nim"],
     glob("lazy_rest_pkg/*nim"))
 
 iterator all_html_files(files: seq[string]): tuple[src, dest: string] =
@@ -30,6 +37,14 @@ iterator all_html_files(files: seq[string]): tuple[src, dest: string] =
       continue
     r.dest = filename.change_file_ext("html")
     yield r
+
+
+proc cp(src, dest: string) =
+  ## Verbose wrapper around copy_file_with_permissions.
+  assert src.not_nil and dest.not_nil
+  assert src != dest
+  echo src & " -> " & dest
+  src.copy_file_with_permissions(dest)
 
 
 proc test_shell(cmd: varargs[string, `$`]): bool {.discardable.} =
@@ -114,7 +129,7 @@ proc run_tests() =
   # Add compilation of the badger binary.
   try:
     echo "Testing ", badger
-    test_shell("nimrod c -r lazy_rest_badger.nim -v")
+    test_shell("nimrod c -r " & badger_name & ".nim -v")
   except Failed_test:
     failed.add(badger)
 
@@ -167,19 +182,78 @@ proc copy_vagrant(target_dir: string) =
     path.copy_file_with_permissions(dest)
 
 
+proc build_vagrant(dir: string) =
+  ## Powers up the vagrant box, compilex the lazy badger and produces C files.
+  ##
+  ## The C files are left in the nimcache subdirectory, the exe is directly at
+  ## the root. After all work has done the vagrant instance is halted. This
+  ## doesn't do any provisioning, the vagrant instances are meant to be
+  ## prepared beforehand.
+  with_dir dir:
+    dire_shell "vagrant up"
+    dire_shell("vagrant ssh -c '" &
+      "cd /vagrant/lazy_rest && " &
+      "nimrod c -d:release " & badger_name & ".nim &&" &
+      "strip " & badger_name & ".exe &&" &
+      "rm -Rf nimcache &&" &
+      "nimrod c --compile_only --header lazy_rest_c_api.nim &&" &
+      "echo done'")
+    dire_shell "vagrant halt"
+
+
+proc zip_vagrant(vagrant_dir, zip_name: string) =
+  ## Zips the source and binary files produced by build_vagrant().
+  let
+    tmp_dir = "tmp"
+    dist_bin_dir = tmp_dir/bin_name & "-" & zip_name
+    dist_src_dir = tmp_dir/src_name & "-" & zip_name
+    exec_options = {poStdErrToStdOut, poUsePath, poEchoCmd}
+    nimcache_dir = vagrant_dir/"nimcache"
+
+  # Prepare directories.
+  tmp_dir.remove_dir
+  dist_bin_dir.create_dir
+  create_dir(dist_src_dir/"src")
+  cp(vagrant_dir/badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
+  for src_file in concat(glob(nimcache_dir/"*.c"), glob(nimcache_dir/"*.h")):
+    cp(src_file, dist_src_dir/"src"/src_file.extract_filename)
+
+  echo "TODO rst instructions for each binary package."
+
+  # Create zip files.
+  with_dir tmp_dir:
+    for full_path in [dist_bin_dir, dist_src_dir]:
+      let
+        zip_dir = full_path.extract_filename
+        zip_file = zip_dir & ".zip"
+      discard exec_process(zip_exe, args = ["-9r", zip_file, zip_dir],
+        options = exec_options)
+      doAssert exists_file(zip_file)
+
+  for zip_file in glob(tmp_dir/"*.zip"):
+    cp(zip_file, dist_dir/zip_file.extract_filename)
+  tmp_dir.remove_dir
+
+
+proc build_dist_github_report() =
+  ## Inspects files in zip and generates markdown for github.
+  ##
+  ## This will just pick the zip files and generate some md5 of them
+  echo "TODO dist github!"
+
+
 proc vagrant() =
-  ## Takes care of running vagrant, copying files and packaging linux binaries.
-  for variant in ["32bit", "64bit"]:
-    let dir = "vagrant_linux"/variant/"lazy_rest/"
+  ## Takes care of running vagrant, copying files and packaging everything.
+  dist_dir.remove_dir
+  dist_dir.create_dir
+
+  for vdir, zname in items([("32bit", "i386"), ("64bit", "i686")]):
+    let dir = "vagrant_linux"/vdir/"lazy_rest/"
     copy_vagrant dir
-    with_dir dir:
-      dire_shell "vagrant up"
-      dire_shell("vagrant ssh -c '" &
-        "cd /vagrant/lazy_rest && " &
-        "nimrod c -d:release lazy_rest_badger.nim &&" &
-        "strip lazy_rest_badger.exe" &
-        "'")
-      dire_shell "vagrant halt"
+    build_vagrant dir
+    zip_vagrant(dir, zname)
+  echo "TODO mac version"
+  build_dist_github_report()
 
 
 task "clean", "Removes temporal files, mostly.": clean()

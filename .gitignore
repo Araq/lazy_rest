@@ -9,6 +9,7 @@ nimcache/
 
 # Full paths.
 /README.html
+/dist/
 /docs/*.html
 /gh_docs/
 /lazy_rest
@@ -45,5 +46,5 @@ nimcache/
 /tests/sources/output/
 /tests/threads/?manual*.html
 /tests/threads/nimrod_doc
-/vagrant_linux/??bit/lazy_rest/
+/tmp/
 /vagrant_linux/??bit/lazy_rest/
