@@ -11,11 +11,13 @@ type
 const
   pkg_name = "lazy_rest"
   badger_name = "lazy_rest_badger"
-  src_name = pkg_name & "-" & lazy_rest.version_str & "-source"
+  #src_name = pkg_name & "-" & lazy_rest.version_str & "-source"
+  src_name = "source"
   bin_name = pkg_name & "-" & lazy_rest.version_str & "-binary"
   badger = "lazy_rest_bager.nim"
   zip_exe = "zip"
   dist_dir = "dist"
+  nimcache = "nimcache"
 
 
 template glob(pattern: string): expr =
@@ -41,9 +43,13 @@ iterator all_html_files(files: seq[string]): tuple[src, dest: string] =
 
 proc cp(src, dest: string) =
   ## Verbose wrapper around copy_file_with_permissions.
+  ##
+  ## In addition to copying permissions this will create necessary destination
+  ## directories.
   assert src.not_nil and dest.not_nil
   assert src != dest
   echo src & " -> " & dest
+  dest.split_file.dir.create_dir
   src.copy_file_with_permissions(dest)
 
 
@@ -195,10 +201,17 @@ proc build_vagrant(dir: string) =
       "cd /vagrant/lazy_rest && " &
       "nimrod c -d:release " & badger_name & ".nim &&" &
       "strip " & badger_name & ".exe &&" &
-      "rm -Rf nimcache &&" &
+      "rm -Rf " & nimcache & " &&" &
       "nimrod c --compile_only --header lazy_rest_c_api.nim &&" &
       "echo done'")
     dire_shell "vagrant halt"
+
+
+proc copy_nimcache(nimcache_dir, dest_dir: string) =
+  ## Copies source files from `nimcache_dir` into `dest_dir`.
+  let dest_dir = dest_dir
+  for src_file in concat(glob(nimcache_dir/"*.c"), glob(nimcache_dir/"*.h")):
+    cp(src_file, dest_dir/src_file.extract_filename)
 
 
 proc zip_vagrant(vagrant_dir, zip_name: string) =
@@ -208,15 +221,13 @@ proc zip_vagrant(vagrant_dir, zip_name: string) =
     dist_bin_dir = tmp_dir/bin_name & "-" & zip_name
     dist_src_dir = tmp_dir/src_name & "-" & zip_name
     exec_options = {poStdErrToStdOut, poUsePath, poEchoCmd}
-    nimcache_dir = vagrant_dir/"nimcache"
+    nimcache_dir = vagrant_dir/nimcache
 
   # Prepare directories.
   tmp_dir.remove_dir
   dist_bin_dir.create_dir
-  create_dir(dist_src_dir/"src")
   cp(vagrant_dir/badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
-  for src_file in concat(glob(nimcache_dir/"*.c"), glob(nimcache_dir/"*.h")):
-    cp(src_file, dist_src_dir/"src"/src_file.extract_filename)
+  copy_nimcache(nimcache_dir, dist_src_dir)
 
   echo "TODO rst instructions for each binary package."
 
@@ -242,8 +253,11 @@ proc build_dist_github_report() =
   echo "TODO dist github!"
 
 
-proc vagrant() =
-  ## Takes care of running vagrant, copying files and packaging everything.
+proc run_vagrant() =
+  ## Takes care of running vagrant, copying files and packaging binaries.
+  ##
+  ## Source code won't be packaged, since it is packaged all together for the
+  ## supported platforms.
   dist_dir.remove_dir
   dist_dir.create_dir
 
@@ -253,6 +267,29 @@ proc vagrant() =
     build_vagrant dir
     zip_vagrant(dir, zname)
   echo "TODO mac version"
+
+
+proc build_osx_dist() =
+  ## Runs some compilation tasks to produce the binary and source dists.
+  # Build binary.
+  nimcache.remove_dir
+  dire_shell "nimrod c -d:release " & badger_name & ".nim"
+  dire_shell "strip " & badger_name & ".exe"
+  let dist_bin_dir = dist_dir/bin_name & "-osx"
+  cp(badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
+
+  # Build sources.
+  for variant in ["debug", "release"]:
+    nimcache.remove_dir
+    dire_shell("nimrod c -d:" & variant, "--compile_only",
+      "lazy_rest_c_api.nim")
+    copy_nimcache(nimcache, dist_dir/src_name & "-osx-" & variant)
+
+
+proc build_dist() =
+  ## Runs all the distribution tasks and collects everything for upload.
+  build_osx_dist()
+  run_vagrant()
   build_dist_github_report()
 
 
@@ -265,7 +302,9 @@ if exists_file(".sybil_systems"):
   task "web", "Renders gh-pages, don't use unless you are gradha.": web()
   task "check_doc", "Validates rst format with python.": validate_doc()
   task "postweb", "Gradha uses this like portals, don't touch!": postweb()
-  task "vagrant", "Runs vagrant to build linux binaries": vagrant()
+  task "vagrant", "Runs vagrant to build linux binaries": run_vagrant()
+  task "osx_dist", "Builds the binary and source for OSX": build_osx_dist()
+  task "dist", "Performs distribution tasks for all platforms": build_dist()
 
 when defined(macosx):
   task "doco", "Like 'doc' but also calls 'open' on generated HTML.": doco()
