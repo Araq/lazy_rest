@@ -155,6 +155,7 @@ proc run_tests() =
   if failed.len > 0:
     echo "Uh oh, " & $failed.len & " tests failed running"
     for f in failed: echo "\t" & f
+    quit(QuitFailure)
   else:
     echo "All tests run without errors."
 
@@ -192,7 +193,7 @@ proc copy_vagrant(target_dir: string) =
 
   var files: seq[string] = @[]
   for pattern in ["*.nim", "lazy_rest_pkg"/"*.nim", "*cfg", "*.nimble",
-      "resources"/"*", "external"/"badger_bits"/"*.nim"]:
+      "resources"/"*", "external"/"badger_bits"/"*.nim", "tests"/"*"]:
     files.add(glob(pattern))
   for path in files:
     cp(path, target_dir/path)
@@ -210,6 +211,7 @@ proc build_vagrant(dir: string) =
     dire_shell "vagrant up"
     dire_shell("vagrant ssh -c '" &
       "cd /vagrant/lazy_rest && " &
+      "nake test && " &
       "nake platform_dist && " &
       "echo done'")
     dire_shell "vagrant halt"
