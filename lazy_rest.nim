@@ -227,7 +227,7 @@ proc rst_string_to_html*(content: string, filename: string = nil,
     lrk_render_time, last_mod_gmt.format(render_time_format),
     lrk_render_local_date, last_mod_local.format(render_local_date_format),
     lrk_render_local_time, last_mod_local.format(render_local_time_format),
-    lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
+    lrk_render_file_time, $(int64(last_mod_local.timeInfoToTime) * 1000),
     lrk_render_prism_js, if GENERATOR.unknownLangs: prism_js else: "",
     lrk_render_prism_css, if GENERATOR.unknownLangs: prism_css else: "",
     lrk_render_content, MOD_DESC]
@@ -419,7 +419,7 @@ proc build_error_html(filename, data: string, ERRORS: ptr seq[string],
       lrk_render_time, TIME_STR[1],
       lrk_render_local_date, TIME_STR[2],
       lrk_render_local_time, TIME_STR[3],
-      lrk_render_file_time, $(int(last_mod_local.timeInfoToTime) * 1000),
+      lrk_render_file_time, $(int64(last_mod_local.timeInfoToTime) * 1000),
       lrk_render_error_table, ERRORS.build_error_table,
       lrk_render_content, CONTENT]
   except:
