@@ -36,7 +36,7 @@ iterator all_html_files(files: seq[string]): tuple[src, dest: string] =
   for filename in files:
     var r: tuple[src, dest: string]
     r.src = filename
-    # Ignore files if they don't exist, babel version misses some.
+    # Ignore files if they don't exist, nimble version misses some.
     if not r.src.exists_file:
       echo "Ignoring missing ", r.src
       continue
@@ -140,8 +140,8 @@ proc clean() =
   echo "Temporary files cleaned"
 
 
-proc install_babel() =
-  direshell("babel install -y")
+proc install_nimble() =
+  direshell("nimble install -y")
   echo "Installed"
 
 
@@ -341,7 +341,7 @@ proc build_platform_dist() =
   # Build sources.
   for variant in ["debug", "release"]:
     nimcache.remove_dir
-    dire_shell("nimrod c -d:" & variant, "--compile_only --header",
+    dire_shell("nimrod c -d:" & variant, "--compileOnly --header --noMain",
       "lazy_rest_c_api.nim")
     let dest = dist_dir/src_name & platform & "-" & variant
     copy_nimcache(nimcache, dest)
@@ -359,7 +359,7 @@ proc build_dist() =
 
 task "clean", "Removes temporal files, mostly.": clean()
 task "doc", "Generates HTML docs.": doc()
-task "i", "Uses babel to force install package locally.": install_babel()
+task "i", "Uses nimble to force install package locally.": install_nimble()
 task "test", "Runs local generation tests.": run_tests()
 
 if sybil_witness.exists_file:

@@ -14,7 +14,7 @@ These are the steps to be performed for new stable releases of `Lazy reSt
   * Modify `README.rst <../README.rst>`_.
   * Modify `docs/changes.rst <changes.rst>`_ with list of changes and
     version/number.
-  * Modify `lazy_rest.babel <../lazy_rest.babel>`_.
+  * Modify `lazy_rest.nimble <../lazy_rest.nimble>`_.
   * Modify `lazy_rest.nim <../lazy_rest.nim>`_.
 
 * ``git commit -av`` into the release branch the version number changes.
@@ -26,7 +26,7 @@ These are the steps to be performed for new stable releases of `Lazy reSt
 * Increase version numbers, ``master`` branch gets +0.0.1:
 
   * Modify `README.rst <../README.rst>`_.
-  * Modify `lazy_rest.babel <../lazy_rest.babel>`_.
+  * Modify `lazy_rest.nimble <../lazy_rest.nimble>`_.
   * Modify `lazy_rest.nim <../lazy_rest.nim>`_.
   * Add to `docs/changes.rst <changes.rst>`_ development version with unknown
     date.

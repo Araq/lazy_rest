@@ -15,13 +15,13 @@ Development version
 -------------------
 
 Install the `Nimrod compiler <http://nimrod-lang.org>`_. Then use `Nimrod's
-Babel package manager <https://github.com/nimrod-code/babel>`_ to install
+Nimble package manager <https://github.com/nim-lang/nimble>`_ to install
 locally the GitHub checkout::
 
-    $ babel update
+    $ nimble update
     $ git clone --recursive https://github.com/gradha/lazy_rest.git
     $ cd lazy_rest
-    $ babel install -y
+    $ nimble install -y
 
 Later, if you want to update you need to make sure git submodules get updated
 too::
@@ -31,10 +31,10 @@ too::
     $ git submodule update
 
 If you don't mind downloading the git repository every time, you can also tell
-Babel to install the latest development version directly from git::
+Nimble to install the latest development version directly from git::
 
-    $ babel update
-    $ babel install -y lazy_rest@#head
+    $ nimble update
+    $ nimble install -y lazy_rest@#head
 
 
 Documentation

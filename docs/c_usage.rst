@@ -20,7 +20,7 @@ compile with Nimrod using the `--header command line switch
 What this means is that you need a working Nimrod compiler and follow the
 `Nimrod installation steps <nimrod_usage.rst>`_ before doing anything else.
 
-Once you have the Nimrod compiler and source (or Babel package) installed, you
+Once you have the Nimrod compiler and source (or Nimble package) installed, you
 can either compile the ``lazy_rest_c_api.nim`` file with the ``--header``
 option (plus any other useful switches, e.g. ``--noMain`` and
 ``--compileOnly``) or create a dummy nimrod source file and use that to
