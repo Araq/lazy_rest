@@ -3,9 +3,19 @@
 # Test git command.
 echo "Checking installation of git command."
 git --version|grep "git version"
-if [ $? != 0 ]; then 
+if [ $? != 0 ]; then
 	apt-get update
 	apt-get install -y git
+else
+	echo "Seems to be installed, not updating."
+fi
+
+# Test zip command.
+echo "Checking installation of zip command."
+zip | grep Copyright
+if [ $? != 0 ]; then
+	apt-get update
+	apt-get install -y zip
 else
 	echo "Seems to be installed, not updating."
 fi
