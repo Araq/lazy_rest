@@ -18,6 +18,7 @@ const
   zip_exe = "zip"
   dist_dir = "dist"
   nimcache = "nimcache"
+  sybil_witness = ".sybil_systems"
 
 
 template glob(pattern: string): expr =
@@ -172,37 +173,33 @@ proc copy_vagrant(target_dir: string) =
   ## Copies enough source files to `target_dir` to build a binary.
   ##
   ## This is done through an external python script which calls git submodule
-  ## foreach and git archive.
+  ## foreach and git archive. Also creates the sybil_witness to make the
+  ## platform_dist nake task available.
   target_dir.remove_dir
+  target_dir.create_dir
+  write_file(target_dir/sybil_witness, "dominator")
 
   var files: seq[string] = @[]
   for pattern in ["*.nim", "lazy_rest_pkg"/"*.nim", "*cfg", "*.nimble",
       "resources"/"*", "external"/"badger_bits"/"*.nim"]:
     files.add(glob(pattern))
   for path in files:
-    let
-      dest = target_dir/path
-      dir = dest.split_file.dir
-    dir.create_dir
-    echo "Creating ", dest
-    path.copy_file_with_permissions(dest)
+    cp(path, target_dir/path)
 
 
 proc build_vagrant(dir: string) =
-  ## Powers up the vagrant box, compilex the lazy badger and produces C files.
+  ## Powers up the vagrant box, compiles the lazy badger and produces C files.
   ##
-  ## The C files are left in the nimcache subdirectory, the exe is directly at
-  ## the root. After all work has done the vagrant instance is halted. This
-  ## doesn't do any provisioning, the vagrant instances are meant to be
-  ## prepared beforehand.
+  ## The compilation is done through the build_platform_dist() code invoking
+  ## make *remotely*. The results will be put obvioulsy in the vagrant's dist
+  ## subdirectory for collection.  After all work has done the vagrant instance
+  ## is halted. This doesn't do any provisioning, the vagrant instances are
+  ## meant to be prepared beforehand.
   with_dir dir:
     dire_shell "vagrant up"
     dire_shell("vagrant ssh -c '" &
       "cd /vagrant/lazy_rest && " &
-      "nimrod c -d:release " & badger_name & ".nim &&" &
-      "strip " & badger_name & ".exe &&" &
-      "rm -Rf " & nimcache & " &&" &
-      "nimrod c --compile_only --header lazy_rest_c_api.nim &&" &
+      "nake platform_dist && " &
       "echo done'")
     dire_shell "vagrant halt"
 
@@ -214,38 +211,6 @@ proc copy_nimcache(nimcache_dir, dest_dir: string) =
     cp(src_file, dest_dir/src_file.extract_filename)
 
 
-proc zip_vagrant(vagrant_dir, zip_name: string) =
-  ## Zips the source and binary files produced by build_vagrant().
-  let
-    tmp_dir = "tmp"
-    dist_bin_dir = tmp_dir/bin_name & "-" & zip_name
-    dist_src_dir = tmp_dir/src_name & "-" & zip_name
-    exec_options = {poStdErrToStdOut, poUsePath, poEchoCmd}
-    nimcache_dir = vagrant_dir/nimcache
-
-  # Prepare directories.
-  tmp_dir.remove_dir
-  dist_bin_dir.create_dir
-  cp(vagrant_dir/badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
-  copy_nimcache(nimcache_dir, dist_src_dir)
-
-  echo "TODO rst instructions for each binary package."
-
-  # Create zip files.
-  with_dir tmp_dir:
-    for full_path in [dist_bin_dir, dist_src_dir]:
-      let
-        zip_dir = full_path.extract_filename
-        zip_file = zip_dir & ".zip"
-      discard exec_process(zip_exe, args = ["-9r", zip_file, zip_dir],
-        options = exec_options)
-      doAssert exists_file(zip_file)
-
-  for zip_file in glob(tmp_dir/"*.zip"):
-    cp(zip_file, dist_dir/zip_file.extract_filename)
-  tmp_dir.remove_dir
-
-
 proc build_dist_github_report() =
   ## Inspects files in zip and generates markdown for github.
   ##
@@ -254,42 +219,52 @@ proc build_dist_github_report() =
 
 
 proc run_vagrant() =
-  ## Takes care of running vagrant, copying files and packaging binaries.
-  ##
-  ## Source code won't be packaged, since it is packaged all together for the
-  ## supported platforms.
-  dist_dir.remove_dir
-  dist_dir.create_dir
-
-  for vdir, zname in items([("32bit", "i386"), ("64bit", "i686")]):
+  ## Takes care of running vagrant and running build_platform_dist *there*.
+  for vdir in ["32bit", "64bit"]:
     let dir = "vagrant_linux"/vdir/"lazy_rest/"
     copy_vagrant dir
     build_vagrant dir
-    zip_vagrant(dir, zname)
-  echo "TODO mac version"
 
 
-proc build_osx_dist() =
+proc build_platform_dist() =
   ## Runs some compilation tasks to produce the binary and source dists.
-  # Build binary.
+  ##
+  ## This will generate files in the ``dist`` subdirectory but will not pack
+  ## them. Presumably you are running this on different platforms to later
+  ## *gather* the results together.
   nimcache.remove_dir
+  dist_dir.remove_dir
+  let
+    platform = "-" & host_os & "-" & host_cpu
+    dist_bin_dir = dist_dir/bin_name & platform
+    exec_options = {poStdErrToStdOut, poUsePath, poEchoCmd}
+
+  # Build the binary.
   dire_shell "nimrod c -d:release " & badger_name & ".nim"
   dire_shell "strip " & badger_name & ".exe"
-  let dist_bin_dir = dist_dir/bin_name & "-osx"
   cp(badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
+
+  # Zip the binary and remove the uncompressed files.
+  with_dir dist_dir:
+    let
+      zip_dir = bin_name & platform
+      zip_file = zip_dir & ".zip"
+    discard exec_process(zip_exe, args = ["-9r", zip_file, zip_dir],
+      options = exec_options)
+    doAssert exists_file(zip_file)
+    zip_dir.remove_dir
 
   # Build sources.
   for variant in ["debug", "release"]:
     nimcache.remove_dir
-    dire_shell("nimrod c -d:" & variant, "--compile_only",
+    dire_shell("nimrod c -d:" & variant, "--compile_only --header",
       "lazy_rest_c_api.nim")
-    copy_nimcache(nimcache, dist_dir/src_name & "-osx-" & variant)
+    copy_nimcache(nimcache, dist_dir/src_name & platform & "-" & variant)
 
 
 proc build_dist() =
   ## Runs all the distribution tasks and collects everything for upload.
-  build_osx_dist()
-  run_vagrant()
+  #run_vagrant()
   build_dist_github_report()
 
 
@@ -298,12 +273,12 @@ task "doc", "Generates HTML docs.": doc()
 task "i", "Uses babel to force install package locally.": install_babel()
 task "test", "Runs local generation tests.": run_tests()
 
-if exists_file(".sybil_systems"):
+if sybil_witness.exists_file:
   task "web", "Renders gh-pages, don't use unless you are gradha.": web()
   task "check_doc", "Validates rst format with python.": validate_doc()
   task "postweb", "Gradha uses this like portals, don't touch!": postweb()
   task "vagrant", "Runs vagrant to build linux binaries": run_vagrant()
-  task "osx_dist", "Builds the binary and source for OSX": build_osx_dist()
+  task "platform_dist", "Build dist for current OS": build_platform_dist()
   task "dist", "Performs distribution tasks for all platforms": build_dist()
 
 when defined(macosx):
