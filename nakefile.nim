@@ -11,7 +11,6 @@ type
 const
   pkg_name = "lazy_rest"
   badger_name = "lazy_rest_badger"
-  #src_name = pkg_name & "-" & lazy_rest.version_str & "-source"
   src_name = "source"
   bin_name = pkg_name & "-" & lazy_rest.version_str & "-binary"
   badger = "lazy_rest_bager.nim"
@@ -19,6 +18,8 @@ const
   dist_dir = "dist"
   nimcache = "nimcache"
   sybil_witness = ".sybil_systems"
+  nimbase_h = "nimbase.h"
+  exec_options = {poStdErrToStdOut, poUsePath, poEchoCmd}
 
 
 template glob(pattern: string): expr =
@@ -42,16 +43,26 @@ iterator all_html_files(files: seq[string]): tuple[src, dest: string] =
     yield r
 
 
+proc vagrant_dirs(): seq[string] =
+  ## Returns the list of paths for the vagrant linux machines.
+  result = @[]
+  for vdir in ["32bit", "64bit"]:
+    result.add("vagrant_linux"/vdir/"lazy_rest/")
+
+
 proc cp(src, dest: string) =
   ## Verbose wrapper around copy_file_with_permissions.
   ##
   ## In addition to copying permissions this will create necessary destination
-  ## directories.
+  ## directories. If `src` is a directory it will be copied recursively.
   assert src.not_nil and dest.not_nil
   assert src != dest
   echo src & " -> " & dest
   dest.split_file.dir.create_dir
-  src.copy_file_with_permissions(dest)
+  if src.exists_dir:
+    src.copy_dir(dest)
+  else:
+    src.copy_file_with_permissions(dest)
 
 
 proc test_shell(cmd: varargs[string, `$`]): bool {.discardable.} =
@@ -211,6 +222,17 @@ proc copy_nimcache(nimcache_dir, dest_dir: string) =
     cp(src_file, dest_dir/src_file.extract_filename)
 
 
+proc copy_nimbase(dest_dir: string) =
+  ## Looks for ``nimbase.h`` and copies it along to `dest_dir`.
+  ##
+  ## The ``nimbase.h`` file is found based on the lib relative directory from
+  ## the nimrod compiler.
+  let compiler = "nimrod".find_exe
+  assert compiler.not_nil and compiler.len > 5
+  let nimbase = compiler.split_file.dir / ".."/"lib"/nimbase_h
+  cp(nimbase, dest_dir/nimbase_h)
+
+
 proc build_dist_github_report() =
   ## Inspects files in zip and generates markdown for github.
   ##
@@ -220,10 +242,47 @@ proc build_dist_github_report() =
 
 proc run_vagrant() =
   ## Takes care of running vagrant and running build_platform_dist *there*.
-  for vdir in ["32bit", "64bit"]:
-    let dir = "vagrant_linux"/vdir/"lazy_rest/"
+  for dir in vagrant_dirs():
     copy_vagrant dir
     build_vagrant dir
+
+
+proc pack_dir(zip_dir: string, do_remove = true) =
+  ## Creates a zip out of `zip_dir`, then optionally removes that dir.
+  ##
+  ## The zip will be created in the parent directory with the same name as the
+  ## last directory plus the zip extension.
+  assert zip_dir.exists_dir
+  let base_dir = zip_dir.split_file.dir
+  with_dir base_dir:
+    let
+      local_dir = zip_dir.extract_filename
+      zip_file = local_dir & ".zip"
+    discard exec_process(zip_exe, args = ["-9r", zip_file, local_dir],
+      options = exec_options)
+    doAssert exists_file(zip_file)
+    if do_remove:
+      local_dir.remove_dir
+
+
+proc collect_vagrant() =
+  ## Takes dist generated files from vagrant dirs and copies to our dist.
+  ##
+  ## This requires that both vagrant and current dist dirs exists. Also, once
+  ## finished all the source files are put into a single zip.
+  doAssert dist_dir.exists_dir
+  for vagrant_base in vagrant_dirs():
+    let dir = vagrant_base/dist_dir
+    for path in glob(dir/"*"):
+      cp(path, dist_dir/path.extract_filename)
+
+  # Build mega-source pack.
+  let src_final = dist_dir/pkg_name & "-" &
+    lazy_rest.version_str & "-generated-C-sources"
+  src_final.create_dir
+  for src_dir in glob(dist_dir/"source*"):
+    move_file(src_dir, src_final/src_dir.extract_filename)
+  pack_dir(src_final)
 
 
 proc build_platform_dist() =
@@ -237,7 +296,6 @@ proc build_platform_dist() =
   let
     platform = "-" & host_os & "-" & host_cpu
     dist_bin_dir = dist_dir/bin_name & platform
-    exec_options = {poStdErrToStdOut, poUsePath, poEchoCmd}
 
   # Build the binary.
   dire_shell "nimrod c -d:release " & badger_name & ".nim"
@@ -245,26 +303,23 @@ proc build_platform_dist() =
   cp(badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
 
   # Zip the binary and remove the uncompressed files.
-  with_dir dist_dir:
-    let
-      zip_dir = bin_name & platform
-      zip_file = zip_dir & ".zip"
-    discard exec_process(zip_exe, args = ["-9r", zip_file, zip_dir],
-      options = exec_options)
-    doAssert exists_file(zip_file)
-    zip_dir.remove_dir
+  pack_dir(dist_dir/bin_name & platform)
 
   # Build sources.
   for variant in ["debug", "release"]:
     nimcache.remove_dir
     dire_shell("nimrod c -d:" & variant, "--compile_only --header",
       "lazy_rest_c_api.nim")
-    copy_nimcache(nimcache, dist_dir/src_name & platform & "-" & variant)
+    let dest = dist_dir/src_name & platform & "-" & variant
+    copy_nimcache(nimcache, dest)
+    copy_nimbase(dest)
 
 
 proc build_dist() =
   ## Runs all the distribution tasks and collects everything for upload.
-  #run_vagrant()
+  run_vagrant()
+  build_platform_dist()
+  collect_vagrant()
   build_dist_github_report()
 
 
