@@ -273,6 +273,7 @@ Binary MD5 checksums:""" % [lazy_rest.version_str, git_commit]
 proc run_vagrant() =
   ## Takes care of running vagrant and running build_platform_dist *there*.
   for dir in vagrant_dirs():
+    cp("vagrant_linux"/"bootstrap.sh", dir/".."/"bootstrap.sh")
     copy_vagrant dir
     build_vagrant dir
 

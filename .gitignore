@@ -48,4 +48,5 @@ nimcache/
 /tests/threads/?manual*.html
 /tests/threads/nimrod_doc
 /tmp/
+/vagrant_linux/??bit/bootstrap.sh
 /vagrant_linux/??bit/lazy_rest/

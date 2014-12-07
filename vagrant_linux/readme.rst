@@ -10,8 +10,10 @@ To start up a machine go into the directory and type::
 
     $ vagrant up
 
-If something fails during provisioning (the setup phase), tweak
-``bootstrap.sh`` (maybe some repository URLs changed?) and run::
+This requires a ``bootstrap.sh`` file to be present. Since all Linux variants
+use the same ``bootstrap.sh``, copy it form the parent directory.  If something
+fails during provisioning (the setup phase), tweak ``bootstrap.sh`` (maybe some
+repository URLs changed?) and run::
 
     $ vagrant reload --provision
 

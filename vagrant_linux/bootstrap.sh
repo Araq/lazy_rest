@@ -52,8 +52,8 @@ cd ~/project
 if [ ! -d nimble ]; then
 	echo "Installing Nimble from git…"
 	rm -Rf tmp &&
-	git clone https://github.com/gradha/nimble.git tmp &&
-	cd tmp && git checkout vagrant_tests &&
+	git clone https://github.com/nim-lang/nimble.git tmp &&
+	cd tmp && git checkout master &&
 	nimrod c -r src/nimble install -y &&
 	cd .. && mv tmp nimble
 else
