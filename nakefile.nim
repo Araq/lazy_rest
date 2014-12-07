@@ -11,7 +11,7 @@ type
 const
   pkg_name = "lazy_rest"
   badger_name = "lazy_rest_badger"
-  src_name = "source"
+  src_name = "c-source"
   bin_name = pkg_name & "-" & lazy_rest.version_str & "-binary"
   badger = "lazy_rest_bager.nim"
   zip_exe = "zip"
@@ -27,7 +27,8 @@ template glob(pattern: string): expr =
   to_seq(walk_files(pattern))
 
 let
-  rst_files = concat(glob("*.rst"), glob("docs/*rst"))
+  rst_files = concat(glob("*.rst"), glob("docs"/"*rst"),
+    glob("docs"/"dist"/"*rst"))
   nim_files = concat(@[pkg_name & ".nim", "lazy_rest_c_api.nim"],
     glob("lazy_rest_pkg/*nim"))
 
@@ -282,7 +283,7 @@ proc collect_vagrant() =
   let src_final = dist_dir/pkg_name & "-" &
     lazy_rest.version_str & "-generated-C-sources"
   src_final.create_dir
-  for src_dir in glob(dist_dir/"source*"):
+  for src_dir in glob(dist_dir/"c-source*"):
     move_file(src_dir, src_final/src_dir.extract_filename)
   pack_dir(src_final)
 
@@ -298,11 +299,17 @@ proc build_platform_dist() =
   let
     platform = "-" & host_os & "-" & host_cpu
     dist_bin_dir = dist_dir/bin_name & platform
+    usage_rst = "docs"/"lazy_rest_badger_usage.rst"
+    readme_rst = "docs"/"dist"/"lazy_rest_badger.rst"
+    usage_html = dist_bin_dir/"lazy_rest_badger_usage.html"
+    readme_html = dist_bin_dir/"readme.html"
 
   # Build the binary.
   dire_shell "nimrod c -d:release " & badger_name & ".nim"
   dire_shell "strip " & badger_name & ".exe"
   cp(badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
+  doAssert rst_to_html(usage_rst, usage_html)
+  doAssert rst_to_html(readme_rst, readme_html)
 
   # Zip the binary and remove the uncompressed files.
   pack_dir(dist_dir/bin_name & platform)

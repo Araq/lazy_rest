@@ -11,6 +11,7 @@ nimcache/
 /README.html
 /dist/
 /docs/*.html
+/docs/dist/*.html
 /gh_docs/
 /lazy_rest
 /lazy_rest.html

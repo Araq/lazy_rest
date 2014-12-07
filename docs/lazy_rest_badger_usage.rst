@@ -5,23 +5,14 @@ Lazy reST badger usage guide
 .. |rst| replace:: reStructuredText
 
 This is the usage guide for the ``lazy_rest_badger.exe`` tool of `Lazy reSt
-<https://github.com/gradha/lazy_rest>`_. See the `README <../README.rst>`_.
-This tool demonstrates usage of the ``lazy_rest`` module and provides a
-convenient and easy to install program which transforms |rst| files into HTML.
-You can get this program compiling it yourself from source or downloading
-binaries from GitHub.
+<https://github.com/gradha/lazy_rest>`_.  This tool demonstrates usage of the
+``lazy_rest`` module and provides a convenient and easy to install program
+which transforms |rst| files into HTML.  You can get this program compiling it
+yourself from source or downloading binaries from GitHub.
 
 
 Installation
 ============
-
-Source
-------
-
-If you want to install from source you can just follow the installation
-instructions of `Nimrod usage guide <nimrod_usage.html>`_. They involve
-installing a nimble package, which will automatically set up the
-``lazy_rest_badger.exe`` binary along with the package.
 
 Binaries
 --------
@@ -71,9 +62,10 @@ available switches:
     likely use this to customize the output HTML template. For an example of
     option file go look at
     https://github.com/gradha/lazy_rest/blob/master/resources/embedded_nimdoc.cfg.
-    The `Lazy reST error handling <error_handling.rst>`_ has some information
-    on the replacement keys you can use in the template (both the success and
-    failure versions).
+    The `Lazy reST error handling document <error_handling.rst>`_ (`see online
+    <http://gradha.github.io/lazy_rest/gh_docs/master/docs/error_handling.html>`_)
+    has some information on the replacement keys you can use in the template
+    (both the success and failure versions).
 -R, --parser-raw-directive              Allows raw directives to be processed.
     By default these are ignored since they allow you to bypass all HTML
     escaping safeties.
