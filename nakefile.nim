@@ -11,7 +11,7 @@ type
 const
   pkg_name = "lazy_rest"
   badger_name = "lazy_rest_badger"
-  src_name = "c-source"
+  src_name = "c-sources"
   bin_name = pkg_name & "-" & lazy_rest.version_str & "-binary"
   badger = "lazy_rest_bager.nim"
   zip_exe = "zip"
@@ -89,26 +89,38 @@ proc rst_to_html(src, dest: string): bool =
   except:
     dest.write_file(safe_rst_file_to_html(src))
 
-proc doc(open_files = false) =
-  # Generate html files from the rst docs.
+proc doc(start_dir = ".", open_files = false) =
+  ## Generate html files from the rst docs.
+  ##
+  ## Pass `start_dir` as the root where you want to place the generated files.
+  ## If `open_files` is true the ``open`` command will be called for each
+  ## generated HTML file.
   for rst_file, html_file in rst_files.all_html_files:
-    if not html_file.needs_refresh(rst_file): continue
-    if not rst_to_html(rst_file, html_file):
+    let
+      full_path = start_dir / html_file
+      base_dir = full_path.split_file.dir
+    base_dir.create_dir
+    if not full_path.needs_refresh(rst_file): continue
+    if not rst_to_html(rst_file, full_path):
       quit("Could not generate html doc for " & rst_file)
     else:
-      echo rst_file & " -> " & html_file
-      if open_files: shell("open " & html_file)
+      echo rst_file & " -> " & full_path
+      if open_files: shell("open " & full_path)
 
   for nim_file, html_file in nim_files.all_html_files:
-    if not html_file.needs_refresh(nim_file): continue
-    if not shell("nimrod doc --verbosity:0", nim_file):
+    let
+      full_path = start_dir / html_file
+      base_dir = full_path.split_file.dir
+    base_dir.create_dir
+    if not full_path.needs_refresh(nim_file): continue
+    if not shell("nimrod doc --verbosity:0 -o:" & full_path, nim_file):
       quit("Could not generate HTML API doc for " & nim_file)
-    if open_files: shell("open " & html_file)
+    if open_files: shell("open " & full_path)
 
   echo "All docs generated"
 
 
-proc doco() = doc(true)
+proc doco() = doc(open_files = true)
 
 
 proc validate_doc() =
@@ -198,6 +210,7 @@ proc copy_vagrant(target_dir: string) =
     files.add(glob(pattern))
   for path in files:
     cp(path, target_dir/path)
+  copy_dir("docs", target_dir/"docs")
 
 
 proc build_vagrant(dir: string) =
@@ -268,11 +281,12 @@ proc pack_dir(zip_dir: string, do_remove = true) =
       local_dir.remove_dir
 
 
-proc collect_vagrant() =
+proc collect_vagrant_and_sources() =
   ## Takes dist generated files from vagrant dirs and copies to our dist.
   ##
   ## This requires that both vagrant and current dist dirs exists. Also, once
-  ## finished all the source files are put into a single zip.
+  ## finished all the source files are put into a single zip along with some
+  ## documentation.
   doAssert dist_dir.exists_dir
   for vagrant_base in vagrant_dirs():
     let dir = vagrant_base/dist_dir
@@ -285,6 +299,16 @@ proc collect_vagrant() =
   src_final.create_dir
   for src_dir in glob(dist_dir/"c-source*"):
     move_file(src_dir, src_final/src_dir.extract_filename)
+
+  let
+    readme_rst = "docs"/"dist"/"c_sources.html"
+    readme_html = src_final/"readme.html"
+    doc_dir = src_final/"documentation"
+    doc_dist_dir = doc_dir/"docs"/"dist"
+
+  cp(readme_rst, readme_html)
+  doc(start_dir = doc_dir)
+  doc_dist_dir.remove_dir
   pack_dir(src_final)
 
 
@@ -326,9 +350,10 @@ proc build_platform_dist() =
 
 proc build_dist() =
   ## Runs all the distribution tasks and collects everything for upload.
-  run_vagrant()
+  doc()
   build_platform_dist()
-  collect_vagrant()
+  run_vagrant()
+  collect_vagrant_and_sources()
   build_dist_github_report()
 
 

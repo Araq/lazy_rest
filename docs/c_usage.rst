@@ -5,7 +5,7 @@ Lazy reST C usage guide
 .. |rst| replace:: reStructuredText
 
 This is the C usage guide for `Lazy reSt
-<https://github.com/gradha/lazy_rest>`_.  See the `README <../README.rst>`_.
+<https://github.com/gradha/lazy_rest>`_.
 
 
 Installation
