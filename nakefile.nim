@@ -249,11 +249,25 @@ proc copy_nimbase(dest_dir: string) =
   cp(nimbase, dest_dir/nimbase_h)
 
 
-proc build_dist_github_report() =
+proc md5() =
   ## Inspects files in zip and generates markdown for github.
   ##
   ## This will just pick the zip files and generate some md5 of them
-  echo "TODO dist github!"
+  # Attempts to obtain the git current commit.
+  var git_commit = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  let (output, code) = execCmdEx("cd ../root && git log -n 1 --format=%H")
+  if code == 0 and output.strip.len == 40:
+    git_commit = output.strip
+  echo """Add the following notes to the release info:
+
+Compiled with Nimrod version https://github.com/Araq/Nimrod/commit/$2 or https://github.com/Araq/Nimrod/tree/v0.9.6.
+
+[See the changes log](https://github.com/gradha/lazy_rest/blob/v$1/docs/changes.rst).
+
+Binary MD5 checksums:""" % [lazy_rest.version_str, git_commit]
+  for filename in walk_files(dist_dir/"*.zip"):
+    let v = filename.read_file.get_md5
+    echo "* ``", v, "`` ", filename.extract_filename
 
 
 proc run_vagrant() =
@@ -354,7 +368,7 @@ proc build_dist() =
   build_platform_dist()
   run_vagrant()
   collect_vagrant_and_sources()
-  build_dist_github_report()
+  md5()
 
 
 task "clean", "Removes temporal files, mostly.": clean()
@@ -369,6 +383,7 @@ if sybil_witness.exists_file:
   task "vagrant", "Runs vagrant to build linux binaries": run_vagrant()
   task "platform_dist", "Build dist for current OS": build_platform_dist()
   task "dist", "Performs distribution tasks for all platforms": build_dist()
+  task "md5", "Computes md5 of files found in dist subdirectory.": md5()
 
 when defined(macosx):
   task "doco", "Like 'doc' but also calls 'open' on generated HTML.": doco()
