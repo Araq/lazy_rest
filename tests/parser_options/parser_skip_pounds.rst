@@ -2,12 +2,18 @@
 lazy_rest parsing test to skip pounds
 =====================================
 
+Intro
+-----
+
 This rst file has some embedded pounds signs (#) which will be discarded.
 
 # This is a pound block
 # that will be skipped
 # if the appropriate
 # parser option is true
+
+Middle
+------
 
 So, did that work?
 
@@ -19,6 +25,9 @@ So, did that work?
 ##   How about
 ##   a second double
 ##   pounded skip block?
+
+Last
+----
 
 These won't be ignored
 

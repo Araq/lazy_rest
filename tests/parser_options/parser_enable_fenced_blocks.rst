@@ -2,7 +2,8 @@
 lazy_rest parsing fenced blocks
 ===============================
 
-GitHub markdown won this one.
+GitHub markdown won this one
+----------------------------
 
 ```c
 void recursive(void) {
@@ -10,7 +11,9 @@ void recursive(void) {
     recursive();
 }
 ```
-This would be a plain block:
+
+This would be a plain block
+---------------------------
 ```
 Hur hur hur
 void no_highlight(void) {
