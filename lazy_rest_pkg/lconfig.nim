@@ -67,6 +67,34 @@ const
   ## wide and obscuring the main text. The default value is
   ## `lrd_render_split_item_toc <#lrd_render_split_item_toc>`_.
 
+  lrc_render_write_index_auto* = "render.write.index.auto" ## \
+  ## Automatically writes an index file after generating the HTML.
+  ##
+  ## The value for this option has to be *true* according to the parsing of the
+  ## `is_true() proc <#is_true>`_ to be enabled.
+  ##
+  ## When enabled, and only if you pass a filename to the rst processing procs,
+  ## on success an ``.idx`` file will be generated based on the specified input
+  ## path. Index files can later be merged together with
+  ## `lrstgen.mergeIndexes() <lrstgen.html#mergeIndexes>`_. This is a
+  ## semi-public option meant for other tools building upon this module which
+  ## want to provide a similar feature to Nimrod's ``buildIndex`` compiler
+  ## command. See the related `Nimrod docgen documentation
+  ## <http://nim-lang.org/docgen.html#index-idx-file-format>`_.
+
+  lrc_render_write_index_filename* = "render.write.index.filename" ## \
+  ## Specific path to the ``.idx`` file to be generated along HTML output.
+  ##
+  ## If the `lrc_render_write_index_auto <#lrc_render_write_index_auto>`_
+  ## option is not enough because maybe you can't depend on the current working
+  ## directory to be the same as the input filename, use this option to set the
+  ## full path to the output file.
+  ##
+  ## This option takes precedence over `lrc_render_write_index_auto
+  ## <#lrc_render_write_index_auto>`_. And remember to set this to the empty
+  ## string after each usage if you don't want to overwrite the file on the
+  ## next run you do with the same configuration settings!
+
   lrc_parser_skip_pounds* = "parser.skip.pounds" ## \
   ## Modifies the rst parser to skip initial hash symbols (``#``).
   ##
