@@ -39,3 +39,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/27>`_.
 * `Implemented lazy_rest_badger command line example program
   <https://github.com/gradha/lazy_rest/issues/20>`_.
+* `Added nake tasks to generate distribution binaries
+  <https://github.com/gradha/lazy_rest/issues/32>`_.

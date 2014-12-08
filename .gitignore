@@ -3,11 +3,15 @@
 *.exe
 *.swp
 .DS_Store
+.sybil_systems
+.vagrant/
 nimcache/
 
 # Full paths.
 /README.html
+/dist/
 /docs/*.html
+/docs/dist/*.html
 /gh_docs/
 /lazy_rest
 /lazy_rest.html
@@ -43,3 +47,6 @@ nimcache/
 /tests/sources/output/
 /tests/threads/?manual*.html
 /tests/threads/nimrod_doc
+/tmp/
+/vagrant_linux/??bit/bootstrap.sh
+/vagrant_linux/??bit/lazy_rest/
