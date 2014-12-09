@@ -203,9 +203,12 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   GENERATOR.renderRstToOut(RST, MOD_DESC)
   #GENERATOR.modDesc = toRope(MOD_DESC)
 
-  var
-    last_mod = epoch_time().from_seconds
-    title = GENERATOR.meta[metaTitle]
+  # Extract the title from the document and make an entry in the index table.
+  let title = GENERATOR.meta[metaTitle]
+  if title.len != 0:
+    GENERATOR.setIndexTerm("", title)
+
+  var last_mod = epoch_time().from_seconds
   # Try to get filename modification, might not be possible with string data!
   if filename.not_nil:
     try: last_mod = filename.getLastModificationTime
@@ -217,7 +220,6 @@ proc rst_string_to_html*(content: string, filename: string = nil,
     render_time_format = GENERATOR.config[lrc_render_time_format]
     render_local_date_format = GENERATOR.config[lrc_render_local_date_format]
     render_local_time_format = GENERATOR.config[lrc_render_local_time_format]
-  #if title.len < 1: title = filename.split_path.tail
 
   # Now finish by adding header, CSS and stuff.
   result = subex(GENERATOR.config[lrc_render_template]) % [
