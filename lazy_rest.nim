@@ -174,11 +174,11 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   ##   # --> "<em>Hello</em> <strong>world</strong>!"
   assert content.not_nil
   var
-    filename = filename
+    text_filename = filename
     GENERATOR: TRstGenerator
     HAS_TOC: bool
-  if filename.is_nil:
-    filename = "(no filename)"
+  if text_filename.is_nil or text_filename.len < 1:
+    text_filename = "(no filename)"
 
   when defined(lazy_rest_devel_log):
     # Was the debug logger started?
@@ -190,11 +190,11 @@ proc rst_string_to_html*(content: string, filename: string = nil,
         info("Initiating global log for debugging")
       G.did_start_logger = true
 
-  GENERATOR.initRstGenerator(outHtml, filename,
+  GENERATOR.initRstGenerator(outHtml, text_filename,
     user_config, find_file, msg_handler)
 
   # Parse the result.
-  var RST = rstParse(content, filename, 1, 1, HAS_TOC,
+  var RST = rstParse(content, text_filename, 1, 1, HAS_TOC,
     GENERATOR.config, GENERATOR.findFile, GENERATOR.msgHandler)
   result = newStringOfCap(30_000)
 
@@ -203,9 +203,12 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   GENERATOR.renderRstToOut(RST, MOD_DESC)
   #GENERATOR.modDesc = toRope(MOD_DESC)
 
-  var
-    last_mod = epoch_time().from_seconds
-    title = GENERATOR.meta[metaTitle]
+  # Extract the title from the document and make an entry in the index table.
+  let title = GENERATOR.meta[metaTitle]
+  if title.len != 0:
+    GENERATOR.setIndexTerm("", title)
+
+  var last_mod = epoch_time().from_seconds
   # Try to get filename modification, might not be possible with string data!
   if filename.not_nil:
     try: last_mod = filename.getLastModificationTime
@@ -217,7 +220,6 @@ proc rst_string_to_html*(content: string, filename: string = nil,
     render_time_format = GENERATOR.config[lrc_render_time_format]
     render_local_date_format = GENERATOR.config[lrc_render_local_date_format]
     render_local_time_format = GENERATOR.config[lrc_render_local_time_format]
-  #if title.len < 1: title = filename.split_path.tail
 
   # Now finish by adding header, CSS and stuff.
   result = subex(GENERATOR.config[lrc_render_template]) % [
@@ -231,6 +233,15 @@ proc rst_string_to_html*(content: string, filename: string = nil,
     lrk_render_prism_js, if GENERATOR.unknownLangs: prism_js else: "",
     lrk_render_prism_css, if GENERATOR.unknownLangs: prism_css else: "",
     lrk_render_content, MOD_DESC]
+
+  # Extra generation of index file?
+  var INDEX_FILENAME = GENERATOR.config[lrc_render_write_index_filename]
+  # Maybe the user specified an automatic index?
+  if INDEX_FILENAME.len < 1 and filename.not_nil and
+      GENERATOR.config.is_true(lrc_render_write_index_auto):
+    INDEX_FILENAME = filename.change_file_ext(index_ext)
+  if INDEX_FILENAME.len > 0:
+    GENERATOR.write_index_file(INDEX_FILENAME)
 
 
 proc rst_file_to_html*(filename: string, user_config: PStringTable = nil,

@@ -42,6 +42,7 @@ nimcache/
 /tests/include/relative.html
 /tests/include/repeat.html
 /tests/include/simple_include_01.html
+/tests/parser_options/*.idx
 /tests/parser_options/output/
 /tests/runtime_change/*.html
 /tests/sources/output/

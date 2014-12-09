@@ -1,9 +1,10 @@
 import
-  lazy_rest, strutils, os
+  lazy_rest, strutils, os, sequtils
 
 
 const
   out_dir = "output"
+  special_index = out_dir/"special.index"
 
 
 proc process(filename: string) =
@@ -21,15 +22,22 @@ proc process(filename: string) =
   config[lrc_render_time_format] = ""
   config[lrc_render_local_date_format] = ""
   config[lrc_render_local_time_format] = ""
+  config[lrc_render_write_index_auto] = "t"
 
   # First generate the normal HTML, which may produce errors.
   echo dest_default
+  var ERRORS: seq[string] = @[]
   let default_html = content.safe_rst_string_to_html(filename,
-    user_config = config)
+    ERRORS.addr, config)
   dest_default.write_file(default_html)
 
   # Now generate a default config with the option set to true.
   config[config_option] = "t"
+  config[lrc_render_write_index_auto] = "" # Disable automatic index…
+  # …and if there were errors, force a specific filename index.
+  if ERRORS.len > 0:
+    config[lrc_render_write_index_filename] = special_index
+
   echo dest_tweaked
   let tweaked_html = content.safe_rst_string_to_html(filename,
     user_config = config)
@@ -43,6 +51,9 @@ proc test() =
   out_dir.create_dir
   for rst in walk_files("*.rst"):
     process(rst)
+  # Verify that we got three normal indices, one special.
+  doAssert len(to_seq(walk_files("*.idx"))) == 3
+  doAssert special_index.exists_file
 
 
 when isMainModule:
