@@ -41,3 +41,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/20>`_.
 * `Added nake tasks to generate distribution binaries
   <https://github.com/gradha/lazy_rest/issues/32>`_.
+* `Added a configuration option to generate index files
+  <https://github.com/gradha/lazy_rest/issues/34>`_.
