@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Lazy reST readme</title>
+<title>Lazy reST Nimrod usage guide</title>
 <style type="text/css">
 
 body {
@@ -243,28 +243,52 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 </head>
 <body>
 <div class="document" id="documentId">
-<h1 class="title">Lazy reST readme</h1>
-<p>Lazy reST is a <a class="reference external" href="http://nimrod-lang.org">Nimrod</a> module providing a spin-off higher level API over <a class="reference external" href="http://nimrod-lang.org/rstgen.html">Nimrod's rstgen module</a>. The main reasons for this spin-off are:</p>
-<ul class="simple"><li>Incompatible, but easier and safer to use API.</li>
-<li>Explicit C API support for embedding.</li>
-<li>Embeds <a class="reference external" href="http://prismjs.com">Prism</a> for code syntax highlighting of more languages.</li>
-<li>Drops explicit support for <a class="reference external" href="http://latex-project.org">LaTeX</a>.</li>
-<li>All the latest features supported on the latest stable Nimrod compiler.</li>
-</ul>
-<p>On top of the library code, the <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> program shows how to use the library and provides a simple practical rst to html command line tool.</p>
+<h1 class="title">Lazy reST Nimrod usage guide</h1>
+<p>This is the Nimrod usage guide for <a class="reference external" href="https://github.com/gradha/lazy_rest">Lazy reSt</a>.  See the <a class="reference external" href="../README.html">README</a>.</p>
 
-<h1 id="changes">Changes</h1><p>This is development version 0.2.1. For a list of changes see the <a class="reference external" href="docs/changes.html">docs/changes.rst</a> file.</p>
+<h1 id="installation">Installation</h1>
+<h2 id="development-version">Development version</h2><p>Install the <a class="reference external" href="http://nimrod-lang.org">Nimrod compiler</a>. Then use <a class="reference external" href="https://github.com/nim-lang/nimble">Nimrod's Nimble package manager</a> to install locally the GitHub checkout:<pre>
+$ nimble update
+$ git clone --recursive https://github.com/gradha/lazy_rest.git
+$ cd lazy_rest
+$ nimble install -y</pre>
+</p>
+<p>Later, if you want to update you need to make sure git submodules get updated too:<pre>
+$ cd lazy_rest
+$ git pull
+$ git submodule update</pre>
+</p>
+<p>If you don't mind downloading the git repository every time, you can also tell Nimble to install the latest development version directly from git:<pre>
+$ nimble update
+$ nimble install -y lazy_rest@#head</pre>
+</p>
 
-<h1 id="license">License</h1><p><a class="reference external" href="LICENSE.html">MIT license</a>.</p>
+<h1 id="documentation">Documentation</h1><p>Documentation comes as <a class="reference external" href="../lazy_rest.html">embedded docstrings</a> in the <a class="reference external" href="../lazy_rest.nim">lazy_rest.nim file</a>. If you have <a class="reference external" href="https://github.com/fowlmouth/nake">nake</a> installed, you can run the following command to build all the  reStructuredText files into HTML and the <tt class="docutils literal"><span class="pre">lazy_rest.nim</span></tt> module into HTML:<pre>
+$ nake doc</pre>
+</p>
+<p>This is essentially a wrapper around <tt class="docutils literal"><span class="pre">nimrod doc lazy_rest.nim</span></tt>. You can also read the pre generated HTML documentation at <a class="reference external" href="http://gradha.github.io/lazy_rest">http://gradha.github.io/lazy_rest</a>/ for all released versions and the current <tt class="docutils literal"><span class="pre">master</span></tt> git development branch. Here is a minimal Nimrod usage example:</p>
+<table><tbody><tr><td
+valign="top" class="blob-line-nums"><pre class="language-unknown">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td valign="top"><pre
+  class="language-unknown"><span class="Keyword">import</span> <span class="Identifier">lazy_rest</span><span class="Punctuation">,</span> <span class="Identifier">os</span>
 
-<h1 id="usage">Usage</h1><p>If you are a Nimrod programmer read the <a class="reference external" href="docs/nimrod_usage.html">Nimrod usage guide</a> which includes installation steps. C programmers can read the <a class="reference external" href="docs/c_usage.html">C usage guide</a> which unfortunately requires you to read the Nimrod version too anyway.</p>
-<p>Information on how errors are handled is available in the separate <a class="reference external" href="docs/error_handling.html">Lazy reST error handling</a> document.</p>
-<p>All documentation should be available online at <a class="reference external" href="http://gradha.github.io/lazy_rest/">http://gradha.github.io/lazy_rest/</a>.</p>
-<p>The <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> binary has its own manual in <a class="reference external" href="docs/lazy_rest_badger_usage.html">docs/lazy_rest_badger_usage.rst</a>, but running the program with the <tt class="docutils literal"><span class="pre">--help</span></tt> switch should show enough help to get you going.</p>
+<span class="Keyword">proc</span> <span class="Identifier">test</span><span class="Punctuation">(</span><span class="Punctuation">)</span> <span class="Operator">=</span>
+  <span class="Keyword">let</span>
+    <span class="Identifier">src</span> <span class="Operator">=</span> <span class="StringLit">&quot;readme.rst&quot;</span>
+    <span class="Identifier">dest</span> <span class="Operator">=</span> <span class="Identifier">src</span><span class="Operator">.</span><span class="Identifier">change_file_ext</span><span class="Punctuation">(</span><span class="StringLit">&quot;.html&quot;</span><span class="Punctuation">)</span>
+  <span class="Identifier">dest</span><span class="Operator">.</span><span class="Identifier">write_file</span><span class="Punctuation">(</span><span class="Identifier">safe_rst_file_to_html</span><span class="Punctuation">(</span><span class="Identifier">src</span><span class="Punctuation">)</span><span class="Punctuation">)</span>
 
-<h1 id="git-branches">Git branches</h1><p>This project uses the <a class="reference external" href="https://github.com/nvie/gitflow">git-flow branching model</a> with reversed defaults. Stable releases are tracked in the <tt class="docutils literal"><span class="pre">stable</span></tt> branch. Development happens in the default <tt class="docutils literal"><span class="pre">master</span></tt> branch.</p>
-
-<h1 id="feedback">Feedback</h1><p>You can send me feedback through <a class="reference external" href="https://github.com/gradha/lazy_rest/issues">github's issue tracker</a>. I also take a look from time to time to <a class="reference external" href="http://forum.nimrod-lang.org">Nimrod's forums</a> where you can talk to other nimrod programmers. </p>
+<span class="Keyword">when</span> <span class="Identifier">isMainModule</span><span class="Punctuation">:</span> <span class="Identifier">test</span><span class="Punctuation">(</span><span class="Punctuation">)</span></pre></td></tr></tbody></table>
+<h1 id="extensions">Extensions</h1><p>If you are rendering a  reStructuredText file which contains a code block, and the code block specifies a syntax highlight language not supported by <a class="reference external" href="http://nimrod-lang.org/highlite.html">Nimrod's highlite module</a>, then <a class="reference external" href="http://prismjs.com">Prism</a> will be embedded in an attempt to prettify the code block.</p>
+<p>The footer of the generated files includes JavaScript code which updates a relative timer to the last modification time of the rendered file, which might be easier to parse than the default full date. </p>
 
 <small>Last modified: 2014-12-10 23:12 UTC. Local time: 2014-12-11 00:12.
 <div id="counter"></div>

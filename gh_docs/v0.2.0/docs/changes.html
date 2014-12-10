@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Lazy reST readme</title>
+<title>Lazy reST changes log</title>
 <style type="text/css">
 
 body {
@@ -243,28 +243,28 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 </head>
 <body>
 <div class="document" id="documentId">
-<h1 class="title">Lazy reST readme</h1>
-<p>Lazy reST is a <a class="reference external" href="http://nimrod-lang.org">Nimrod</a> module providing a spin-off higher level API over <a class="reference external" href="http://nimrod-lang.org/rstgen.html">Nimrod's rstgen module</a>. The main reasons for this spin-off are:</p>
-<ul class="simple"><li>Incompatible, but easier and safer to use API.</li>
-<li>Explicit C API support for embedding.</li>
-<li>Embeds <a class="reference external" href="http://prismjs.com">Prism</a> for code syntax highlighting of more languages.</li>
-<li>Drops explicit support for <a class="reference external" href="http://latex-project.org">LaTeX</a>.</li>
-<li>All the latest features supported on the latest stable Nimrod compiler.</li>
+<h1 class="title">Lazy reST changes log</h1>
+<p>This is the changes log for <a class="reference external" href="https://github.com/gradha/lazy_rest">Lazy reSt</a>. See the <a class="reference external" href="../README.html">README</a>.</p>
+
+<h1 id="v0-2-0-2014-12-10">v0.2.0, 2014-12-10</h1><ul class="simple"><li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/1">Imported useful bits from quicklook-rest-with-nimrod</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/5">Prepared code for parallel generation of documents</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/8">Added .nim rendering tests with line numbering</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/4">Changed safe_* procs to return info when something went wrong</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/15">Added API to customize safe error message</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/12">Extracted and documented C API</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/11">Avoids hanging on infinite recursive include directives</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/17">Added customisation of file include and message procs</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/21">Modified config options to be additive</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/23">Replaced TRstParseOption with config parameters</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/19">Checked 0.10 compatibility before release</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/22">Generalised nim_file_to_html proc</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/28">Cleaned up usage documentation and source code</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/27">Disabled developer logging to file</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/20">Implemented lazy_rest_badger command line example program</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/32">Added nake tasks to generate distribution binaries</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/34">Added a configuration option to generate index files</a>.</li>
+<li><a class="reference external" href="https://github.com/gradha/lazy_rest/issues/35">Moved badger bits submodule to nimble package</a>.</li>
 </ul>
-<p>On top of the library code, the <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> program shows how to use the library and provides a simple practical rst to html command line tool.</p>
-
-<h1 id="changes">Changes</h1><p>This is development version 0.2.1. For a list of changes see the <a class="reference external" href="docs/changes.html">docs/changes.rst</a> file.</p>
-
-<h1 id="license">License</h1><p><a class="reference external" href="LICENSE.html">MIT license</a>.</p>
-
-<h1 id="usage">Usage</h1><p>If you are a Nimrod programmer read the <a class="reference external" href="docs/nimrod_usage.html">Nimrod usage guide</a> which includes installation steps. C programmers can read the <a class="reference external" href="docs/c_usage.html">C usage guide</a> which unfortunately requires you to read the Nimrod version too anyway.</p>
-<p>Information on how errors are handled is available in the separate <a class="reference external" href="docs/error_handling.html">Lazy reST error handling</a> document.</p>
-<p>All documentation should be available online at <a class="reference external" href="http://gradha.github.io/lazy_rest/">http://gradha.github.io/lazy_rest/</a>.</p>
-<p>The <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> binary has its own manual in <a class="reference external" href="docs/lazy_rest_badger_usage.html">docs/lazy_rest_badger_usage.rst</a>, but running the program with the <tt class="docutils literal"><span class="pre">--help</span></tt> switch should show enough help to get you going.</p>
-
-<h1 id="git-branches">Git branches</h1><p>This project uses the <a class="reference external" href="https://github.com/nvie/gitflow">git-flow branching model</a> with reversed defaults. Stable releases are tracked in the <tt class="docutils literal"><span class="pre">stable</span></tt> branch. Development happens in the default <tt class="docutils literal"><span class="pre">master</span></tt> branch.</p>
-
-<h1 id="feedback">Feedback</h1><p>You can send me feedback through <a class="reference external" href="https://github.com/gradha/lazy_rest/issues">github's issue tracker</a>. I also take a look from time to time to <a class="reference external" href="http://forum.nimrod-lang.org">Nimrod's forums</a> where you can talk to other nimrod programmers. </p>
 
 <small>Last modified: 2014-12-10 23:12 UTC. Local time: 2014-12-11 00:12.
 <div id="counter"></div>
