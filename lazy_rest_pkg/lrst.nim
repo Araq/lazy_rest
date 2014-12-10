@@ -12,8 +12,7 @@
 ## also supported.
 
 import
-  os, strutils, lazy_rest_pkg/lrstast, external/badger_bits/bb_system,
-  lazy_rest_pkg/lconfig
+  os, strutils, lazy_rest_pkg/lrstast, bb_system, lazy_rest_pkg/lconfig
 
 type
   TMsgClass* = enum

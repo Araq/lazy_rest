@@ -1,6 +1,6 @@
 import
   lazy_rest, strutils, os, argument_parser, tables, sequtils, sets,
-  external/badger_bits/bb_system
+  bb_system
 
 
 const

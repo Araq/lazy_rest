@@ -1,4 +1,4 @@
-import lazy_rest, lazy_rest_pkg/lqueues, sequtils, external/badger_bits/bb_os
+import lazy_rest, lazy_rest_pkg/lqueues, sequtils, bb_os
 
 const
   input_files = ["nimrod_doc"/"manual.txt"]

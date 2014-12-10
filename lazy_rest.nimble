@@ -26,4 +26,4 @@ nakefile.nim
 """
 
 [Deps]
-Requires: "nake >= 1.2,argument_parser >= 0.2"
+Requires: "nake >= 1.2,argument_parser >= 0.2, https://github.com/gradha/badger_bits.git"

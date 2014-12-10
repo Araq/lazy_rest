@@ -22,7 +22,7 @@ when defined(lazy_rest_devel_log):
 
 
 import
-  strtabs, external/badger_bits/bb_system, parsecfg, streams
+  strtabs, bb_system, parsecfg, streams
 
 
 const
