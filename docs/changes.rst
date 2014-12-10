@@ -9,7 +9,8 @@ See the `README <../README.rst>`_.
 v0.2.1, ????-??-??
 ------------------
 
-* Nothing yet.
+* `Fixed nimble spec referencing non existent directory
+  <https://github.com/gradha/lazy_rest/issues/39>`_.
 
 v0.2.0, 2014-12-10
 ------------------
