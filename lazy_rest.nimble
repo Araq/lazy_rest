@@ -7,10 +7,11 @@ license       = "MIT"
 bin = "lazy_rest_badger.exe"
 
 installDirs = """
+
 docs
-external
 lazy_rest_pkg
 resources
+
 """
 
 InstallFiles = """
