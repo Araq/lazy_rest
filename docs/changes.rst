@@ -6,7 +6,7 @@ This is the changes log for `Lazy reSt <https://github.com/gradha/lazy_rest>`_.
 See the `README <../README.rst>`_.
 
 
-v0.1.0, ????-??-??
+v0.2.0, 2014-12-10
 ------------------
 
 * `Imported useful bits from quicklook-rest-with-nimrod
