@@ -225,6 +225,7 @@ proc build_vagrant(dir: string) =
     dire_shell "vagrant up"
     dire_shell("vagrant ssh -c '" &
       "cd /vagrant/lazy_rest && " &
+      "nimble build && " &
       "nake test && " &
       "nake platform_dist && " &
       "echo done'")
