@@ -1,4 +1,4 @@
-import lazy_rest, external/badger_bits/bb_system, strtabs, strutils
+import lazy_rest, bb_system, strtabs, strutils
 
 ## Exported C API of `lazy_rest <https://github.com/gradha/lazy_rest>`_ a
 ## reStructuredText processing module for Nimrod.

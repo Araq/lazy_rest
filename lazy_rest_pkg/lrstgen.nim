@@ -25,7 +25,7 @@
 import
   strutils, os, hashes, strtabs, lazy_rest_pkg/lrstast, lazy_rest_pkg/lrst,
   lhighlite, tables, sequtils, algorithm, parseutils,
-  external/badger_bits/bb_system, lazy_rest_pkg/lconfig
+  bb_system, lazy_rest_pkg/lconfig
 
 const
   HtmlExt = "html"

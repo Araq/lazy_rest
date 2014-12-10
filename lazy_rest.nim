@@ -1,7 +1,6 @@
 import
   lazy_rest_pkg/lrstgen, os, lazy_rest_pkg/lrst, strutils, subexes,
-  strtabs, times, cgi, external/badger_bits/bb_system,
-  lazy_rest_pkg/lconfig
+  strtabs, times, cgi, bb_system, lazy_rest_pkg/lconfig
 
 when defined(lazy_rest_devel_log):
   import logging

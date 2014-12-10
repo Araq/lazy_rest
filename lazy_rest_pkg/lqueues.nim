@@ -14,8 +14,7 @@
 ##
 ## **DO NOT USE THIS MODULE AT THE MOMENT**, it is incomplete and crashes bad.
 
-import lazy_rest, external/badger_bits/bb_system, locks, strutils,
-  external/badger_bits/bb_os, osproc
+import lazy_rest, bb_system, locks, strutils, bb_os, osproc
 
 type
   Rest_task* = object ## Holds input/output data for each rendering job. \

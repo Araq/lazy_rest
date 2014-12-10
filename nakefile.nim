@@ -1,6 +1,6 @@
 import
   nake, os, times, osproc, md5, lazy_rest, sequtils, json, posix, strutils,
-  external/badger_bits/bb_system
+  bb_system
 
 type
   Failed_test = object of EAssertionFailed ## \
