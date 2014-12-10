@@ -29,6 +29,16 @@ Nimble to install the latest development version directly from git::
     $ nimble update
     $ nimble install -y lazy_rest@#head
 
+Stable version
+--------------
+
+Install the `Nimrod compiler <http://nimrod-lang.org>`_. Then use `Nimrod's
+Nimble package manager <https://github.com/nim-lang/nimble>`_ to install
+the latest stable package::
+
+    $ nimble update
+    $ nimble install lazy_rest
+
 
 Documentation
 =============
