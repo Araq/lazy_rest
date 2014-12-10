@@ -43,3 +43,5 @@ v0.1.0, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/32>`_.
 * `Added a configuration option to generate index files
   <https://github.com/gradha/lazy_rest/issues/34>`_.
+* `Moved badger bits submodule to nimble package
+  <https://github.com/gradha/lazy_rest/issues/35>`_.
