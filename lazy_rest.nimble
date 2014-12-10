@@ -1,6 +1,6 @@
 [Package]
 name          = "lazy_rest"
-version       = "0.1.0"
+version       = "0.2.0"
 author        = "Grzegorz Adam Hankiewicz"
 description   = """Simple rst (reStructuredText) HTML generation from Nimrod or C with some extras"""
 license       = "MIT"
