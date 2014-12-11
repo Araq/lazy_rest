@@ -61,4 +61,4 @@ These are the steps to be performed for new stable releases of `Lazy reSt
 * ``git push origin master stable gh-pages --tags``.
 * Close the dummy release issue.
 * Close the milestone on github.
-* Announce at http://forum.nimrod-lang.org/.
+* Announce at http://forum.nim-lang.org/t/664.
