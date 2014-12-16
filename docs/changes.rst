@@ -11,6 +11,8 @@ v0.2.1, ????-??-??
 
 * `Fixed nimble spec referencing non existent directory
   <https://github.com/gradha/lazy_rest/issues/39>`_.
+* `Exports lrstgen/IndexExt from main module
+  <https://github.com/gradha/lazy_rest/issues/42>`_.
 
 v0.2.0, 2014-12-10
 ------------------
