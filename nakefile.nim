@@ -177,10 +177,12 @@ proc web() =
   echo "Changing branches to render gh-pages…"
   let ourselves = read_file("nakefile")
   dire_shell "git checkout gh-pages"
-  dire_shell "rm -R `git ls-files -o`"
+  # Keep ingored files http://stackoverflow.com/a/3801554/172690.
+  dire_shell "rm -R `git ls-files --others --exclude-standard`"
   dire_shell "rm -Rf gh_docs"
   dire_shell "gh_nimrod_doc_pages -c ."
   write_file("nakefile", ourselves)
+  write_file(sybil_witness, "dominator")
   dire_shell "chmod 775 nakefile"
   echo "All commands run, now check the output and commit to git."
   shell "open index.html"
@@ -192,6 +194,7 @@ proc postweb() =
   dire_shell "git checkout -f @{-1}"
   echo "Updating submodules just in case."
   dire_shell "git submodule update"
+  remove_dir("gh_docs")
 
 
 proc copy_vagrant(target_dir: string) =
