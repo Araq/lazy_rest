@@ -238,7 +238,7 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   # Maybe the user specified an automatic index?
   if INDEX_FILENAME.len < 1 and filename.not_nil and
       GENERATOR.config.is_true(lrc_render_write_index_auto):
-    INDEX_FILENAME = filename.change_file_ext(index_ext)
+    INDEX_FILENAME = filename.change_file_ext(IndexExt)
   if INDEX_FILENAME.len > 0:
     GENERATOR.write_index_file(INDEX_FILENAME)
 
@@ -721,6 +721,7 @@ proc set_safe_error_rst*(input_rst: string, user_config: PStringTable = nil):
 
 
 export Find_file_handler
+export IndexExt
 export TMsgClass
 export TMsgHandler
 export TMsgKind
