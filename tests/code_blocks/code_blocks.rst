@@ -33,6 +33,7 @@ Now comes a standard directive block:
 
     10 print "awesome"
     20 goto 10
+    30 for no reason this is a long line to check wrapping and stuff like that
 
 The following standard block can also use Nimrod syntax highlighting,
 essentially duplicating the ``code-block`` extension:
