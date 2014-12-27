@@ -1,5 +1,5 @@
 import
-  nake, os, times, osproc, md5, lazy_rest, sequtils, json, posix, strutils,
+  bb_nake, os, times, osproc, md5, lazy_rest, sequtils, json, posix, strutils,
   bb_system
 
 type
@@ -17,7 +17,6 @@ const
   zip_exe = "zip"
   dist_dir = "dist"
   nimcache = "nimcache"
-  sybil_witness = ".sybil_systems"
   nimbase_h = "nimbase.h"
   exec_options = {poStdErrToStdOut, poUsePath, poEchoCmd}
 
@@ -197,44 +196,6 @@ proc postweb() =
   remove_dir("gh_docs")
 
 
-proc copy_vagrant(target_dir: string) =
-  ## Copies enough source files to `target_dir` to build a binary.
-  ##
-  ## This is done through an external python script which calls git submodule
-  ## foreach and git archive. Also creates the sybil_witness to make the
-  ## platform_dist nake task available.
-  target_dir.remove_dir
-  target_dir.create_dir
-  write_file(target_dir/sybil_witness, "dominator")
-
-  var files: seq[string] = @[]
-  for pattern in ["*.nim", "lazy_rest_pkg"/"*.nim", "*cfg", "*.nimble",
-      "resources"/"*", "external"/"badger_bits"/"*.nim", "tests"/"*"]:
-    files.add(glob(pattern))
-  for path in files:
-    cp(path, target_dir/path)
-  copy_dir("docs", target_dir/"docs")
-
-
-proc build_vagrant(dir: string) =
-  ## Powers up the vagrant box, compiles the lazy badger and produces C files.
-  ##
-  ## The compilation is done through the build_platform_dist() code invoking
-  ## make *remotely*. The results will be put obvioulsy in the vagrant's dist
-  ## subdirectory for collection.  After all work has done the vagrant instance
-  ## is halted. This doesn't do any provisioning, the vagrant instances are
-  ## meant to be prepared beforehand.
-  with_dir dir:
-    dire_shell "vagrant up"
-    dire_shell("vagrant ssh -c '" &
-      "cd /vagrant/lazy_rest && " &
-      "nimble build && " &
-      "nake test && " &
-      "nake platform_dist && " &
-      "echo done'")
-    dire_shell "vagrant halt"
-
-
 proc copy_nimcache(nimcache_dir, dest_dir: string) =
   ## Copies source files from `nimcache_dir` into `dest_dir`.
   let dest_dir = dest_dir
@@ -276,10 +237,11 @@ Binary MD5 checksums:""" % [lazy_rest.version_str, git_commit]
 
 proc run_vagrant() =
   ## Takes care of running vagrant and running build_platform_dist *there*.
-  for dir in vagrant_dirs():
-    cp("vagrant_linux"/"bootstrap.sh", dir/".."/"bootstrap.sh")
-    copy_vagrant dir
-    build_vagrant dir
+  run_vagrant("""
+    nimble build
+    nake test
+    nake platform_dist
+    """)
 
 
 proc pack_dir(zip_dir: string, do_remove = true) =
