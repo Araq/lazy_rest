@@ -92,19 +92,19 @@ You want to convert all the files with the ``.txt`` extension in the current
 subdirectory and don't want to recurse. These files use the |rst| raw
 directive and you want to allow it::
 
-    $ lazy_rest_badger *.txt -R
+    $ lazy_rest_badger.exe *.txt -R
 
 You want to convert all the files in a specific directory with the ``.text``
 extension recursively but not those with the extension ``.rst``. The files may
 contain errors, but you would prefer if all the files generated some HTML
 output at least::
 
-    $ lazy_rest_badger -r ../some/path/ -e text --safe
+    $ lazy_rest_badger.exe -r ../some/path/ -e text --safe
 
 You have a program generating |rst| output and you would like to pipe it
-through ``lazy_rest_badger``, then redirect it somewhere else::
+through ``lazy_rest_badger.exe``, then redirect it somewhere else::
 
-    $ foo | lazy_rest_badger STDIN | bar > result.html
+    $ foo | lazy_rest_badger.exe STDIN | bar > result.html
 
-Remember that in all cases ``lazy_rest_badger`` will overwrite the destination
-file.
+Remember that in all cases ``lazy_rest_badger.exe`` will overwrite the
+destination file.
