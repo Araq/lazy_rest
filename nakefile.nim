@@ -1,6 +1,6 @@
 import
-  bb_nake, os, times, osproc, md5, lazy_rest, sequtils, json, posix, strutils,
-  bb_system
+  bb_nake, bb_os, times, osproc, md5, lazy_rest, sequtils, json, posix,
+  strutils, bb_system
 
 
 const
@@ -87,11 +87,13 @@ proc validate_doc() =
 
 
 proc clean() =
-  for path in walk_dir_rec("."):
-    let ext = splitFile(path).ext
-    if ext == ".html":
+  for path in dot_walk_dir_rec("."):
+    case splitFile(path).ext.to_lower
+    of ".html", ".exe":
       echo "Removing ", path
       path.removeFile()
+    else:
+      discard
   echo "Temporary files cleaned"
 
 
