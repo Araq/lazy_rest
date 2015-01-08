@@ -17,6 +17,8 @@ v0.2.1, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/44>`_.
 * `Fixed compilation error of C api with Nim 0.10.2
   <https://github.com/gradha/lazy_rest/issues/48>`_.
+* `Corrected lazy_rest_badger usage guide examples
+  <https://github.com/gradha/lazy_rest/issues/41>`_.
 
 v0.2.0, 2014-12-10
 ------------------
