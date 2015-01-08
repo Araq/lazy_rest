@@ -13,6 +13,8 @@ v0.2.1, ????-??-??
   <https://github.com/gradha/lazy_rest/issues/39>`_.
 * `Exports lrstgen/IndexExt from main module
   <https://github.com/gradha/lazy_rest/issues/42>`_.
+* `Replaced vagrant build code with badger_bits bb_nake submodule
+  <https://github.com/gradha/lazy_rest/issues/44>`_.
 
 v0.2.0, 2014-12-10
 ------------------

@@ -3,7 +3,7 @@ Lazy reST license
 =================
 
 This is the license for `Lazy reSt <https://github.com/gradha/lazy_rest>`_. See
-the `README <../README.rst>`_.
+the `README <README.rst>`_.
 
 | The MIT License (MIT)
 | Copyright (c) 2014 Grzegorz Adam Hankiewicz
