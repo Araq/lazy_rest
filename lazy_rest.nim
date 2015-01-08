@@ -20,13 +20,6 @@ when defined(lazy_rest_devel_log):
 # `lazy_rest_pkg/lqueues.nim <lazy_rest_pkg/lqueues.html>`_ and use the
 # objects and procs it provides.
 
-proc tuple_to_version(x: expr): string {.compileTime.} =
-  ## Transforms an arbitrary int tuple into a dot separated string.
-  result = ""
-  for name, value in x.fieldPairs: result.add("." & $value)
-  if result.len > 0: result.delete(0, 0)
-
-
 const
   error_template = slurp("resources"/"error_html.template") ##
   ## The default error template which uses the subexes module for string
@@ -50,7 +43,8 @@ const
   ##
   ## Maintenance version changes mean I'm not perfect yet despite all the kpop
   ## I watch.
-  version_str* = tuple_to_version(version_int) ## \
+  version_str* = ($version_int.major & "." & $version_int.minor & "." &
+      $version_int.maintenance) ## \
     ## Module version as a string. Something like ``1.9.2``.
 
 type
