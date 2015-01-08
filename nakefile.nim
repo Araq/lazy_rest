@@ -67,7 +67,7 @@ proc doc(start_dir = ".", open_files = false) =
       base_dir = full_path.split_file.dir
     base_dir.create_dir
     if not full_path.needs_refresh(nim_file): continue
-    if not shell(compiler, "doc --verbosity:0 -o:" & full_path, nim_file):
+    if not shell(nim_exe, "doc --verbosity:0 -o:" & full_path, nim_file):
       quit("Could not generate HTML API doc for " & nim_file)
     if open_files: shell("open " & full_path)
 
@@ -106,8 +106,8 @@ proc run_tests() =
   # Add compilation of the badger binary.
   try:
     echo "Testing ", badger_name
-    test_shell(compiler, "c -r " & badger_name & ".nim -v")
-    test_shell(compiler, "c -d:release -r " & badger_name & ".nim -v")
+    test_shell(nim_exe, "c -r " & badger_name & ".nim -v")
+    test_shell(nim_exe, "c -d:release -r " & badger_name & ".nim -v")
   except Shell_failure:
     quit("Could not compile " & badger_name)
 
@@ -126,9 +126,9 @@ proc copy_nimbase(dest_dir: string) =
   ## Looks for ``nimbase.h`` and copies it along to `dest_dir`.
   ##
   ## The ``nimbase.h`` file is found based on the lib relative directory from
-  ## the compiler.
-  assert compiler.not_nil and compiler.len > 5
-  let nimbase = compiler.split_file.dir / ".."/"lib"/nimbase_h
+  ## the nim_exe.
+  assert nim_exe.not_nil and nim_exe.len > 5
+  let nimbase = nim_exe.split_file.dir / ".."/"lib"/nimbase_h
   cp(nimbase, dest_dir/nimbase_h)
 
 
@@ -197,7 +197,7 @@ proc build_platform_dist() =
     readme_html = dist_bin_dir/"readme.html"
 
   # Build the binary.
-  dire_shell compiler & " c -d:release " & badger_name & ".nim"
+  dire_shell nim_exe & " c -d:release " & badger_name & ".nim"
   dire_shell "strip " & badger_name & ".exe"
   cp(badger_name & ".exe", dist_bin_dir/badger_name & ".exe")
   doAssert rst_to_html(usage_rst, usage_html)
@@ -209,7 +209,7 @@ proc build_platform_dist() =
   # Build sources.
   for variant in ["debug", "release"]:
     nimcache.remove_dir
-    dire_shell(compiler, "c -d:" & variant, "--compileOnly --header --noMain",
+    dire_shell(nim_exe, "c -d:" & variant, "--compileOnly --header --noMain",
       "lazy_rest_c_api.nim")
     let dest = dist_dir/src_name & platform & "-" & variant
     copy_nimcache(nimcache, dest)

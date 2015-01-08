@@ -35,6 +35,7 @@ proc docstring_safe_rst_string_to_html() =
     discard
   else:
     # Yay, use `html` without worries.
+    discard
 
 
 proc docstring_safe_rst_file_to_html() =
