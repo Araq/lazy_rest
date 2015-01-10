@@ -27,6 +27,8 @@ import
   lhighlite, tables, sequtils, algorithm, parseutils,
   bb_system, lazy_rest_pkg/lconfig
 
+from htmlgen as h import nil
+
 const
   HtmlExt = "html"
   IndexExt* = ".idx"
@@ -566,18 +568,69 @@ proc generateDocumentationJumps(docs: TIndexedDocs): string =
 
   result.add(chunks.join(", ") & ".<br>")
 
-proc generateModuleJumps(modules: seq[string]): string =
+
+proc generateModuleJumps(modules: seq[TIndexEntry]): string =
   ## Returns a plain list of hyperlinks to the list of modules.
   result = "Modules: "
 
   var chunks: seq[string] = @[]
-  for name in modules:
-    chunks.add("<a href=\"" & name & ".html\">" & name & "</a>")
+  for module in modules:
+    chunks.add(h.a(href = module.link, module.keyword))
 
   result.add(chunks.join(", ") & ".<br>")
 
+
+proc readIndexEntries(filename: string):
+    tuple[entries: seq[TIndexEntry], title: TIndexEntry] =
+  ## Opens `filename` and reads all the index entries.
+  ##
+  ## Returns the sequence of all found entries along with the *title* entry if
+  ## the index file being processed was one from documentation and not a
+  ## module. If the index was for a module, ``title.keyword`` will be ``nil``.
+  var F = 0
+  newSeq(result.entries, 500)
+  setLen(result.entries, 0)
+  for line in lines(filename):
+    let s = line.find('\t')
+    if s < 0: continue
+    setLen(result.entries, F+1)
+    result.entries[F].keyword = line.substr(0, s-1)
+    result.entries[F].link = line.substr(s+1)
+
+    # See if we detect a title, a link without a `#foobar` trailing part.
+    if result.title.keyword.isNil and
+        result.entries[F].link.isDocumentationTitle:
+      result.title.keyword = result.entries[F].keyword
+      result.title.link = result.entries[F].link
+
+    if result.entries[F].link.find('\t') > 0:
+      let extraCols = result.entries[F].link.split('\t')
+      result.entries[F].link = extraCols[0]
+      assert extraCols.len == 3
+      result.entries[F].linkTitle = extraCols[1].unquoteIndexColumn
+      result.entries[F].linkDesc = extraCols[2].unquoteIndexColumn
+    else:
+      result.entries[F].linkTitle = nil
+      result.entries[F].linkDesc = nil
+    inc F
+
+
+proc extract_full_module_path(href: string): string =
+  ## Extracts the local file path part from the full `href`.
+  ##
+  ## Returns nil if something was wrong, or the local path. The local path is
+  ## just the href but with the hash character stripped.
+  if href.is_nil or href.len < 1:
+    return
+  result = href
+  let hash_pos = result.find('#')
+  if hash_pos > 0:
+    result.set_len(hash_pos)
+
+
 proc readIndexDir(dir: string):
-    tuple[modules: seq[string], symbols: seq[TIndexEntry], docs: TIndexedDocs] =
+    tuple[modules: seq[TIndexEntry],
+      symbols: seq[TIndexEntry], docs: TIndexedDocs] =
   ## Walks `dir` reading ``.idx`` files converting them in TIndexEntry items.
   ##
   ## Returns the list of found module names, the list of free symbol entries
@@ -592,50 +645,38 @@ proc readIndexDir(dir: string):
   for kind, path in walkDir(dir):
     if kind == pcFile and path.endsWith(IndexExt):
       var
-        fileEntries: seq[TIndexEntry]
-        title: TIndexEntry
-        F = 0
-      newSeq(fileEntries, 500)
-      setLen(fileEntries, 0)
-      for line in lines(path):
-        let s = line.find('\t')
-        if s < 0: continue
-        setLen(fileEntries, F+1)
-        fileEntries[F].keyword = line.substr(0, s-1)
-        fileEntries[F].link = line.substr(s+1)
-        # See if we detect a title, a link without a `#foobar` trailing part.
-        if title.keyword.isNil and fileEntries[F].link.isDocumentationTitle:
-          title.keyword = fileEntries[F].keyword
-          title.link = fileEntries[F].link
-
-        if fileEntries[F].link.find('\t') > 0:
-          let extraCols = fileEntries[F].link.split('\t')
-          fileEntries[F].link = extraCols[0]
-          assert extraCols.len == 3
-          fileEntries[F].linkTitle = extraCols[1].unquoteIndexColumn
-          fileEntries[F].linkDesc = extraCols[2].unquoteIndexColumn
-        else:
-          fileEntries[F].linkTitle = nil
-          fileEntries[F].linkDesc = nil
-        inc F
+        (fileEntries, title) = readIndexEntries(path)
+        moduleEntry: TIndexEntry
       # Depending on type add this to the list of symbols or table of APIs.
       if title.keyword.isNil:
-        for i in 0 .. <F:
+        moduleEntry.link = nil
+        for i in 0 .. <fileEntries.len:
           # Don't add to symbols TOC entries (they start with a whitespace).
           let toc = fileEntries[i].linkTitle
           if not toc.isNil and toc.len > 0 and toc[0] == ' ':
             continue
+          # If this is the first found link, add it to the index as full path.
+          if moduleEntry.link.is_nil:
+            moduleEntry.link = extract_full_module_path(fileEntries[i].link)
           # Ok, non TOC entry, add it.
           setLen(result.symbols, L + 1)
           result.symbols[L] = fileEntries[i]
           inc L
-        result.modules.add(path.splitFile.name)
+
+        # If the full path to the module wasn't extracted, presume its the same
+        # as the filename but with the extension changed to html.
+        if moduleEntry.link.is_nil:
+          moduleEntry.link = path.change_file_ext("html")
+
+        moduleEntry.keyword = path.splitFile.name
+        result.modules.add(moduleEntry)
       else:
         # Generate the symbolic anchor for index quickjumps.
         title.linkTitle = "doc_toc_" & $result.docs.len
         result.docs[title] = fileEntries
 
-  sort(result.modules, system.cmp)
+  sort(result.modules, cmp)
+
 
 proc mergeIndexes*(dir: string): string =
   ## Merges all index files in `dir` and returns the generated index as HTML.

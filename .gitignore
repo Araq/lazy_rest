@@ -32,6 +32,12 @@ nimcache/
 /tests/docstrings/*.html
 /tests/errors/*.html
 /tests/errors/output/
+/tests/hierarchical_index/*.html
+/tests/hierarchical_index/*.idx
+/tests/hierarchical_index/extra_modules/*.html
+/tests/hierarchical_index/extra_modules/*.idx
+/tests/hierarchical_index/extra_modules/subdir/*.html
+/tests/hierarchical_index/extra_modules/subdir/*.idx
 /tests/ignore_errors/*.html
 /tests/ignore_errors/evil_asterisks.rst
 /tests/include/absolute_unix.html
