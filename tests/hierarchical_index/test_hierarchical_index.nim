@@ -54,7 +54,7 @@ proc build_index(directory: string): string {.discardable.} =
   result = dest
 
 
-proc test() =
+proc build_files() =
   var config = new_rst_config()
   config[lrc_render_write_index_auto] = "true"
 
@@ -81,6 +81,23 @@ proc test() =
 
   collapse_idx(".")
   build_index(".")
+
+
+proc verify_links() =
+  let
+    data = "theindex.html".read_file
+    check1 = """
+"extra_modules/subdir/second.html">second"""
+    check2 = """
+"extra_modules/extra_test.html">extra_test</a>"""
+
+  doAssert data.find(check1) > 0
+  doAssert data.find(check2) > 0
+
+
+proc test() =
+  build_files()
+  verify_links()
   echo "Test finished successfully"
 
 
