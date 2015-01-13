@@ -6,6 +6,11 @@ This is the changes log for `Lazy reSt <https://github.com/gradha/lazy_rest>`_.
 See the `README <../README.rst>`_.
 
 
+v0.2.3, ????-??-??
+------------------
+
+* Nothing yet.
+
 v0.2.2, 2015-01-13
 ------------------
 
