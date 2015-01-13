@@ -6,6 +6,22 @@ This is the changes log for `Lazy reSt <https://github.com/gradha/lazy_rest>`_.
 See the `README <../README.rst>`_.
 
 
+v0.2.2, 2015-01-13
+------------------
+
+* `Fixed nimble spec referencing non existent directory
+  <https://github.com/gradha/lazy_rest/issues/39>`_.
+* `Exports lrstgen/IndexExt from main module
+  <https://github.com/gradha/lazy_rest/issues/42>`_.
+* `Replaced vagrant build code with badger_bits bb_nake submodule
+  <https://github.com/gradha/lazy_rest/issues/44>`_.
+* `Fixed compilation error of C api with Nim 0.10.2
+  <https://github.com/gradha/lazy_rest/issues/48>`_.
+* `Corrected lazy_rest_badger usage guide examples
+  <https://github.com/gradha/lazy_rest/issues/41>`_.
+* `Fix index module linking for flattened .idx hierarchies
+  <https://github.com/gradha/lazy_rest/issues/43>`_.
+
 v0.2.0, 2014-12-10
 ------------------
 

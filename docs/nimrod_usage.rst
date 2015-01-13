@@ -19,22 +19,25 @@ Nimble package manager <https://github.com/nim-lang/nimble>`_ to install
 locally the GitHub checkout::
 
     $ nimble update
-    $ git clone --recursive https://github.com/gradha/lazy_rest.git
+    $ git clone https://github.com/gradha/lazy_rest.git
     $ cd lazy_rest
     $ nimble install -y
-
-Later, if you want to update you need to make sure git submodules get updated
-too::
-
-    $ cd lazy_rest
-    $ git pull
-    $ git submodule update
 
 If you don't mind downloading the git repository every time, you can also tell
 Nimble to install the latest development version directly from git::
 
     $ nimble update
     $ nimble install -y lazy_rest@#head
+
+Stable version
+--------------
+
+Install the `Nimrod compiler <http://nimrod-lang.org>`_. Then use `Nimrod's
+Nimble package manager <https://github.com/nim-lang/nimble>`_ to install
+the latest stable package::
+
+    $ nimble update
+    $ nimble install lazy_rest
 
 
 Documentation

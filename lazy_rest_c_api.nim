@@ -227,7 +227,7 @@ proc lr_set_global_rst_options*(options: cstring): cint
   result = if C.global_options.is_nil: 0 else: 1
 
 
-proc lr_set_nim_msg_handler*(func: TMsgHandler) {.exportc.} =
+proc lr_set_nim_msg_handler*(nim_func: TMsgHandler) {.exportc.} =
   ## Specifies the Nimrod message handler to use for rst processing.
   ##
   ## Since the C API doesn't provide explicit callback parameters, you can use
@@ -248,13 +248,13 @@ proc lr_set_nim_msg_handler*(func: TMsgHandler) {.exportc.} =
   ## If you don't call this proc, the default value is `lr_stdout_msg_handler
   ## <lazy_rest.html#stdout_msg_handler>`_ like in the `Nimrod API
   ## <lazy_rest.html>`_.
-  if func.is_nil:
+  if nim_func.is_nil:
     C.msg_handler.nim = nil_msg_handler
   else:
-    C.msg_handler.nim = func
+    C.msg_handler.nim = nim_func
 
 
-proc lr_set_c_msg_handler*(func: lr_c_msg_handler) {.exportc.} =
+proc lr_set_c_msg_handler*(c_func: lr_c_msg_handler) {.exportc.} =
   ## Specifies the C message handler to use for rst processing.
   ##
   ## This is like `lr_set_nim_msg_handler() <#lr_set_nim_msg_handler>`_
@@ -262,10 +262,10 @@ proc lr_set_c_msg_handler*(func: lr_c_msg_handler) {.exportc.} =
   ## function take precedence over the Nimrod callback. Passing ``NULL`` will
   ## disable the C callback (which implicitly activates the failsafe Nimrod
   ## one).
-  C.msg_handler.c = func
+  C.msg_handler.c = c_func
 
 
-proc lr_set_nim_find_file_handler*(func: Find_file_handler) {.exportc.} =
+proc lr_set_nim_find_file_handler*(nim_func: Find_file_handler) {.exportc.} =
   ## Specifies the Nimrod file handler to use for rst processing.
   ##
   ## Since the C API doesn't provide explicit callback parameters, you can use
@@ -290,13 +290,13 @@ proc lr_set_nim_find_file_handler*(func: Find_file_handler) {.exportc.} =
   ## `lr_unrestricted_find_file_handler()
   ## <lazy_rest.html#unrestricted_find_file_handler>`_ like in the `Nimrod API
   ## <lazy_rest.html>`_.
-  if func.is_nil:
+  if nim_func.is_nil:
     C.find_file_handler.nim = nil_find_file_handler
   else:
-    C.find_file_handler.nim = func
+    C.find_file_handler.nim = nim_func
 
 
-proc lr_set_c_find_file_handler*(func: lr_c_find_file_handler) {.exportc.} =
+proc lr_set_c_find_file_handler*(c_func: lr_c_find_file_handler) {.exportc.} =
   ## Specifies the C file handler to use for rst processing.
   ##
   ## This is like `lr_set_nim_find_file_handler()
@@ -304,7 +304,7 @@ proc lr_set_c_find_file_handler*(func: lr_c_find_file_handler) {.exportc.} =
   ## callback. Callbacks passed in to this function take precedence over the
   ## Nimrod callback. Passing ``NULL`` will disable the C callback (which
   ## implicitly activates the failsafe Nimrod one).
-  C.find_file_handler.c = func
+  C.find_file_handler.c = c_func
 
 
 proc lr_set_find_file_buffer_size*(s: cint): cint {.exportc.} =

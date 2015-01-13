@@ -1,16 +1,17 @@
 [Package]
 name          = "lazy_rest"
-version       = "0.2.0"
+version       = "0.2.2"
 author        = "Grzegorz Adam Hankiewicz"
 description   = """Simple rst (reStructuredText) HTML generation from Nimrod or C with some extras"""
 license       = "MIT"
 bin = "lazy_rest_badger.exe"
 
 installDirs = """
+
 docs
-external
 lazy_rest_pkg
 resources
+
 """
 
 InstallFiles = """
@@ -26,4 +27,8 @@ nakefile.nim
 """
 
 [Deps]
-Requires: "nake >= 1.2,argument_parser >= 0.2, https://github.com/gradha/badger_bits.git"
+Requires: """
+nake >= 1.2
+argument_parser >= 0.2
+https://github.com/gradha/badger_bits.git >= 0.2.2
+"""

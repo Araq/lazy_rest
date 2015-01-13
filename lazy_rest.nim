@@ -20,13 +20,6 @@ when defined(lazy_rest_devel_log):
 # `lazy_rest_pkg/lqueues.nim <lazy_rest_pkg/lqueues.html>`_ and use the
 # objects and procs it provides.
 
-proc tuple_to_version(x: expr): string {.compileTime.} =
-  ## Transforms an arbitrary int tuple into a dot separated string.
-  result = ""
-  for name, value in x.fieldPairs: result.add("." & $value)
-  if result.len > 0: result.delete(0, 0)
-
-
 const
   error_template = slurp("resources"/"error_html.template") ##
   ## The default error template which uses the subexes module for string
@@ -38,7 +31,7 @@ const
   ## Required pair to `safe_error_start`. Content is sandwiched between.
   prism_js = "<script>" & slurp("resources"/"prism.js") & "</script>"
   prism_css = slurp("resources"/"prism.css")
-  version_int* = (major: 0, minor: 2, maintenance: 0) ## \
+  version_int* = (major: 0, minor: 2, maintenance: 2) ## \
   ## Module version as an integer tuple.
   ##
   ## Major versions changes mean a break in API backwards compatibility, either
@@ -50,7 +43,8 @@ const
   ##
   ## Maintenance version changes mean I'm not perfect yet despite all the kpop
   ## I watch.
-  version_str* = tuple_to_version(version_int) ## \
+  version_str* = ($version_int.major & "." & $version_int.minor & "." &
+      $version_int.maintenance) ## \
     ## Module version as a string. Something like ``1.9.2``.
 
 type
@@ -238,7 +232,7 @@ proc rst_string_to_html*(content: string, filename: string = nil,
   # Maybe the user specified an automatic index?
   if INDEX_FILENAME.len < 1 and filename.not_nil and
       GENERATOR.config.is_true(lrc_render_write_index_auto):
-    INDEX_FILENAME = filename.change_file_ext(index_ext)
+    INDEX_FILENAME = filename.change_file_ext(IndexExt)
   if INDEX_FILENAME.len > 0:
     GENERATOR.write_index_file(INDEX_FILENAME)
 
@@ -721,6 +715,7 @@ proc set_safe_error_rst*(input_rst: string, user_config: PStringTable = nil):
 
 
 export Find_file_handler
+export IndexExt
 export TMsgClass
 export TMsgHandler
 export TMsgKind
