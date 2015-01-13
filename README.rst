@@ -20,7 +20,7 @@ use the library and provides a simple practical rst to html command line tool.
 Changes
 =======
 
-This is development version 0.2.1. For a list of changes see the
+This is stable version 0.2.2. For a list of changes see the
 `docs/changes.rst <docs/changes.rst>`_ file.
 
 
