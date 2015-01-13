@@ -24,7 +24,7 @@ v0.2.2, 2015-01-13
   <https://github.com/gradha/lazy_rest/issues/48>`_.
 * `Corrected lazy_rest_badger usage guide examples
   <https://github.com/gradha/lazy_rest/issues/41>`_.
-* `Fix index module linking for flattened .idx hierarchies
+* `Fixed index module linking for flattened .idx hierarchies
   <https://github.com/gradha/lazy_rest/issues/43>`_.
 
 v0.2.0, 2014-12-10
