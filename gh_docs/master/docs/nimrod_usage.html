@@ -249,18 +249,18 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <h1 id="installation">Installation</h1>
 <h2 id="development-version">Development version</h2><p>Install the <a class="reference external" href="http://nimrod-lang.org">Nimrod compiler</a>. Then use <a class="reference external" href="https://github.com/nim-lang/nimble">Nimrod's Nimble package manager</a> to install locally the GitHub checkout:<pre>
 $ nimble update
-$ git clone --recursive https://github.com/gradha/lazy_rest.git
+$ git clone https://github.com/gradha/lazy_rest.git
 $ cd lazy_rest
 $ nimble install -y</pre>
-</p>
-<p>Later, if you want to update you need to make sure git submodules get updated too:<pre>
-$ cd lazy_rest
-$ git pull
-$ git submodule update</pre>
 </p>
 <p>If you don't mind downloading the git repository every time, you can also tell Nimble to install the latest development version directly from git:<pre>
 $ nimble update
 $ nimble install -y lazy_rest@#head</pre>
+</p>
+
+<h2 id="stable-version">Stable version</h2><p>Install the <a class="reference external" href="http://nimrod-lang.org">Nimrod compiler</a>. Then use <a class="reference external" href="https://github.com/nim-lang/nimble">Nimrod's Nimble package manager</a> to install the latest stable package:<pre>
+$ nimble update
+$ nimble install lazy_rest</pre>
 </p>
 
 <h1 id="documentation">Documentation</h1><p>Documentation comes as <a class="reference external" href="../lazy_rest.html">embedded docstrings</a> in the <a class="reference external" href="../lazy_rest.nim">lazy_rest.nim file</a>. If you have <a class="reference external" href="https://github.com/fowlmouth/nake">nake</a> installed, you can run the following command to build all the  reStructuredText files into HTML and the <tt class="docutils literal"><span class="pre">lazy_rest.nim</span></tt> module into HTML:<pre>
@@ -290,10 +290,10 @@ valign="top" class="blob-line-nums"><pre class="language-unknown">1
 <h1 id="extensions">Extensions</h1><p>If you are rendering a  reStructuredText file which contains a code block, and the code block specifies a syntax highlight language not supported by <a class="reference external" href="http://nimrod-lang.org/highlite.html">Nimrod's highlite module</a>, then <a class="reference external" href="http://prismjs.com">Prism</a> will be embedded in an attempt to prettify the code block.</p>
 <p>The footer of the generated files includes JavaScript code which updates a relative timer to the last modification time of the rendered file, which might be easier to parse than the default full date. </p>
 
-<small>Last modified: 2014-12-10 23:12 UTC. Local time: 2014-12-11 00:12.
+<small>Last modified: 2015-01-13 01:03 UTC. Local time: 2015-01-13 02:03.
 <div id="counter"></div>
 </small>
-<br>Rendered by lazy_rest 0.2.0.
+<br>Rendered by lazy_rest 0.2.1.
 </div>
 </body>
 <script type="text/javascript">
@@ -324,7 +324,7 @@ function timeDifference(current, previous) {
 
 // Timer base code taken from http://stackoverflow.com/a/11876480/172690
 window.onload = function() {
-    var fileTime = new Date(1418253171000);
+    var fileTime = new Date(1421111005000);
 	var ctr = document.getElementById("counter");
 
     function incrementCounter() {

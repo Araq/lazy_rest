@@ -239,7 +239,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <body>
 <div class="document" id="documentId">
 <h1 class="title">Index</h1>
-Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage guide</a>, <a href="docs/c_usage.html">Lazy reST C usage guide</a>, <a href="docs/changes.html">Lazy reST changes log</a>, <a href="docs/error_handling.html">Lazy reST error handling</a>, <a href="LICENSE.html">Lazy reST license</a>, <a href="docs/nimrod_usage.html">Lazy reST Nimrod usage guide</a>, <a href="README.html">Lazy reST readme</a>.<br><p />Modules: <a href="lazy_rest.html">lazy_rest</a>, <a href="lazy_rest_c_api.html">lazy_rest_c_api</a>, <a href="lconfig.html">lconfig</a>, <a href="lhighlite.html">lhighlite</a>, <a href="lrst.html">lrst</a>, <a href="lrstast.html">lrstast</a>, <a href="lrstgen.html">lrstgen</a>.<br><p /><h2>Documentation files</h2>
+Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage guide</a>, <a href="docs/c_usage.html">Lazy reST C usage guide</a>, <a href="docs/changes.html">Lazy reST changes log</a>, <a href="docs/error_handling.html">Lazy reST error handling</a>, <a href="LICENSE.html">Lazy reST license</a>, <a href="docs/nimrod_usage.html">Lazy reST Nimrod usage guide</a>, <a href="README.html">Lazy reST readme</a>.<br><p />Modules: <a href="c_test.html">c_test</a>, <a href="lazy_rest.html">lazy_rest</a>, <a href="lazy_rest_c_api.html">lazy_rest_c_api</a>, <a href="lconfig.html">lconfig</a>, <a href="lhighlite.html">lhighlite</a>, <a href="lqueues.html">lqueues</a>, <a href="lrst.html">lrst</a>, <a href="lrstast.html">lrstast</a>, <a href="lrstgen.html">lrstgen</a>, <a href="test_c_api.html">test_c_api</a>.<br><p /><h2>Documentation files</h2>
 <ul><li><a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage guide</a>
 <ul>
 <li><a href="docs/lazy_rest_badger_usage.html#installation">Installation</a>
@@ -292,6 +292,10 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
 </ul>
 </ul>
 <h2>API symbols</h2>
+<dt><span>`$`:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Convenience debug converter." href="lazy_rest_pkg/lqueues.html#$,Rest_task">lqueues : `$`*(t: Rest_task): string</a></li>
+          </ul></dd>
 <dt><span>`[]`:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Returns the key from the user configuration or the default configuration.…" href="lazy_rest_pkg/lconfig.html#[],TLayeredConf,string">lconfig : `[]`*(t: TLayeredConf; key: string): string</a></li>
@@ -343,6 +347,11 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
           </ul></dd>
 <dt><span>getSourceLanguage:</span></dt><ul class="simple"><dd>
 <li><a class="reference external" href="lazy_rest_pkg/lhighlite.html#getSourceLanguage,string">lhighlite : getSourceLanguage*(name: string): TSourceLanguage</a></li>
+          </ul></dd>
+<dt><span>ignore_msg_handler:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Custom handler to ignore all errors, used in the C source code." href="tests/c_api/test_c_api.html#ignore_msg_handler,string,int,int,TMsgKind,string">test_c_api : ignore_msg_handler*(filename: string; line, col: int; msgkind: TMsgKind; 
+                    arg: string): string</a></li>
           </ul></dd>
 <dt><span>IndexExt:</span></dt><ul class="simple"><dd>
 <li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#IndexExt">lrstgen : IndexExt</a></li>
@@ -624,6 +633,11 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
 <li><a class="reference external"
           title="an RST node" href="lazy_rest_pkg/lrstast.html#PRstNode">lrstast : PRstNode</a></li>
           </ul></dd>
+<dt><span>render:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Renders the tasks in a parallel fashion.…" href="lazy_rest_pkg/lqueues.html#render,seq[Rest_task]">lqueues : render*(tasks: var seq[Rest_task]; abort_early = true; 
+        num_threads = count_processors()): int</a></li>
+          </ul></dd>
 <dt><span>renderIndexTerm:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Renders the string decorated within \`foobar\`\:idx\: markers.…" href="lazy_rest_pkg/lrstgen.html#renderIndexTerm,PDoc,PRstNode,string">lrstgen : renderIndexTerm*(d: PDoc; n: PRstNode; result: var string)</a></li>
@@ -646,6 +660,14 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
 <dt><span>reStructuredText:</span></dt><ul class="simple"><dd>
 <li><a class="reference external" href="lazy_rest_pkg/lrstgen.html#restructuredtext_1">Module lrstgen</a></li>
           </ul></dd>
+<dt><span>Rest_task:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Holds input&#x2F;output data for each rendering job. \…" href="lazy_rest_pkg/lqueues.html#Rest_task">lqueues : Rest_task</a></li>
+          </ul></dd>
+<dt><span>rst_file_task:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Helper proc to create file oriented tasks for a queue.…" href="lazy_rest_pkg/lqueues.html#rst_file_task,string">lqueues : rst_file_task*(filename: string; safe_render = true): Rest_task</a></li>
+          </ul></dd>
 <dt><span>rst_file_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Converts `filename` with reStructuredText content into HTML.…" href="lazy_rest.html#rst_file_to_html,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_file_to_html*(filename: string; user_config: PStringTable = nil; find_file: Find_file_handler = unrestricted_find_file_handler; 
@@ -662,6 +684,10 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
           config: TLayeredConf; findFile: Find_file_handler; 
           msgHandler: TMsgHandler): PRstNode</a></li>
           </ul></dd>
+<dt><span>rst_string_task:</span></dt><ul class="simple"><dd>
+<li><a class="reference external"
+          title="Helper proc to create string oriented tasks for a queue.…" href="lazy_rest_pkg/lqueues.html#rst_string_task,string">lqueues : rst_string_task*(filename: string; safe_render = true): Rest_task</a></li>
+          </ul></dd>
 <dt><span>rst_string_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Converts the `content` string named `filename` into HTML.…" href="lazy_rest.html#rst_string_to_html,string,string,PStringTable,Find_file_handler,TMsgHandler">lazy_rest : rst_string_to_html*(content: string; filename: string = nil; 
@@ -671,6 +697,9 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
 <dt><span>rstToHtml:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
           title="Converts an input rst string into embeddable HTML.…" href="lazy_rest_pkg/lrstgen.html#rstToHtml,string,PStringTable">lrstgen : rstToHtml*(s: string; user_config: PStringTable = nil): string</a></li>
+          </ul></dd>
+<dt><span>run_tests:</span></dt><ul class="simple"><dd>
+<li><a class="reference external" href="tests/c_api/c_test.html#run_tests,">c_test : run_tests*()</a></li>
           </ul></dd>
 <dt><span>safe_rst_file_to_html:</span></dt><ul class="simple"><dd>
 <li><a class="reference external"
@@ -794,7 +823,7 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
           title="Writes the current index buffer to the specified output file.…" href="lazy_rest_pkg/lrstgen.html#writeIndexFile,TRstGenerator,string">lrstgen : writeIndexFile*(g: var TRstGenerator; outfile: string)</a></li>
           </ul></dd>
 
-<small>Generated: 2014-12-11 00:12:51 UTC</small>
+<small>Generated: 2015-01-13 02:03:24 UTC</small>
 </div>
 </body>
 </html>

@@ -276,20 +276,20 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 </tr>
 </table>
 <h2 id="examples">Examples</h2><p>You want to convert all the files with the <tt class="docutils literal"><span class="pre">.txt</span></tt> extension in the current subdirectory and don't want to recurse. These files use the  reStructuredText raw directive and you want to allow it:<pre>
-$ lazy_rest_badger *.txt -R</pre>
+$ lazy_rest_badger.exe *.txt -R</pre>
 </p>
 <p>You want to convert all the files in a specific directory with the <tt class="docutils literal"><span class="pre">.text</span></tt> extension recursively but not those with the extension <tt class="docutils literal"><span class="pre">.rst</span></tt>. The files may contain errors, but you would prefer if all the files generated some HTML output at least:<pre>
-$ lazy_rest_badger -r ../some/path/ -e text --safe</pre>
+$ lazy_rest_badger.exe -r ../some/path/ -e text --safe</pre>
 </p>
-<p>You have a program generating  reStructuredText output and you would like to pipe it through <tt class="docutils literal"><span class="pre">lazy_rest_badger</span></tt>, then redirect it somewhere else:<pre>
-$ foo | lazy_rest_badger STDIN | bar &gt; result.html</pre>
+<p>You have a program generating  reStructuredText output and you would like to pipe it through <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt>, then redirect it somewhere else:<pre>
+$ foo | lazy_rest_badger.exe STDIN | bar &gt; result.html</pre>
 </p>
-<p>Remember that in all cases <tt class="docutils literal"><span class="pre">lazy_rest_badger</span></tt> will overwrite the destination file. </p>
+<p>Remember that in all cases <tt class="docutils literal"><span class="pre">lazy_rest_badger.exe</span></tt> will overwrite the destination file. </p>
 
-<small>Last modified: 2014-12-10 23:12 UTC. Local time: 2014-12-11 00:12.
+<small>Last modified: 2015-01-13 01:03 UTC. Local time: 2015-01-13 02:03.
 <div id="counter"></div>
 </small>
-<br>Rendered by lazy_rest 0.2.0.
+<br>Rendered by lazy_rest 0.2.1.
 </div>
 </body>
 <script type="text/javascript">
@@ -320,7 +320,7 @@ function timeDifference(current, previous) {
 
 // Timer base code taken from http://stackoverflow.com/a/11876480/172690
 window.onload = function() {
-    var fileTime = new Date(1418253171000);
+    var fileTime = new Date(1421111005000);
 	var ctr = document.getElementById("counter");
 
     function incrementCounter() {
