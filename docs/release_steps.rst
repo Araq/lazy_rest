@@ -53,7 +53,7 @@ These are the steps to be performed for new stable releases of `Lazy reSt
 * Regenerate static website.
 
   * Make sure git doesn't show changes, then run ``nake web`` and review.
-  * ``git add gh_docs && git commit``. Tag with
+  * ``git add . && git commit``. Tag with
     `Regenerates website. Refs #release_issue`.
   * ``./nakefile postweb`` to return to the previous branch. This also updates
     submodules, so it is easier.
