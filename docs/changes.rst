@@ -6,7 +6,7 @@ This is the changes log for `Lazy reSt <https://github.com/gradha/lazy_rest>`_.
 See the `README <../README.rst>`_.
 
 
-v0.2.1, ????-??-??
+v0.2.2, 2015-01-13
 ------------------
 
 * `Fixed nimble spec referencing non existent directory

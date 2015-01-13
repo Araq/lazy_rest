@@ -31,7 +31,7 @@ const
   ## Required pair to `safe_error_start`. Content is sandwiched between.
   prism_js = "<script>" & slurp("resources"/"prism.js") & "</script>"
   prism_css = slurp("resources"/"prism.css")
-  version_int* = (major: 0, minor: 2, maintenance: 1) ## \
+  version_int* = (major: 0, minor: 2, maintenance: 2) ## \
   ## Module version as an integer tuple.
   ##
   ## Major versions changes mean a break in API backwards compatibility, either
