@@ -8,6 +8,11 @@
 <title>Index</title>
 <style type="text/css">
 
+body {
+  color: black;
+  background: white;
+}
+
 span.DecNumber {color: blue}
 span.BinNumber {color: blue}
 span.HexNumber {color: blue}
@@ -20,7 +25,7 @@ span.LongStringLit {color: blue}
 span.CharLit {color: blue}
 span.EscapeSequence {color: black}
 span.Operator {color: black}
-span.Punctuation {color: black}
+span.Punctation {color: black}
 span.Comment, span.LongComment {font-style:italic; color: green}
 span.RegularExpression  {color: DarkViolet}
 span.TagStart {color: DarkViolet}
@@ -239,7 +244,7 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <body>
 <div class="document" id="documentId">
 <h1 class="title">Index</h1>
-Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage guide</a>, <a href="docs/c_usage.html">Lazy reST C usage guide</a>, <a href="docs/changes.html">Lazy reST changes log</a>, <a href="docs/error_handling.html">Lazy reST error handling</a>, <a href="LICENSE.html">Lazy reST license</a>, <a href="docs/nimrod_usage.html">Lazy reST Nimrod usage guide</a>, <a href="README.html">Lazy reST readme</a>.<br><p />Modules: <a href="c_test.html">c_test</a>, <a href="lazy_rest.html">lazy_rest</a>, <a href="lazy_rest_c_api.html">lazy_rest_c_api</a>, <a href="lconfig.html">lconfig</a>, <a href="lhighlite.html">lhighlite</a>, <a href="lqueues.html">lqueues</a>, <a href="lrst.html">lrst</a>, <a href="lrstast.html">lrstast</a>, <a href="lrstgen.html">lrstgen</a>, <a href="test_c_api.html">test_c_api</a>.<br><p /><h2>Documentation files</h2>
+<p>Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage guide</a>, <a href="docs/c_usage.html">Lazy reST C usage guide</a>, <a href="docs/changes.html">Lazy reST changes log</a>, <a href="docs/error_handling.html">Lazy reST error handling</a>, <a href="LICENSE.html">Lazy reST license</a>, <a href="docs/nimrod_usage.html">Lazy reST Nimrod usage guide</a>, <a href="README.html">Lazy reST readme</a>.<br><p />Modules: <a href="tests/c_api/c_test.html">c_test</a>, <a href="lazy_rest.html">lazy_rest</a>, <a href="lazy_rest_c_api.html">lazy_rest_c_api</a>, <a href="lazy_rest_pkg/lconfig.html">lconfig</a>, <a href="lazy_rest_pkg/lhighlite.html">lhighlite</a>, <a href="lazy_rest_pkg/lqueues.html">lqueues</a>, <a href="lazy_rest_pkg/lrst.html">lrst</a>, <a href="lazy_rest_pkg/lrstast.html">lrstast</a>, <a href="lazy_rest_pkg/lrstgen.html">lrstgen</a>, <a href="tests/c_api/test_c_api.html">test_c_api</a>.<br><p /><h2>Documentation files</h2>
 <ul><li><a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage guide</a>
 <ul>
 <li><a href="docs/lazy_rest_badger_usage.html#installation">Installation</a>
@@ -822,8 +827,55 @@ Documents: <a href="docs/lazy_rest_badger_usage.html">Lazy reST badger usage gui
 <li><a class="reference external"
           title="Writes the current index buffer to the specified output file.…" href="lazy_rest_pkg/lrstgen.html#writeIndexFile,TRstGenerator,string">lrstgen : writeIndexFile*(g: var TRstGenerator; outfile: string)</a></li>
           </ul></dd>
+</p>
 
-<small>Generated: 2015-01-13 02:03:24 UTC</small>
+<small>Last modified: 2015-01-17 18:56 UTC. Local time: 2015-01-17 19:56.
+<div id="counter"></div>
+</small>
+<br>Rendered by lazy_rest 0.2.2.
 </div>
 </body>
+<script type="text/javascript">
+// Time difference code from http://stackoverflow.com/q/11479170/172690
+function timeDifference(current, previous) {
+    var msPerMinute = 60 * 1000;
+    var msPerHour = msPerMinute * 60;
+    var msPerDay = msPerHour * 24;
+    var msPerMonth = msPerDay * 30;
+    var msPerYear = msPerDay * 365;
+
+    var elapsed = current - previous;
+
+    if (elapsed < msPerMinute) {
+         return Math.round(elapsed/1000) + ' seconds ago';
+    } else if (elapsed < msPerHour) {
+         return Math.round(elapsed/msPerMinute) + ' minutes ago';
+    } else if (elapsed < msPerDay ) {
+         return Math.round(elapsed/msPerHour ) + ' hours ago';
+    } else if (elapsed < msPerMonth) {
+         return 'approximately ' + Math.round(elapsed/msPerDay) + ' days ago';
+    } else if (elapsed < msPerYear) {
+         return 'approximately ' + Math.round(elapsed/msPerMonth) + ' months ago';
+    } else {
+         return 'approximately ' + Math.round(elapsed/msPerYear ) + ' years ago';
+    }
+}
+
+// Timer base code taken from http://stackoverflow.com/a/11876480/172690
+window.onload = function() {
+    var fileTime = new Date(1421520991000);
+	var ctr = document.getElementById("counter");
+
+    function incrementCounter() {
+		var nowTime = new Date();
+		var relTime = timeDifference(nowTime, fileTime)
+		ctr.innerHTML = relTime;
+		// Update ourselves in the future, every five seconds.
+		setTimeout(incrementCounter, 5000);
+    }
+
+    incrementCounter();
+}
+</script>
+
 </html>

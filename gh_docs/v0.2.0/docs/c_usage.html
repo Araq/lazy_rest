@@ -290,10 +290,10 @@ $ gcc -o test *.c</pre>
 </p>
 <p>Note that unlike the test suite example which uses an embedded C file, a standalone C program is required to call <tt class="docutils literal"><span class="pre">NimMain()</span></tt> (line 5) once before any other API function. The <tt class="docutils literal"><span class="pre">NimMain()</span></tt> function initialises Nimrod's garbage collection and other internal values.  Since the garbage collection is tied to the stack, you can't call any API code from a thread different than the one you called <tt class="docutils literal"><span class="pre">NimMain()</span></tt>. </p>
 
-<small>Last modified: 2015-01-13 01:03 UTC. Local time: 2015-01-13 02:03.
+<small>Last modified: 2015-01-17 18:56 UTC. Local time: 2015-01-17 19:56.
 <div id="counter"></div>
 </small>
-<br>Rendered by lazy_rest 0.2.1.
+<br>Rendered by lazy_rest 0.2.2.
 </div>
 </body>
 <script type="text/javascript">
@@ -324,7 +324,7 @@ function timeDifference(current, previous) {
 
 // Timer base code taken from http://stackoverflow.com/a/11876480/172690
 window.onload = function() {
-    var fileTime = new Date(1421111004000);
+    var fileTime = new Date(1421520991000);
 	var ctr = document.getElementById("counter");
 
     function incrementCounter() {

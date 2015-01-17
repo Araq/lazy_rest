@@ -273,10 +273,10 @@ a.reference:hover {color: #E00000;background-color: #ffff00;display: margin;
 <p>Also, the static error page doesn't use subexe interpolation and is split into two parts with the actual error messages and content sandwiched between <a class="reference external" href="https://github.com/gradha/lazy_rest/blob/master/resources/safe_error_start.template">resources/safe_error_start.template</a> and <a class="reference external" href="https://github.com/gradha/lazy_rest/blob/master/resources/safe_error_end.template">resources/safe_error_end.template</a>. When you use <a class="reference external" href="../lazy_rest.html#set_safe_error_rst">set_safe_error_rst()</a> to specify the safe error page, on top of being valid reStructuredText input, the final HTML <strong>has</strong> to contain the string <tt class="docutils literal"><span class="pre">$content</span></tt> somewhere. This string is used as a marker to split the begin/end of the HTML error page for later concatenation.</p>
 <p>If you want to test your customized error pages, feel free to modify the files <tt class="docutils literal"><span class="pre">tests/errors/custom_*_error.rst</span></tt> and rerun <tt class="docutils literal"><span class="pre">tests/errors/test_errors.nim</span></tt> to see what your users will look at (hopefully not very often). After running <tt class="docutils literal"><span class="pre">test_errors.nim</span></tt> you can find the simulated output of these errors rendered in the <tt class="docutils literal"><span class="pre">tests/errors/output</span></tt> directory. </p>
 
-<small>Last modified: 2015-01-13 01:03 UTC. Local time: 2015-01-13 02:03.
+<small>Last modified: 2015-01-17 18:56 UTC. Local time: 2015-01-17 19:56.
 <div id="counter"></div>
 </small>
-<br>Rendered by lazy_rest 0.2.1.
+<br>Rendered by lazy_rest 0.2.2.
 </div>
 </body>
 <script type="text/javascript">
@@ -307,7 +307,7 @@ function timeDifference(current, previous) {
 
 // Timer base code taken from http://stackoverflow.com/a/11876480/172690
 window.onload = function() {
-    var fileTime = new Date(1421111005000);
+    var fileTime = new Date(1421520992000);
 	var ctr = document.getElementById("counter");
 
     function incrementCounter() {
